@@ -16,7 +16,7 @@ updated_at: 2026-08-29
 # the file, since it cannot name its own SHA; git records it either way. From the
 # next update onward, set it to the SHA this content was true at, so a reader can
 # tell a stale state file from a current one.
-updated_by_commit: fef7b9e   # od-001's implementation lands in the commit that carries this file
+updated_by_commit: b77b24e   # exp003's arms; this file is updated by the commit after it
 
 # ------------------------------------------------------------------------------
 # WHAT RUNS
@@ -37,8 +37,8 @@ runs:
       does: Renders the four panels to results/fig_result.png and returns their data.
   library:
     package: bio3dvision
-    modules: [fixture, matching, loop, figure, baseline, policy, sampling]
-    lines: 1225
+    modules: [fixture, matching, loop, figure, baseline, policy, sampling, acquisition]
+    lines: 1332
     policies: [A, A_prime, B, C, D, E]
     sampling: >-
       SamplingModel Protocol with PinholeSampling; sits in front of ActiveStereo,
@@ -83,6 +83,19 @@ runs:
         variance-driven allocation, so variance is not empty (fc-008) — but the
         mask is worth 65x more than the variance on median error. See fc-008.
       pre_registered: 9179a55, committed alone before the runner existed
+    - id: exp003_vergence_acquisition
+      question: >-
+        Does acquisition — an action that changes what data exists — buy
+        anything, and does the gain require acting or merely narrowing?
+      answer: >-
+        It costs. Narrowing the search window makes the shared pixels 7.5x worse
+        whether or not the loop re-centres it, and re-centring costs 2.6x the
+        hypotheses to buy 21.7% more coverage of pixels whose error is 16x the
+        baseline's. See fc-010, and od-003 for what the failure is attributable to.
+      pre_registered: 4456337, committed alone before the runner existed
+      first_closed_loop: >-
+        Arm V re-runs the front end every fixation — the first arm in either
+        repository in which an action changes what data exists.
   not_present:
     - >-
       Geometry. There is a sampling model producing rays (fc-009) but nothing
@@ -145,6 +158,23 @@ measurements:
       One fixture with no true half-occlusions (gap-010) — the limit that binds
       the 65:1 ratio hardest.
 
+  - ids: [bio-019, bio-020, bio-021, bio-022]
+    commit: b77b24e
+    what: >-
+      exp003's three search-window arms over 16 seeds: intersection error,
+      coverage and its error cost, hypothesis and front-end cost, and the
+      diagnosis of why the ported vergence controller cannot steer.
+    where: docs/inherited-measurements.yaml, status "measured"
+    headline: >-
+      Narrowing the search window makes the shared pixels 7.5x worse whether or
+      not the loop re-centres it. Re-centring costs 2.6x the hypotheses and 19
+      front-end calls to buy 21.7% more coverage of pixels whose error is 16x the
+      baseline's. Acting beats not-acting only in the tail.
+    caveat: >-
+      One fixture with no true half-occlusions (gap-010), one window width, and a
+      failure localised to the ported vergence estimator rather than to vergence
+      (od-003).
+
 measurements_note: >-
   No longer empty. Values enter this list only when a run in THIS repository
   produced them, with the commit that did. Inherited priors stay in
@@ -194,6 +224,33 @@ open_decisions:
       here is the point: gap-001 otherwise names a question with no identified
       instrument, which reads as unanswerable rather than as unscheduled.
     depends_on: [gap-001, gap-010, fc-003]
+
+  - id: od-003
+    altitude: fw
+    status: open
+    title: >-
+      Whether vergence acquisition deserves a retest with a controller that has a
+      signed out-of-range error signal.
+    decision: Not taken. Recorded, not scheduled.
+    problem: >-
+      exp003 measured that verging to acquire is worse than not verging, on every
+      axis except coverage (fc-010). But the diagnosis localises the failure to
+      the ESTIMATOR, not to the idea: ActiveStereo.vergence takes the median of
+      in-window valid matches, so a target outside the window is either masked
+      out or returns an arbitrary in-window value. It cannot produce a signed
+      error, and it was observed verging away from the target.
+      A controller driven by disparities outside the fusional range — which is
+      what biological vergence is driven by — would be a different measurement.
+      Nothing here says it would succeed.
+    why_it_is_fw: >-
+      It decides whether the mechanical plant gets a second hearing. fc-010 as it
+      stands is evidence against the plant; whether that evidence is about the
+      plant or about one estimator of it is exactly what this decides.
+    why_not_scheduled: >-
+      It would require replacing ActiveStereo.vergence, which is a carried part of
+      the faithful port. That is a deviation commit, made one at a time with its
+      effect on the trajectory reported, and it is not this iteration.
+    depends_on: [fc-010, gap-010]
 
 # ------------------------------------------------------------------------------
 # FORECLOSURE LEDGER
@@ -489,6 +546,59 @@ foreclosures:
       geometry layer arrives the ray goes straight into it and model.index drops
       out of the path.
     decided_in: docs/state.yaml od-001; implemented on branch feat/sampling-model
+
+  - id: fc-010
+    altitude: fw
+    closed: >-
+      Narrowing the disparity search window as a strategy on this fixture,
+      whether fixed (N) or re-centred by verging at every fixation (V).
+    in_favour_of: The wide search the port already does.
+    rationale: >-
+      Measured and pre-registered, under a coverage rule these arms needed and
+      the earlier experiments did not. On the intersection of the three arms'
+      valid sets — the same 37383 pixels measured three ways — the wide baseline
+      reads median 0.01476 m and both narrow arms read ~0.111 m, about 7.5x
+      worse, at 2.01x and 11.30x the declared bar. Narrowing does not improve
+      quality on this stimulus; it destroys it.
+      V additionally costs 147 disparity hypotheses against W's 57 (2.6x) and 19
+      front-end invocations against 1.
+    what_v_did_buy: >-
+      Coverage, and bad coverage. V's union valid set is 64731 against W's 53168,
+      +11563 pixels or +21.7% — but the median error on the pixels only V reaches
+      is 0.235 m, 16x the wide baseline's error on the shared pixels. N does not
+      even buy that: narrowing without re-centring LOSES 6175 pixels, because
+      matches whose true disparity falls outside a fixed window fail the ratio
+      and consistency tests faster than the receding border constraint adds
+      columns.
+    mechanism: >-
+      THE VERGENCE CONTROLLER HAS NO ERROR SIGNAL, and this is the finding under
+      all the numbers. ActiveStereo.vergence estimates fixation disparity as the
+      median of d_sub over VALID pixels in a foveal window. A pixel whose true
+      disparity lies outside the window usually fails validity and is excluded
+      from that median — measured at window [8,12] with the near card at 18.96
+      px, only 41.8% survive and their median d_sub reads 10.32. The survivors
+      return an arbitrary in-window disparity rather than a signed "too near /
+      too far": at seed 0 fixations 5-7 the fixation sat on true disparities of
+      15.17 and 18.96 while d_sub read 8.00 and 6.00, the LOWER edge, and the
+      controller verged AWAY from the target, 10.0 -> 7.9 -> 5.95.
+      The pixels carrying the vergence error signal are exactly the pixels the
+      validity mask removes. A real vergence system is driven by disparities
+      outside the fusional range; this one is driven by the median of what it can
+      already fuse, which is a fixed point by construction.
+    scope: >-
+      THIS IS A RESULT ABOUT THE PORTED CONTROLLER, NOT ABOUT VERGENCE. A
+      vergence estimator with a signed out-of-range error signal — coarse-to-fine,
+      or disparity energy — is untested and is not what was measured. Recorded as
+      od-003.
+    limit_on_this_foreclosure: >-
+      gap-010: no true half-occlusions on this fixture, so nothing here speaks to
+      a region that is geometrically unmeasurable rather than merely out of
+      window. Holds for a stimulus without half-occlusions and no further. One
+      window width was run, declared in advance and not swept.
+    cost_to_reopen: >-
+      A retest with a controller that has a signed out-of-range error signal
+      (od-003), or a stimulus with half-occlusions (od-002).
+    decided_in: experiments/exp003_vergence_acquisition/findings.md
 
 # ------------------------------------------------------------------------------
 # FALSIFIER VERDICTS
@@ -838,6 +948,105 @@ falsifier_verdicts:
       reading was SUPPORTED. That overstated what was measured. fc-009 carried the
       same overstatement and is corrected in the same commit.
     verified_at_commit: fef7b9e
+
+  - iteration: 7
+    id: fv-007-1
+    falsifier: >-
+      If V is indistinguishable from W on the intersection at the exp001 bars,
+      acquisition-by-verging buys nothing on this stimulus, the mechanical plant
+      has no measured warrant, and step 10 should be taken toward the attentional
+      branch.
+    verdict: did_not_fire
+    outcome: V_IS_DISTINGUISHABLY_WORSE
+    numbers:
+      intersection_n: 37383
+      W_median: 0.01476
+      V_median: 0.11106
+      median_diff: 0.09630
+      median_x_bar: 2.01
+      W_p90: 0.32149
+      V_p90: 1.02881
+      p90_x_bar: 1.98
+      V_over_W_median_ratio: 7.5
+      hypotheses: {W: 57, N: 62, V: 147}
+    detail: >-
+      The falsifier does not fire on its stated condition, because V is NOT
+      indistinguishable from W — it is distinguishably WORSE, on both primary
+      metrics. The falsifier was written to catch acquisition buying nothing;
+      what was measured is acquisition costing something. On the shared pixels V
+      is 7.5x worse than doing nothing, at 2.6x the hypothesis count.
+      Reported plainly because it argues against the project's premise: on this
+      stimulus, verging to acquire is worse than not verging at all on every axis
+      except coverage.
+      THE STATED CONSEQUENCE IS NOT INVOKED. The falsifier's trigger was
+      indistinguishability and that did not occur, so this does not by itself
+      direct step 10 toward the attentional branch. The measured outcome bears on
+      the same decision and is recorded as od-003 rather than deciding it here.
+    verified_at_commit: b77b24e
+
+  - iteration: 7
+    id: fv-007-2
+    falsifier: >-
+      If N is indistinguishable from V, the gain is narrowing, not acting, and
+      this loop's gains come from static choices rather than from anything it does
+      over time.
+    verdict: did_not_fire
+    numbers:
+      N_median: 0.11074
+      V_median: 0.11106
+      median_diff: 0.00031
+      median_x_bar: 0.01
+      N_p90: 2.11645
+      V_p90: 1.02881
+      p90_diff: -1.08764
+      p90_x_bar: 3.02
+    detail: >-
+      Distinguishable by the declared rule, so the falsifier does not fire — but
+      read both rows before concluding that acting is worth something. On the
+      MEDIAN the arms are as close as this bar can express, 0.01x the bar, a
+      difference of 0.0003 m on values of 0.111: acting changes the typical pixel
+      not at all. On p90 acting halves the tail, 2.12 -> 1.03 at 3.02x the bar,
+      which is real.
+      So acting buys TAIL BEHAVIOUR AND NOTHING ELSE, and both arms remain ~7.5x
+      worse than not narrowing. Acting rescues part of the damage narrowing
+      causes and does not recover the baseline.
+    verified_at_commit: b77b24e
+
+  - iteration: 7
+    id: fv-007-3
+    falsifier: >-
+      If V beats both, quantify the gain in coverage and in intersection error
+      separately and against the hypothesis count; that would be the first
+      positive result for active vision in either repository.
+    verdict: did_not_fire
+    detail: >-
+      V does not beat both. It loses to W on both primary metrics on the
+      intersection. There is still no positive result for active vision in either
+      repository.
+    verified_at_commit: b77b24e
+
+  - iteration: 7
+    id: fv-007-guard
+    falsifier: >-
+      Pre-registered guard: if no window width makes V non-degenerate without
+      touching the fixture, stop and report that as a finding about the fixture's
+      reach.
+    verdict: did_not_trigger
+    numbers:
+      V_distinct_windows_mean: 5.2
+      V_distinct_windows_range: [4, 7]
+      fixations_with_target_inside_own_window: 0.64
+      A_prime_d_fix_span_px: 8.83
+    detail: >-
+      V is not degenerate: it visits 4-7 distinct windows per run and 64% of its
+      fixations end with their true disparity inside its own window. The fixture
+      supports the experiment and was not modified; fc-004 is not in play.
+      A NEAR-MISS WORTH RECORDING: a 4-fixation smoke test showed V's window
+      frozen at [8,12] and would have produced a FALSE STOP. The window only
+      begins to move after the fifth fixation. A degeneracy check run at a
+      fraction of the budget can report degeneracy that the full budget does not
+      show.
+    verified_at_commit: b77b24e
 
 # ------------------------------------------------------------------------------
 # STANDING CONSTRAINTS
