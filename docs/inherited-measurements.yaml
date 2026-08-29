@@ -1,0 +1,1219 @@
+# ==============================================================================
+# INHERITED MEASUREMENTS — every entry is a PRIOR, not a fact about this project.
+#
+# Each value below was measured in a predecessor repository, under a geometry, a
+# matcher configuration, and a stimulus family that THIS repository has not
+# adopted. None of it has been reproduced here. Nothing here is established.
+#
+# Using one of these numbers without re-measuring it is making an assumption, not
+# citing a fact. That is sometimes the right thing to do — but it must be visible
+# in whatever you write, and the entry id is how you make it visible.
+#
+# This file exists because prose cannot be contradicted and therefore cannot
+# carry. A datum with provenance can be contradicted by a future measurement, so
+# it can. When you re-measure one of these, do not edit its value: add the new
+# measurement as its own entry and set this one's `status` to `superseded`, with
+# `superseded_by`. The disagreement is the information.
+#
+# `status: gap` entries are measurements that were NOT made, and whose absence is
+# load-bearing. They have no value. They are here so that the absence is as
+# citable as a number, and so nobody rediscovers it by assuming it away.
+#
+# Original prose is in docs/reference/ and is NON-AUTHORITATIVE background.
+# ==============================================================================
+
+schema_version: 1
+
+record:
+  status_of_every_measurement: inherited
+  meaning: >-
+    Measured elsewhere, under conditions this repository has not adopted.
+    A prior awaiting re-test. Not established, not a baseline, not a target.
+  compiled_at: 2026-08-29
+  compiled_by: read of the reference checkouts named below; no run was executed
+
+sources:
+  - key: active-stereo
+    repo: github.com/visgraf/active-stereo
+    sha: 3f7a263011d9c5c53a4733957ac34cd28c2e85ba
+    role: >-
+      Every `source:` path below resolves against this checkout. Note the
+      distinction from `measured_at_sha`, which is the commit the RUN was made
+      at, as recorded by the findings file itself.
+  - key: bioeye
+    repo: github.com/visgraf/bioeye
+    sha: e90817018e629ce1cd23af0c9e8bc4a6aa15daff
+    role: >-
+      Contributes no measurements. Has no findings files and no tests. Its
+      absence is recorded as gap-004 and gap-005.
+
+schema:
+  id: Stable. Never reused, never renumbered. Cite this.
+  statement: One line. What was measured.
+  value: Scalar, or a mapping when the measurement is inherently per-condition.
+  units: Explicit. `fraction`, `px`, `m`, `mm`, `px^2`, `ratio`, `percent`, `GB`, `s`.
+  n: What the value is aggregated over. Never omitted; `null` where the source does not say.
+  stimulus_family: rds | rendered_chart | middlebury2014 | middeval3 | synthetic_pair
+  matcher: block | sgbm | energy | multiscale_energy | none
+  configuration: The settings that make the number reproducible.
+  provenance: {cited_as, source, experiment, run_id, measured_at_sha}
+  status: inherited | gap
+  notes: Optional. Caveats that travel with the value, from the source.
+
+measurements:
+  # ==============================================================================
+  # exp001 — matcher baseline on random-dot stereograms
+  # Provenance warning: this experiment's run SHA is recorded in the source as
+  # "(pre-commit)". Its numbers are not recoverable to a commit. See falsifier 1.
+  # ==============================================================================
+
+  - id: as-exp001-foveal-mae
+    statement: Median absolute foveal depth error, block matching vs SGBM, on a piecewise-constant RDS.
+    value: {block: 1.27e-3, sgbm: 0.0}
+    spread: {block: 1.24e-5, sgbm: 0.0}
+    units: m
+    n: {seeds: 5}
+    stimulus_family: rds
+    matcher: [block, sgbm]
+    configuration: rds_disk, 240x320, dot size 2, block d48_w7, sgbm d48_b7, ADR-0003 foveal confinement active at coefficient 1e-4
+    provenance:
+      cited_as: visgraf/active-stereo@3f7a263
+      source: experiments/exp001_matcher_baseline/findings.md:26-27
+      experiment: exp001
+      run_id: exp001-20260815T211624
+      measured_at_sha: null
+    status: inherited
+    notes: >-
+      The source flags SGBM's exactly-0.0 as suspicious in its own threats section:
+      `disk` is piecewise-constant in depth, two integer disparities, no gradient.
+      It asks for a rerun on slanted_plane and corrugated, which never happened
+      (gap-006). Treat 0.0 as an artefact of stimulus easiness, not as precision.
+
+  - id: as-exp001-coverage
+    statement: Fraction of pixels answered, block matching vs SGBM, on a piecewise-constant RDS.
+    value: {block: 0.993, sgbm: 0.877}
+    units: fraction
+    n: {seeds: 5}
+    stimulus_family: rds
+    matcher: [block, sgbm]
+    configuration: as as-exp001-foveal-mae
+    provenance:
+      cited_as: visgraf/active-stereo@3f7a263
+      source: experiments/exp001_matcher_baseline/findings.md:26-27
+      experiment: exp001
+      run_id: exp001-20260815T211624
+      measured_at_sha: null
+    status: inherited
+    notes: The source reads block's near-perfect coverage as a symptom, not a virtue.
+
+  - id: as-exp001-hallucination
+    statement: Fraction of ground-truth half-occluded pixels given a confident depth, on RDS.
+    value: {block: 0.796, sgbm: 0.090}
+    units: fraction
+    n: {seeds: 5}
+    stimulus_family: rds
+    matcher: [block, sgbm]
+    configuration: as as-exp001-foveal-mae
+    provenance:
+      cited_as: visgraf/active-stereo@3f7a263
+      source: experiments/exp001_matcher_baseline/findings.md:26-27
+      experiment: exp001
+      run_id: exp001-20260815T211624
+      measured_at_sha: null
+    status: inherited
+    notes: >-
+      SGBM's 0.090 did not transfer: 0.536 on photographs (as-exp004-heldout-medians).
+      The source repo's own recommendation of SGBM rested on this value.
+
+  # ==============================================================================
+  # exp002 — energy-model encoder validation on synthetic random-dot pairs
+  # ==============================================================================
+
+  - id: as-exp002-gain-invariance-drift
+    statement: Population-mean peak-channel drift across a 3x interocular contrast gain sweep.
+    value: 0.031
+    range: [0.024, 0.035]
+    units: px
+    n: {seeds: 5}
+    stimulus_family: synthetic_pair
+    matcher: energy
+    configuration: DisparityEncoder at committed config.yaml, gains {0.5, 0.75, 1.0, 1.25, 1.5}, d0=8
+    provenance:
+      cited_as: visgraf/active-stereo@3f7a263
+      source: experiments/exp002_energy_model_validation/findings.md:41-44
+      experiment: exp002
+      run_id: exp002-20260815T200128-965a3ad
+      measured_at_sha: 965a3ad
+    status: inherited
+    notes: >-
+      Two orders under the 0.5 px falsifier. Backed by an algebraic argument (pooling
+      is linear and precedes rectification) rather than by the number alone, which is
+      the reason it later reproduced end-to-end as as-exp006-gain-multiplier.
+
+  - id: as-exp002-peak-precision
+    statement: Fraction of valid pixels whose peak channel lands within one bank step of true disparity.
+    value: 0.580
+    range: [0.50, 0.58]
+    units: fraction
+    n: {seeds: 5}
+    stimulus_family: synthetic_pair
+    matcher: energy
+    configuration: as as-exp002-gain-invariance-drift, gain 1.0, threshold +/-1 bank step
+    provenance:
+      cited_as: visgraf/active-stereo@3f7a263
+      source: experiments/exp002_energy_model_validation/findings.md:52-56
+      experiment: exp002
+      run_id: exp002-20260815T200128-965a3ad
+      measured_at_sha: 965a3ad
+    status: inherited
+    notes: >-
+      Failed its >=0.95 falsifier. Not a bias problem: per-seed population-mean peak
+      channel is 7.93-8.16 against d0=8 (as-exp002-population-mean-peak). A per-pixel
+      precision limit, diagnosed as correlated Gabor pooling and never independently
+      confirmed.
+
+  - id: as-exp002-population-mean-peak
+    statement: Per-seed population-mean peak channel against a true disparity of 8 px.
+    value: [7.93, 8.16]
+    units: px
+    n: {seeds: 5}
+    stimulus_family: synthetic_pair
+    matcher: energy
+    configuration: as as-exp002-gain-invariance-drift, gain 1.0
+    provenance:
+      cited_as: visgraf/active-stereo@3f7a263
+      source: experiments/exp002_energy_model_validation/findings.md:54-55
+      experiment: exp002
+      run_id: exp002-20260815T200128-965a3ad
+      measured_at_sha: 965a3ad
+    status: inherited
+    notes: Recorded as a per-seed range; the source gives no single pooled value.
+
+  # ==============================================================================
+  # exp003 — appearance and matching on a rendered Blender material chart
+  # ==============================================================================
+
+  - id: as-exp003-variance-by-region
+    statement: Median reported disparity variance by region class, block matcher, on a rendered chart.
+    value: {textured_matched: 90.0, textureless_matched: 57340, half_occluded: 425.8}
+    units: px^2
+    n: {renders: 12}
+    stimulus_family: rendered_chart
+    matcher: block
+    configuration: material-chart, 8 coplanar patches at 1.05 m, backdrop 1.6 m, 3 lighting rigs x 4 permutations, 512 spp, block d48_w7, confine_to_fovea NOT applied
+    provenance:
+      cited_as: visgraf/active-stereo@3f7a263
+      source: experiments/exp003_appearance_and_matching/findings.md:121-126
+      experiment: exp003
+      run_id: exp003-20260816T131125-3fe9985
+      measured_at_sha: 3fe9985
+    status: inherited
+    notes: >-
+      The source corrected itself here: it had asserted the matcher "has no idea" it
+      is wrong on textureless surfaces, then measured it and inverted the conclusion.
+
+  - id: as-exp003-occluded-matched-variance-ratio
+    statement: Occluded/matched reported-variance ratio on a rendered chart, block matcher.
+    value: 4.73
+    units: ratio
+    n: {renders: 12}
+    stimulus_family: rendered_chart
+    matcher: block
+    configuration: as as-exp003-variance-by-region
+    provenance:
+      cited_as: visgraf/active-stereo@3f7a263
+      source: experiments/exp003_appearance_and_matching/findings.md:121-126
+      experiment: exp003
+      run_id: exp003-20260816T131125-3fe9985
+      measured_at_sha: 3fe9985
+    status: inherited
+    notes: >-
+      Derived here as 425.8/90.0 from as-exp003-variance-by-region; the source states
+      it as "5x" and does not print the quotient. ABOVE 1.0 — under-inflated but not
+      inverted. Contrast as-exp004-variance-ratio (0.324, inverted) on photographs and
+      as-exp005a-rds-comparison (1.923, block on RDS). No contrast split exists for
+      this value; see gap-001.
+
+  - id: as-exp003-textureless-variance-ratio
+    statement: Textureless/textured reported-variance ratio on a rendered chart, block matcher.
+    value: 637
+    units: ratio
+    n: {renders: 12}
+    stimulus_family: rendered_chart
+    matcher: block
+    configuration: as as-exp003-variance-by-region
+    provenance:
+      cited_as: visgraf/active-stereo@3f7a263
+      source: experiments/exp003_appearance_and_matching/findings.md:121-126
+      experiment: exp003
+      run_id: exp003-20260816T131125-3fe9985
+      measured_at_sha: 3fe9985
+    status: inherited
+    notes: >-
+      Error inflates ~100x while variance inflates 637x, so inverse-variance fusion
+      discounts these enough. This is the case the machinery handles correctly.
+
+  - id: as-exp003-error-and-coverage-by-material
+    statement: Median depth error and coverage by albedo texture level and reflectance, block matcher, rendered chart.
+    value:
+      dense_matte:    {coverage: 0.9951, error_m: 0.00060, error_spread: 0.00001}
+      dense_glossy:   {coverage: 0.9953, error_m: 0.00060, error_spread: 0.00003}
+      mid_matte:      {coverage: 0.9929, error_m: 0.00082, error_spread: 0.00003}
+      mid_glossy:     {coverage: 0.9928, error_m: 0.00083, error_spread: 0.00004}
+      coarse_matte:   {coverage: 0.9905, error_m: 0.00176, error_spread: 0.00012}
+      coarse_glossy:  {coverage: 0.9869, error_m: 0.00171, error_spread: 0.00155}
+      none_matte:     {coverage: 0.7132, error_m: 0.06023, error_spread: 0.12668}
+      none_glossy:    {coverage: 0.7047, error_m: 0.08512, error_spread: 0.12151}
+    units: {coverage: fraction, error_m: m}
+    n: {renders: 12}
+    stimulus_family: rendered_chart
+    matcher: block
+    configuration: as as-exp003-variance-by-region
+    provenance:
+      cited_as: visgraf/active-stereo@3f7a263
+      source: experiments/exp003_appearance_and_matching/findings.md:87-94
+      experiment: exp003
+      run_id: exp003-20260816T131125-3fe9985
+      measured_at_sha: 3fe9985
+    status: inherited
+    notes: >-
+      The dense/mid/coarse rungs are statistically indistinguishable; the whole
+      transition lives between albedo contrast 0.00 and 0.07 where there are no
+      samples (gap-007). The none_* row is lighting-dependent — see
+      as-exp003-lighting-interaction, which shows this pooled value spans 2.68 mm to
+      291.88 mm depending on the rig.
+
+  - id: as-exp003-sgbm-textured
+    statement: SGBM median depth error and coverage on the three textured rungs, rendered chart.
+    value: {error_m: 0.00008, coverage: 0.998}
+    units: {error_m: m, coverage: fraction}
+    n: {renders: 12}
+    stimulus_family: rendered_chart
+    matcher: sgbm
+    configuration: as as-exp003-variance-by-region
+    provenance:
+      cited_as: visgraf/active-stereo@3f7a263
+      source: experiments/exp003_appearance_and_matching/findings.md:96-98
+      experiment: exp003
+      run_id: exp003-20260816T131125-3fe9985
+      measured_at_sha: 3fe9985
+    status: inherited
+    notes: Flat across all three rungs. Collapses on constant albedo to coverage 0.719/0.761, error 0.038/0.029 m.
+
+  - id: as-exp003-error-inflation-dense-to-constant
+    statement: Multiplier on median depth error of answered pixels, dense albedo to constant albedo.
+    value: {block: 100, sgbm: 455}
+    units: ratio
+    n: {renders: 12}
+    stimulus_family: rendered_chart
+    matcher: [block, sgbm]
+    configuration: as as-exp003-variance-by-region
+    provenance:
+      cited_as: visgraf/active-stereo@3f7a263
+      source: experiments/exp003_appearance_and_matching/findings.md:176-178
+      experiment: exp003
+      run_id: exp003-20260816T131125-3fe9985
+      measured_at_sha: 3fe9985
+    status: inherited
+    notes: Falsified a pre-registered bar of >=2x. The matchers guess rather than decline.
+
+  - id: as-exp003-lighting-interaction
+    statement: Coverage, depth error, trusted fraction and variance on blank-wall matte patches, by lighting rig.
+    value:
+      flat_ambient:     {answered: 0.608, error_mm: 291.88, trusted: 0.039, variance_px2: 33398}
+      directional_key:  {answered: 0.713, error_mm: 60.23,  trusted: 0.043, variance_px2: 68166}
+      raking_grazing:   {answered: 0.988, error_mm: 2.68,   trusted: 0.071, variance_px2: 230156}
+    units: {answered: fraction, error_mm: mm, trusted: fraction, variance_px2: px^2}
+    n: {permutations: 4}
+    stimulus_family: rendered_chart
+    matcher: block
+    configuration: as as-exp003-variance-by-region, matte blank-wall patches only, medians over 4 permutations
+    provenance:
+      cited_as: visgraf/active-stereo@3f7a263
+      source: experiments/exp003_appearance_and_matching/findings.md:229-233
+      experiment: exp003
+      run_id: exp003-20260816T131125-3fe9985
+      measured_at_sha: 3fe9985
+    status: inherited
+    notes: >-
+      Not pre-registered; found while building a slide deck, and the source says so.
+      The largest effect in the experiment: a raking light rescues a textureless
+      surface (292 mm to 2.68 mm). Trust does not follow accuracy — 3.9% vs 7.1%
+      trusted for errors differing by 109x — which is the sharpest evidence that
+      reported variance is a contrast meter, not a reliability estimate.
+
+  - id: as-exp003-render-noise-control
+    statement: Coverage and error on a constant-albedo patch at 512 vs 4096 samples per pixel.
+    value:
+      spp_512:  {beauty_local_sd: 0.00301, lr_residual_corr: 0.457, coverage: 0.7261, error_m: 0.05605}
+      spp_4096: {beauty_local_sd: 0.00298, lr_residual_corr: 0.466, coverage: 0.7369, error_m: 0.05550}
+    units: {beauty_local_sd: fraction, lr_residual_corr: ratio, coverage: fraction, error_m: m}
+    n: {renders: 1, condition: key_p0}
+    stimulus_family: rendered_chart
+    matcher: block
+    configuration: material-chart key lighting permutation 0, denoising disabled
+    provenance:
+      cited_as: visgraf/active-stereo@3f7a263
+      source: experiments/exp003_appearance_and_matching/findings.md:157-160
+      experiment: exp003
+      run_id: exp003-20260816T131125-3fe9985
+      measured_at_sha: 3fe9985
+    status: inherited
+    notes: >-
+      Refutes the declared main threat. An 8x sample increase moved nothing, so the
+      residual ~0.3% structure on a "textureless" patch is deterministic shading, not
+      sampler noise. n=1 render per arm.
+
+  - id: as-exp003-specular-tail
+    statement: Median and p90 depth error of textured glossy pixels, binned by measured specular mismatch.
+    value:
+      q00_50: {mismatch_range: [0.000, 0.061], n: 180687, median_err_m: 0.00098, p90_err_m: 0.00503}
+      q50_80: {mismatch_range: [0.061, 0.147], n: 108412, median_err_m: 0.00085, p90_err_m: 0.00350}
+      q80_95: {mismatch_range: [0.147, 0.377], n: 54206,  median_err_m: 0.00091, p90_err_m: 0.00550}
+      q95_99: {mismatch_range: [0.377, 0.672], n: 14455,  median_err_m: 0.00196, p90_err_m: 0.07250}
+      q99_100: {mismatch_range: [0.672, 0.918], n: 3614,  median_err_m: 0.00305, p90_err_m: 0.06707}
+    units: m
+    n: {pixels: 361373}
+    stimulus_family: rendered_chart
+    matcher: block
+    configuration: as as-exp003-variance-by-region, textured glossy pixels only
+    provenance:
+      cited_as: visgraf/active-stereo@3f7a263
+      source: experiments/exp003_appearance_and_matching/findings.md:204-210
+      experiment: exp003
+      run_id: exp003-20260816T131125-3fe9985
+      measured_at_sha: 3fe9985
+    status: inherited
+    notes: >-
+      Explicitly labelled post-hoc and hypothesis-generating by the source, not a test
+      of its H2. Spearman(mismatch, error) = -0.004 overall: no monotone relationship.
+      The effect is confined to the top 5% of pixels, where p90 rises 14x.
+
+  - id: as-exp003-albedo-contrast-matched
+    statement: Measured albedo contrast per material patch, confirming matte and glossy are matched across the reflectance axis.
+    value:
+      dense:  {matte: 0.1920, glossy: 0.1874}
+      mid:    {matte: 0.1748, glossy: 0.1709}
+      coarse: {matte: 0.0716, glossy: 0.0698}
+      none:   {matte: 0.0000, glossy: 0.0000}
+    units: fraction
+    n: {renders: 1, condition: key lighting, permutation 0}
+    stimulus_family: rendered_chart
+    matcher: none
+    configuration: read from Diffuse Color render pass, never the beauty image
+    provenance:
+      cited_as: visgraf/active-stereo@3f7a263
+      source: experiments/exp003_appearance_and_matching/findings.md:58-67
+      experiment: exp003
+      run_id: exp003-20260816T131125-3fe9985
+      measured_at_sha: 3fe9985
+    status: inherited
+    notes: >-
+      A measurement of the stimulus, not of a matcher, and recorded because it is what
+      makes the reflectance comparison a comparison of reflectance. A re-render could
+      contradict it.
+
+  # ==============================================================================
+  # exp004 — real-data transfer on Middlebury 2014 photographs
+  # The anti-calibration finding proper: variance INVERTED in half-occlusions.
+  # ==============================================================================
+
+  - id: as-exp004-heldout-medians
+    statement: Held-out medians across eight Middlebury scenes, block matching vs SGBM.
+    value:
+      block: {coverage: 0.922, bad_2_0: 0.330, median_abs_d_px: 0.521, median_abs_Z_mm: 13.4, hallucination: 0.826, variance_ratio: 0.324}
+      sgbm:  {coverage: 0.876, bad_2_0: 0.087, median_abs_d_px: 0.240, median_abs_Z_mm: 6.2,  hallucination: 0.536, variance_ratio: 1.000}
+    units: {coverage: fraction, bad_2_0: fraction, median_abs_d_px: px, median_abs_Z_mm: mm, hallucination: fraction, variance_ratio: ratio}
+    n: {scenes: 8}
+    stimulus_family: middlebury2014
+    matcher: [block, sgbm]
+    configuration: Middlebury 2014 -perfect, downsample 3, im1, ADR-0012; Adirondack and Jadeplant excluded as declared peeks
+    provenance:
+      cited_as: visgraf/active-stereo@3f7a263
+      source: experiments/exp004_real_data_transfer/findings.md:23-24
+      experiment: exp004
+      run_id: exp004-20260818T201224-8b067fc
+      measured_at_sha: 8b067fc
+    status: inherited
+    notes: >-
+      SGBM's variance_ratio of 1.000 is VACUOUS — SGBMMatcher returns a constant
+      variance (base_variance = 0.25), so the ratio is 1.0 by construction and the
+      test could not fail. Do not read it as good calibration. See gap-003.
+      bad-2.0 is order-of-magnitude only: this run downsamples and Middlebury do not.
+
+  - id: as-exp004-variance-ratio-per-scene
+    statement: Per-scene occluded/matched reported-variance ratio, block matcher, Middlebury photographs.
+    value: [0.219, 0.468, 1.119, 0.428, 0.610, 0.081, 0.209, 0.059]
+    units: ratio
+    n: {scenes: 8}
+    stimulus_family: middlebury2014
+    matcher: block
+    configuration: as as-exp004-heldout-medians
+    provenance:
+      cited_as: visgraf/active-stereo@3f7a263
+      source: experiments/exp004_real_data_transfer/findings.md:69-70
+      experiment: exp004
+      run_id: exp004-20260818T201224-8b067fc
+      measured_at_sha: 8b067fc
+    status: inherited
+    notes: >-
+      One of eight reaches 1.0; the pre-registered falsifier needed three. Variance in
+      half-occlusions is about three times LOWER than in genuinely matched regions.
+      The source's framing: the framework reports fabricated estimates as its most
+      confident ones, and fuse_mle weights by inverse variance.
+
+  - id: as-exp004-high-contrast-occlusion-factor
+    statement: Factor by which matched-region variance exceeds high-contrast occluded variance, per scene.
+    value: {Pipes: 2.6, Playroom: 3.8, Playtable: 4.8, Piano: 8.2, Motorcycle: 8.4, Shelves: 13.5, Recycle: 25.6, Vintage: 34.5}
+    units: ratio
+    n: {scenes: 8}
+    stimulus_family: middlebury2014
+    matcher: block
+    configuration: as as-exp004-heldout-medians; occluded pixels split at the median local contrast of matched pixels
+    provenance:
+      cited_as: visgraf/active-stereo@3f7a263
+      source: experiments/exp004_real_data_transfer/findings.md:105-106
+      experiment: exp004
+      run_id: exp004-20260818T201224-8b067fc
+      measured_at_sha: 8b067fc
+    status: inherited
+    notes: >-
+      Below the matched median in all eight scenes; median 8.3x lower. The pre-declared
+      confound (occlusions are merely low-contrast) is not absent but REVERSED: LOW
+      contrast occlusions inflate variance safely (median 2.95x), the danger is in HIGH
+      contrast ones. High contrast is what a saliency-driven gaze policy selects for.
+      These per-scene factors were CORRECTED in the source after first writing — it
+      originally said "up to 12x (Motorcycle)". Cite this entry, not the prose.
+
+  - id: as-exp004-gt-noise-floor
+    statement: Ground-truth disparity noise floor per scene, from Middlebury's own disp0-sd.pfm.
+    value: [0.031, 0.067]
+    units: px
+    n: {scenes: 8}
+    stimulus_family: middlebury2014
+    matcher: none
+    configuration: Middlebury 2014 -perfect, downsample 3
+    provenance:
+      cited_as: visgraf/active-stereo@3f7a263
+      source: experiments/exp004_real_data_transfer/findings.md:28-29
+      experiment: exp004
+      run_id: exp004-20260818T201224-8b067fc
+      measured_at_sha: 8b067fc
+    status: inherited
+    notes: >-
+      Recorded as a range across scenes. Median matcher errors sit 7-15x above it, so
+      those are matcher errors and not scanner noise. This is the entry that makes the
+      others interpretable.
+
+  - id: as-exp004-photometric-degradation
+    statement: Coverage drop and error multiplier under exposure and lighting mismatch of the right image.
+    value:
+      block_im1E: {coverage_drop_pts: -47.6, error_multiplier: 44.1}
+      block_im1L: {coverage_drop_pts: -31.0, error_multiplier: 28.2}
+      sgbm_im1E:  {coverage_drop_pts: -19.8, error_multiplier: 1.4}
+      sgbm_im1L:  {coverage_drop_pts: -27.5, error_multiplier: 2.0}
+    units: {coverage_drop_pts: percent, error_multiplier: ratio}
+    n: {scenes: 8}
+    stimulus_family: middlebury2014
+    matcher: [block, sgbm]
+    configuration: as as-exp004-heldout-medians; im1E exposure variant, im1L lighting variant; paired per-scene differences
+    provenance:
+      cited_as: visgraf/active-stereo@3f7a263
+      source: experiments/exp004_real_data_transfer/findings.md:127-130
+      experiment: exp004
+      run_id: exp004-20260818T201224-8b067fc
+      measured_at_sha: 8b067fc
+    status: inherited
+    notes: >-
+      Falsified the pre-registered prediction. Expected fabrication (error up, coverage
+      flat); measured mass abstention (coverage collapses). The signature is mixed:
+      SGBM mostly declines, block declines AND degrades.
+
+  - id: as-exp004-cross-check-tolerance-robustness
+    statement: Occlusion fraction as the cross-check tolerance is varied over 0.5 / 1.0 / 2.0 px.
+    value:
+      Adirondack: [0.0640, 0.0608, 0.0598]
+      Motorcycle: [0.0817, 0.0772, 0.0758]
+    units: fraction
+    n: {scenes: 2}
+    stimulus_family: middlebury2014
+    matcher: none
+    configuration: tolerances 0.5, 1.0, 2.0 px, in that order
+    provenance:
+      cited_as: visgraf/active-stereo@3f7a263
+      source: experiments/exp004_real_data_transfer/findings.md:173-176
+      experiment: exp004
+      run_id: exp004-20260818T201224-8b067fc
+      measured_at_sha: 8b067fc
+    status: inherited
+    notes: >-
+      A control, on the two peeked scenes only. Shows the occlusion numbers are robust
+      to a threshold inherited from Middlebury's generator rather than chosen. It does
+      not validate the 1.0 px threshold itself — no independent occlusion ground truth
+      exists in this corpus.
+
+  - id: as-exp004-unknown-gt-fraction
+    statement: Fraction of pixels with unknown ground truth per scene, excluded from every statistic.
+    value: [0.006, 0.107]
+    units: fraction
+    n: {scenes: 8}
+    stimulus_family: middlebury2014
+    matcher: none
+    configuration: known mask per ADR-0011; Shelves is the worst scene
+    provenance:
+      cited_as: visgraf/active-stereo@3f7a263
+      source: experiments/exp004_real_data_transfer/findings.md:178-181
+      experiment: exp004
+      run_id: exp004-20260818T201224-8b067fc
+      measured_at_sha: 8b067fc
+    status: inherited
+    notes: >-
+      Load-bearing: charged to occlusion as Middlebury's own mask would, Shelves'
+      occlusion rate would rise from 3.7% to 14.4%, nearly quadrupling, and its
+      hallucination denominator with it.
+
+  # ==============================================================================
+  # exp005 — single-scale energy decoder. Stage A is on RDS and DOES report an
+  # occluded/matched variance ratio; see the correction note at gap-001.
+  # ==============================================================================
+
+  - id: as-exp005a-rds-comparison
+    statement: Single-scale energy decoder against block matching on RDS, including the occluded/matched variance ratio.
+    value:
+      energy: {median_abs_d_px: 1.001, coverage: 0.847, hallucination: 0.855, bad_2_0: 0.266, occluded_matched_variance_ratio: 0.957}
+      block:  {median_abs_d_px: 0.071, coverage: 0.993, hallucination: 0.803, bad_2_0: 0.004, occluded_matched_variance_ratio: 1.923}
+    units: {median_abs_d_px: px, coverage: fraction, hallucination: fraction, bad_2_0: fraction, occluded_matched_variance_ratio: ratio}
+    n: {seeds: 5}
+    stimulus_family: rds
+    matcher: [energy, block]
+    configuration: inference.EnergyDecoder, flatness 0.05, centroid_halfwidth 2, encoder frozen at exp002 parameters
+    provenance:
+      cited_as: visgraf/active-stereo@3f7a263
+      source: experiments/exp005_energy_decoder/findings.md:27-33
+      experiment: exp005
+      run_id: exp005a-20260820T225706-5f407bd
+      measured_at_sha: 5f407bd
+    status: inherited
+    notes: >-
+      THE MOST CONSEQUENTIAL ENTRY IN THIS FILE for anything that plans to weight by
+      precision on RDS. Block matching's occluded/matched variance ratio on RDS is
+      1.923 — variance roughly TWICE AS HIGH in occlusions, the SAFE direction. The
+      same matcher on Middlebury photographs reads 0.324
+      (as-exp004-heldout-medians), i.e. INVERTED. The two sit on opposite sides of
+      1.0. The anti-calibration is therefore NOT a stimulus-independent property of
+      block matching's variance, on the evidence that exists. Note this ratio is
+      pooled, with no contrast split — and on photographs the inversion lives
+      specifically in the high-contrast cell (gap-001).
+
+  - id: as-exp005a-readout-within-1px
+    statement: Fraction of pixels within +/-1 px after centroid readout, against raw argmax.
+    value: {centroid_readout: 0.444, raw_argmax: [0.50, 0.58]}
+    units: fraction
+    n: {seeds: 5}
+    stimulus_family: rds
+    matcher: energy
+    configuration: as as-exp005a-rds-comparison; raw_argmax figure carried from exp002
+    provenance:
+      cited_as: visgraf/active-stereo@3f7a263
+      source: experiments/exp005_energy_decoder/findings.md:35-41
+      experiment: exp005
+      run_id: exp005a-20260820T225706-5f407bd
+      measured_at_sha: 5f407bd
+    status: inherited
+    notes: >-
+      The readout made it worse, converting forgiving discrete bins into unforgiving
+      continuous spread. Readout is unbiased (+0.006 px) on pixels where the true peak
+      won; the loss is the noise-won contamination class.
+
+  - id: as-exp005b-chance-floor-placement
+    statement: Single-scale decoder median error as a fraction of a uniform-guess floor, on Middlebury photographs.
+    value: [0.91, 0.96]
+    units: fraction
+    n: {scenes: 8}
+    stimulus_family: middlebury2014
+    matcher: energy
+    configuration: as as-exp005a-rds-comparison; floor is one seeded draw of uniform guessing over [2, ndisp-2]
+    provenance:
+      cited_as: visgraf/active-stereo@3f7a263
+      source: experiments/exp005_energy_decoder/findings.md:60-68
+      experiment: exp005
+      run_id: exp005b-20260820T225844-83d48ab
+      measured_at_sha: 83d48ab
+    status: inherited
+    notes: >-
+      At chance. Per-scene examples: Motorcycle 21.0 px against a 23.0 px floor,
+      Shelves 18.4/19.1, Vintage 53.7/64.7. Block matching on the same scenes reads
+      0.521 px. Everything downstream of this in exp005 must be read as measured at the
+      chance floor, which is why its H2 and H3 verdicts are uninterpretable.
+
+  - id: as-exp005b-high-contrast-variance-ratio
+    statement: Median per-scene high-contrast occluded/matched variance ratio, single-scale decoder, photographs.
+    value: 0.903
+    range: [0.725, 0.954]
+    units: ratio
+    n: {scenes: 8}
+    stimulus_family: middlebury2014
+    matcher: energy
+    configuration: as as-exp005b-chance-floor-placement; contrast split at median scorable contrast
+    provenance:
+      cited_as: visgraf/active-stereo@3f7a263
+      source: experiments/exp005_energy_decoder/findings.md:72-87
+      experiment: exp005
+      run_id: exp005b-20260820T225844-83d48ab
+      measured_at_sha: 83d48ab
+    status: inherited
+    notes: >-
+      Below 1.0 in all eight scenes, but the source disowns its own number: at the
+      chance floor all ratios sit in 0.76-0.99 because variance is near-constant
+      everywhere. A variance that discriminates nothing is not well calibrated, it is
+      uninformative. Superseded in substance by as-exp006b-variance-ratio, which was
+      measured under a passing validity gate.
+
+  - id: as-exp005-peak-rss
+    statement: Peak resident set size of the experiment run, against its pre-run estimate.
+    value: {measured: 8.7, estimated: 1.3}
+    units: GB
+    n: {runs: 1}
+    stimulus_family: middlebury2014
+    matcher: energy
+    configuration: single machine, three variants sequentially
+    provenance:
+      cited_as: visgraf/active-stereo@3f7a263
+      source: experiments/exp005_energy_decoder/findings.md:135-139
+      experiment: exp005
+      run_id: exp005b-20260820T225844-83d48ab
+      measured_at_sha: 83d48ab
+    status: inherited
+    notes: >-
+      Machine-dependent and irrelevant to any verdict, recorded because the 6.7x miss
+      against estimate is the kind of thing a future run will contradict and should.
+
+  # ==============================================================================
+  # exp006 — multi-scale energy. The anti-calibration reproduced by a different
+  # readout on a different matcher, under a passing validity gate.
+  # ==============================================================================
+
+  - id: as-exp006a-rds-comparison
+    statement: Multi-scale bank against block matching on RDS.
+    value:
+      multiscale_energy: {median_abs_d_px: 0.0074, coverage: 0.879}
+      block: {median_abs_d_px: 0.0714}
+      ratio: 0.104
+    units: {median_abs_d_px: px, coverage: fraction, ratio: ratio}
+    n: {seeds: 5}
+    stimulus_family: rds
+    matcher: [multiscale_energy, block]
+    configuration: scales (4,2)(8,4)(16,8)(32,16)(48,24) px period/sigma, combine=product, floor=0.001, readout constants from exp005
+    provenance:
+      cited_as: visgraf/active-stereo@3f7a263
+      source: experiments/exp006_multiscale_energy/findings.md:47-50
+      experiment: exp006
+      run_id: exp006a-20260820T233759-4ea8400
+      measured_at_sha: 4ea8400
+    status: inherited
+    notes: >-
+      No occluded/matched variance ratio was reported for this RDS stage, though
+      exp005's RDS stage reported one. See gap-001.
+
+  - id: as-exp006a-gain-multiplier
+    statement: Energy error multiplier across an interocular gain sweep on RDS, against block matching.
+    value: {multiscale_energy: 1.0000, block: [1.02, 1.07]}
+    units: ratio
+    n: {seeds: 5, gains: 4}
+    stimulus_family: rds
+    matcher: [multiscale_energy, block]
+    configuration: gains {0.5, 0.75, 1.25, 1.5} against 1.0
+    provenance:
+      cited_as: visgraf/active-stereo@3f7a263
+      source: experiments/exp006_multiscale_energy/findings.md:20
+      experiment: exp006
+      run_id: exp006a-20260820T233759-4ea8400
+      measured_at_sha: 4ea8400
+    status: inherited
+    notes: >-
+      1.0 to 1e-12 at every gain — bit-exact per-scale normalisation visible end to
+      end. This is exp002's algebraic gain invariance surviving to a full pipeline, and
+      the one property the energy pathway has that block matching does not.
+
+  - id: as-exp006b-heldout-per-scene
+    statement: Multi-scale bank per-scene results on eight held-out Middlebury photographs.
+    value:
+      Motorcycle: {ndisp: 90,  median_abs_d_px: 0.33,  floor_px: 23.0, margin: 0.014, coverage: 0.913, hallucination: 0.897, hi_contrast_ratio: 0.82}
+      Piano:      {ndisp: 87,  median_abs_d_px: 0.31,  floor_px: 21.0, margin: 0.015, coverage: 0.872, hallucination: 0.909, hi_contrast_ratio: 0.29}
+      Pipes:      {ndisp: 100, median_abs_d_px: 0.20,  floor_px: 24.9, margin: 0.008, coverage: 0.921, hallucination: 0.880, hi_contrast_ratio: 1.84}
+      Playroom:   {ndisp: 110, median_abs_d_px: 1.73,  floor_px: 27.6, margin: 0.063, coverage: 0.921, hallucination: 0.962, hi_contrast_ratio: 0.69}
+      Playtable:  {ndisp: 97,  median_abs_d_px: 0.56,  floor_px: 23.8, margin: 0.024, coverage: 0.896, hallucination: 0.931, hi_contrast_ratio: 0.089}
+      Recycle:    {ndisp: 87,  median_abs_d_px: 2.89,  floor_px: 21.5, margin: 0.134, coverage: 0.849, hallucination: 0.920, hi_contrast_ratio: 0.087}
+      Shelves:    {ndisp: 80,  median_abs_d_px: 0.87,  floor_px: 19.1, margin: 0.046, coverage: 0.851, hallucination: 0.962, hi_contrast_ratio: 0.14}
+      Vintage:    {ndisp: 247, median_abs_d_px: 31.74, floor_px: 64.7, margin: 0.490, coverage: 0.744, hallucination: 0.685, hi_contrast_ratio: 0.22}
+    units: {median_abs_d_px: px, floor_px: px, margin: fraction, coverage: fraction, hallucination: fraction, hi_contrast_ratio: ratio}
+    n: {scenes: 8}
+    stimulus_family: middlebury2014
+    matcher: multiscale_energy
+    configuration: as as-exp006a-rds-comparison, Middlebury 2014 -perfect downsample 3, im1
+    provenance:
+      cited_as: visgraf/active-stereo@3f7a263
+      source: experiments/exp006_multiscale_energy/findings.md:59-68
+      experiment: exp006
+      run_id: exp006b-20260821T001427-fc34275
+      measured_at_sha: fc34275
+    status: inherited
+    notes: >-
+      Vintage is the corpus's hard scene for every matcher run, and is the only scene
+      that would fail a per-scene validity gate. ndisp is configuration, not a
+      measurement, and is carried only to make the floor interpretable.
+
+  - id: as-exp006b-validity-and-accuracy
+    statement: Multi-scale bank median error as a fraction of the chance floor, and its coverage, on photographs.
+    value: {fraction_of_chance_floor: 0.035, median_abs_d_px: 0.72, coverage: 0.884}
+    units: {fraction_of_chance_floor: fraction, median_abs_d_px: px, coverage: fraction}
+    n: {scenes: 8}
+    stimulus_family: middlebury2014
+    matcher: multiscale_energy
+    configuration: as as-exp006b-heldout-per-scene
+    provenance:
+      cited_as: visgraf/active-stereo@3f7a263
+      source: experiments/exp006_multiscale_energy/findings.md:17-18
+      experiment: exp006
+      run_id: exp006b-20260821T001427-fc34275
+      measured_at_sha: fc34275
+    status: inherited
+    notes: >-
+      Against exp005's single scale at 91-96% of the floor. Block matching reads
+      0.521 px on the same scenes, so this is in block's league rather than 40x behind.
+      This entry is the validity precondition that makes the next one meaningful.
+
+  - id: as-exp006b-variance-ratio
+    statement: High- and low-contrast occluded/matched variance ratio, multi-scale energy, photographs.
+    value: {high_contrast: 0.254, low_contrast: 1.28}
+    units: ratio
+    n: {scenes: 8}
+    stimulus_family: middlebury2014
+    matcher: multiscale_energy
+    configuration: as as-exp006b-heldout-per-scene; contrast split at median scorable contrast of im1 left image, window 7; median of per-scene ratios
+    provenance:
+      cited_as: visgraf/active-stereo@3f7a263
+      source: experiments/exp006_multiscale_energy/findings.md:83-88
+      experiment: exp006
+      run_id: exp006b-20260821T001427-fc34275
+      measured_at_sha: fc34275
+    status: inherited
+    notes: >-
+      The strongest form of the anti-calibration result: hard-inverted (<=0.29) in five
+      of eight scenes, as low as 0.087, measured under a PASSING validity gate — unlike
+      as-exp005b-high-contrast-variance-ratio. A fusion layer trusting this would
+      weight fabricated matches up to ~11x above honest ones. Because a third readout
+      (SSD curvature, SGBM, population second moment) agrees, the source relocates the
+      problem: it is a property of the evidence, not of any readout, and no per-pixel
+      confidence read from matching evidence alone can fix it. Measured on
+      PHOTOGRAPHS ONLY at this contrast split — see gap-001.
+
+  - id: as-exp006b-hallucination
+    statement: Fraction of ground-truth half-occluded pixels given a confident answer, multi-scale energy, photographs.
+    value: 0.914
+    units: fraction
+    n: {scenes: 8}
+    stimulus_family: middlebury2014
+    matcher: multiscale_energy
+    configuration: as as-exp006b-heldout-per-scene
+    provenance:
+      cited_as: visgraf/active-stereo@3f7a263
+      source: experiments/exp006_multiscale_energy/findings.md:89-94
+      experiment: exp006
+      run_id: exp006b-20260821T001427-fc34275
+      measured_at_sha: fc34275
+    status: inherited
+    notes: >-
+      HIGHER than single-scale (0.801), block (0.826) and SGBM (0.536). The source
+      names this the cost of the mechanism that passed the validity gate: a 48 px-period
+      Gabor pools support from deep inside the occluding surface, so the same coarse
+      evidence that suppresses noise-won candidates also manufactures confident matches
+      across occlusion boundaries. Accuracy and honesty moved in opposite directions.
+
+  - id: as-exp006b-photometric
+    statement: Error multiplier under exposure and lighting change, multi-scale energy, photographs.
+    value: {im1E_exposure: 1.044, im1E_coverage_drop: 0.0003, im1L_lighting: 5.6}
+    units: {im1E_exposure: ratio, im1E_coverage_drop: fraction, im1L_lighting: ratio}
+    n: {scenes: 8}
+    stimulus_family: middlebury2014
+    matcher: multiscale_energy
+    configuration: as as-exp006b-heldout-per-scene; im1L reported unbarred, range 1.07-50x, worst on the specular Pipes
+    provenance:
+      cited_as: visgraf/active-stereo@3f7a263
+      source: experiments/exp006_multiscale_energy/findings.md:106-114
+      experiment: exp006
+      run_id: exp006b-20260821T001427-fc34275
+      measured_at_sha: fc34275
+    status: inherited
+    notes: >-
+      Against block's 44.1x in as-exp004-photometric-degradation. Gain invariance is
+      real end to end; lighting is not gain — moving the light source changes which
+      physical structure is imaged, and no interocular normalisation can be invariant
+      to that.
+
+  - id: as-exp006-peak-rss
+    statement: Peak resident set size of the experiment run, against its pre-run estimate.
+    value: {measured: 7.24, estimated: 2.6}
+    units: GB
+    n: {runs: 1}
+    stimulus_family: middlebury2014
+    matcher: multiscale_energy
+    configuration: single machine, five sequential encodes x three variants
+    provenance:
+      cited_as: visgraf/active-stereo@3f7a263
+      source: experiments/exp006_multiscale_energy/findings.md:145-148
+      experiment: exp006
+      run_id: exp006b-20260821T001427-fc34275
+      measured_at_sha: fc34275
+    status: inherited
+    notes: Machine-dependent. Would matter for loop-scale sweeps, which is this repository's subject.
+
+  # ==============================================================================
+  # exp007 — external ruler: MiddEval3 training set
+  # ==============================================================================
+
+  - id: as-exp007-dense-placement
+    statement: Dense-convention bad% and average error on the MiddEval3 training set, local ruler at t=0.5.
+    value:
+      SGM_benchmark_own:  {bad_percent: 24.2, avgerr_px: 1.51}
+      Census_benchmark_own: {bad_percent: 28.9, avgerr_px: 2.00}
+      ASsgbm:  {bad_percent: 33.7, avgerr_px: 3.32}
+      ASnrg:   {bad_percent: 52.9, avgerr_px: 10.64}
+      ASblk:   {bad_percent: 58.0, avgerr_px: 6.99}
+    units: {bad_percent: percent, avgerr_px: px}
+    n: {pairs: 15, runs: 1}
+    stimulus_family: middeval3
+    matcher: [sgbm, multiscale_energy, block]
+    configuration: MiddEval3 trainingQ, benchmark's own evaldisp, unweighted mean over 15 pairs, refusals filled by scanline min-neighbour
+    provenance:
+      cited_as: visgraf/active-stereo@3f7a263
+      source: experiments/exp007_middeval3_training/findings.md:12-17
+      experiment: exp007
+      run_id: exp007-20260821T230639-65476a0
+      measured_at_sha: 65476a0
+    status: inherited
+    notes: >-
+      Published SOTA on the test split is ~5-7 bad%, so the gap to SOTA is ~8-10x and
+      to classic SGM ~2x. The local ruler reads ~3 points pessimistic against the
+      published table (this run scores the benchmark's own SGM at 24.2 against its
+      published 20.8). One run, no seeds. The background fill is this project's own.
+
+  - id: as-exp007-sparse-placement
+    statement: Sparse-convention bad% among answered pixels, and refusal rate, MiddEval3 training set.
+    value:
+      SGM_s:    {bad_percent_valid: 15.2, invalid_percent: 11.7}
+      CENS_s:   {bad_percent_valid: 16.8, invalid_percent: 17.7}
+      ASsgbm_s: {bad_percent_valid: 20.5, invalid_percent: 16.8}
+      ASnrg_s:  {bad_percent_valid: 42.7, invalid_percent: 12.4}
+      ASblk_s:  {bad_percent_valid: 42.9, invalid_percent: 16.6}
+    units: percent
+    n: {pairs: 15, runs: 1}
+    stimulus_family: middeval3
+    matcher: [sgbm, multiscale_energy, block]
+    configuration: as as-exp007-dense-placement, raw output, fill-free
+    provenance:
+      cited_as: visgraf/active-stereo@3f7a263
+      source: experiments/exp007_middeval3_training/findings.md:21-27
+      experiment: exp007
+      run_id: exp007-20260821T230639-65476a0
+      measured_at_sha: 65476a0
+    status: inherited
+
+  - id: as-exp007-photometric-pairs
+    statement: Dense bad% on the two photometrically varied MiddEval3 pairs.
+    value:
+      MotorcycleE_exposure: {ASblk: 89.2, ASnrg: 36.9, ASsgbm: 23.4, SGM: 13.1}
+      PianoL_lighting:      {ASblk: 86.9, ASnrg: 58.0, ASsgbm: 56.6, SGM: 36.6}
+    units: percent
+    n: {pairs: 2, runs: 1}
+    stimulus_family: middeval3
+    matcher: [block, multiscale_energy, sgbm]
+    configuration: as as-exp007-dense-placement, t=0.5
+    provenance:
+      cited_as: visgraf/active-stereo@3f7a263
+      source: experiments/exp007_middeval3_training/findings.md:41-42
+      experiment: exp007
+      run_id: exp007-20260821T230639-65476a0
+      measured_at_sha: 65476a0
+    status: inherited
+    notes: >-
+      The energy pathway's one externally visible virtue: Motorcycle 39.0 to
+      MotorcycleE 36.9 is no degradation at all under exposure change. Block refuses
+      half the image and is wrong about most of the rest. Adirondack overlaps exp006's
+      dev scenes, so that row is not held-out for the energy pathway.
+
+  - id: as-exp007-vertical-disparity
+    statement: Average vertical disparity in the MiddEval3 training pairs — imperfect rectification, recorded per pair.
+    value: 0.5
+    units: px
+    n: {pairs: 15, runs: 1}
+    stimulus_family: middeval3
+    matcher: none
+    configuration: Q resolution; upper bound across pairs, per-pair values in the run summary.json
+    provenance:
+      cited_as: visgraf/active-stereo@3f7a263
+      source: experiments/exp007_middeval3_training/findings.md:50
+      experiment: exp007
+      run_id: exp007-20260821T230639-65476a0
+      measured_at_sha: 65476a0
+    status: inherited
+    notes: >-
+      Recorded as "up to ~0.5 px"; this entry holds the upper bound only, since the
+      source prints per-pair values solely to a summary.json outside the repository.
+      Directly relevant here: every matcher in the reference ignores vertical disparity
+      by construction, and its effect has never been measured (gap-002).
+
+  - id: as-exp007-runtimes
+    statement: Wall-clock time per image pair by matcher.
+    value: {multiscale_energy: [2.6, 7.5], block: 0.5, sgbm: 0.03}
+    units: s
+    n: {pairs: 15, runs: 1}
+    stimulus_family: middeval3
+    matcher: [multiscale_energy, block, sgbm]
+    configuration: single machine, single wall-clock measurement each, deterministic given the pair
+    provenance:
+      cited_as: visgraf/active-stereo@3f7a263
+      source: experiments/exp007_middeval3_training/findings.md:64
+      experiment: exp007
+      run_id: exp007-20260821T230639-65476a0
+      measured_at_sha: 65476a0
+    status: inherited
+    notes: >-
+      Machine-dependent. Load-bearing for this repository only because an active loop
+      runs a matcher once per fixation, so a 2.6-7.5 s matcher sets the cost of a
+      fixation budget.
+
+  # ==============================================================================
+  # GAPS — measurements that were NOT made, and whose absence is load-bearing.
+  # ==============================================================================
+
+  - id: gap-001
+    statement: The contrast-split occluded/matched variance ratio has never been measured on any synthetic stimulus family.
+    value: null
+    units: ratio
+    n: null
+    stimulus_family: [rds, rendered_chart]
+    matcher: [block, energy, multiscale_energy]
+    configuration: not measured
+    provenance:
+      cited_as: visgraf/active-stereo@3f7a263
+      source: >-
+        absence across experiments/exp001_matcher_baseline/findings.md:24-27,
+        experiments/exp003_appearance_and_matching/findings.md:121-126,
+        experiments/exp005_energy_decoder/findings.md:27-33 (RDS, pooled only);
+        present only at experiments/exp004_real_data_transfer/findings.md:83-99,
+        experiments/exp005_energy_decoder/findings.md:72-74 and
+        experiments/exp006_multiscale_energy/findings.md:83-88 (photographs)
+      experiment: [exp001, exp003, exp004, exp005, exp006]
+      run_id: null
+      measured_at_sha: null
+    status: gap
+    notes: >-
+      CORRECTION TO THE BRIEF THAT COMMISSIONED THIS RECORD. The gap was given as "the
+      occluded/matched variance ratio was measured on photographs only (exp004,
+      exp006); exp001 measured hallucination on RDS but reported no variance ratio."
+      The second clause is confirmed — exp001's table carries MAE, spread, coverage and
+      hallucination and no variance column. The first clause is FALSE, and the
+      instruction was to verify before recording, so the gap is not recorded as stated.
+      Two counter-examples: exp005 Stage A reports an occluded/matched variance ratio
+      on RDS (findings.md:33 — block 1.923, energy 0.957), and exp003 reports one on a
+      rendered chart (4.73, as-exp003-occluded-matched-variance-ratio). What is
+      genuinely absent is narrower and sharper: every synthetic measurement is POOLED
+      over contrast, while on photographs the inversion lives specifically in the
+      HIGH-CONTRAST cell (0.254 in exp006, and below the matched median in 8 of 8
+      scenes in exp004). The pooled synthetic numbers are on the safe side of 1.0
+      (1.923 on RDS, 4.73 on the chart) and the pooled photograph number is on the
+      dangerous side (0.324) — so pooling is exactly where the disagreement could be
+      hiding, and no synthetic run has ever split it.
+      Why load-bearing here: any precision weighting applied to a synthetic stimulus in
+      this repository inherits an untested premise, and it is untested in BOTH
+      directions — the photograph result may not transfer, and the RDS result may be
+      concealing the same inversion inside a pooled average. A further obstacle worth
+      stating: a contrast split may not even be well defined on a binary random-dot
+      stereogram, which would mean testing the photograph finding synthetically
+      requires a stimulus family that neither reference repository contains.
+
+  - id: gap-002
+    statement: The effect of vertical disparity on matching has never been measured, though its magnitude has.
+    value: null
+    units: px
+    n: null
+    stimulus_family: middeval3
+    matcher: [block, sgbm, multiscale_energy]
+    configuration: not measured
+    provenance:
+      cited_as: visgraf/active-stereo@3f7a263
+      source: experiments/exp007_middeval3_training/findings.md:50
+      experiment: exp007
+      run_id: null
+      measured_at_sha: null
+    status: gap
+    notes: >-
+      exp007 records vertical disparity of up to ~0.5 px at Q in the MiddEval3 pairs
+      (as-exp007-vertical-disparity) and states that every matcher in the reference
+      ignores it by construction. Nothing measures what that costs. Load-bearing here
+      specifically: a geometry committed to rays and directions makes vertical
+      disparity a first-class quantity rather than a rectification residual, so this
+      repository will be able to express the question its predecessor could not — and
+      has no prior to compare against when it does.
+
+  - id: gap-003
+    statement: SGBM has no per-pixel uncertainty, so every SGBM variance number in this record is an artefact and not a measurement.
+    value: null
+    units: px^2
+    n: null
+    stimulus_family: [rds, rendered_chart, middlebury2014]
+    matcher: sgbm
+    configuration: SGBMMatcher returns a constant base_variance of 0.25 wherever it answers, nan elsewhere
+    provenance:
+      cited_as: visgraf/active-stereo@3f7a263
+      source: experiments/exp004_real_data_transfer/findings.md:152-169
+      experiment: exp004
+      run_id: null
+      measured_at_sha: null
+    status: gap
+    notes: >-
+      SGBM's variance ratio of 1.000 in as-exp004-heldout-medians is 1.0 BY
+      CONSTRUCTION, in every scene; the source flags it in the run output as
+      H1_variance_test_is_vacuous. Its H1b was recorded as falsified in 8 of 8 scenes —
+      the same artefact with the sign flipped. Neither is evidence about SGBM's
+      uncertainty. Load-bearing: one of the two matchers compared across four
+      experiments satisfies the letter of the "estimators return a variance" rule with
+      a constant, and nothing had checked. Any fusion or precision-weighting comparison
+      that includes SGBM is comparing against a flat weight.
+
+  - id: gap-004
+    statement: The active loop has never been measured. No experiment in either reference exercises gaze policy or oculomotor control.
+    value: null
+    units: null
+    n: null
+    stimulus_family: null
+    matcher: null
+    configuration: not measured
+    provenance:
+      cited_as: visgraf/active-stereo@3f7a263
+      source: experiments/exp004_real_data_transfer/findings.md:6
+      experiment: null
+      run_id: null
+      measured_at_sha: null
+    status: gap
+    notes: >-
+      exp004 states plainly that L5/L6 "are not exercised by a static stimulus", and
+      experiments run exp001 through exp007 with no exp008. Every measurement in this
+      file is of a single static pass — encode, match, scale — with no fixation, no
+      belief carried across fixations, and no policy. The one artefact that closes a
+      loop is bioeye's ActiveStereo, which has no tests and no findings file (gap-005).
+      Load-bearing, and it is the largest gap here: the active loop is this
+      repository's entire subject, and it inherits no prior at all. Nothing in this
+      record can tell you whether an active policy helps.
+
+  - id: gap-005
+    statement: bioeye produced no measurement of any kind — no findings file, no test, no recorded number.
+    value: null
+    units: null
+    n: null
+    stimulus_family: null
+    matcher: block
+    configuration: not measured
+    provenance:
+      cited_as: visgraf/bioeye@e908170
+      source: repository-wide absence; 20 tracked files, no tests directory, no findings file
+      experiment: null
+      run_id: null
+      measured_at_sha: null
+    status: gap
+    notes: >-
+      bioeye holds the working loop, the analytic scene generator and the four-panel
+      figure, and reports RMSE against ground truth per fixation at runtime — but
+      writes it only into a PNG. Nothing is asserted and nothing is recorded, so the
+      claim its figure makes (RMSE falls with fixation count) has never been checked by
+      anything that could fail. Load-bearing: the only demonstration of active
+      accumulation that either reference contains is unfalsifiable as it stands.
+
+  - id: gap-006
+    statement: exp001's matcher comparison was never rerun on non-piecewise-constant stimuli, as its own threats section required.
+    value: null
+    units: null
+    n: null
+    stimulus_family: rds
+    matcher: [block, sgbm]
+    configuration: not measured; the requested reruns were slanted_plane and corrugated
+    provenance:
+      cited_as: visgraf/active-stereo@3f7a263
+      source: experiments/exp001_matcher_baseline/findings.md:48-52,67
+      experiment: exp001
+      run_id: null
+      measured_at_sha: null
+    status: gap
+    notes: >-
+      The source calls SGBM's exactly-0.0 foveal MAE "suspicious", attributes it to a
+      piecewise-constant stimulus with two integer disparities, and lists the rerun as
+      its first Next item. No later experiment did it. Load-bearing: it means
+      as-exp001-foveal-mae is a measurement of stimulus easiness as much as of matcher
+      quality, and the same findings file notes block's p90 error is ~4x worse on
+      slanted_plane in the integration tests.
+
+  - id: gap-007
+    statement: The albedo-contrast range in which texture-driven matching actually fails, 0.00 to 0.07, contains no samples.
+    value: null
+    units: fraction
+    n: null
+    stimulus_family: rendered_chart
+    matcher: [block, sgbm]
+    configuration: not measured; the four rungs sit at 0.193, 0.175, 0.072 and 0.000
+    provenance:
+      cited_as: visgraf/active-stereo@3f7a263
+      source: experiments/exp003_appearance_and_matching/findings.md:271-278
+      experiment: exp003
+      run_id: null
+      measured_at_sha: null
+    status: gap
+    notes: >-
+      Dense, mid and coarse are statistically indistinguishable (coverage
+      0.995/0.993/0.990) and constant albedo collapses. Everything from 0.07 upward is
+      "plenty of texture", so three of the four rungs bought nothing and the entire
+      transition is unsampled. Load-bearing: as-exp003-error-and-coverage-by-material
+      describes a step function whose step location is unknown.
+
+  - id: gap-008
+    statement: The ADR-0003 foveal-confinement coefficient was never calibrated, and the sweep exp001 asked for was never run.
+    value: null
+    units: null
+    n: null
+    stimulus_family: rds
+    matcher: [block, sgbm]
+    configuration: not measured; coefficient fixed at 1e-4, sweep requested over ~2 decades
+    provenance:
+      cited_as: visgraf/active-stereo@3f7a263
+      source: experiments/exp001_matcher_baseline/findings.md:53-55,68
+      experiment: exp001
+      run_id: null
+      measured_at_sha: null
+    status: gap
+    notes: >-
+      The coefficient sets how aggressively the periphery is discounted, and the source
+      states the foveal-error comparison is directly sensitive to it. Load-bearing
+      because foveal confinement is the mechanism that makes a fixation local, so an
+      uncalibrated coefficient sits underneath every foveal number in this record —
+      including as-exp001-foveal-mae, the entry that has no recoverable SHA.
+
+  - id: gap-009
+    statement: Nothing inside Blender is covered by any test, so rendered stimuli are the least-verified inputs in the record.
+    value: null
+    units: null
+    n: null
+    stimulus_family: rendered_chart
+    matcher: none
+    configuration: not measurable by the reference's test suite, per its ADR-0009
+    provenance:
+      cited_as: visgraf/active-stereo@3f7a263
+      source: experiments/exp003_appearance_and_matching/findings.md:338-340
+      experiment: exp003
+      run_id: null
+      measured_at_sha: null
+    status: gap
+    notes: >-
+      The source says any number from a render "deserves more suspicion than the
+      equivalent from an RDS". Load-bearing here because this repository commits to one
+      rendered source, so every exp003 entry above inherits an unverified generator and
+      the commitment does not by itself change that.
