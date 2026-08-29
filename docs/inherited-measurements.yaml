@@ -1488,6 +1488,135 @@ measurements:
       the argmax disjunct (0 of 144 agreement), untouched by this — and the flip
       strengthens cn-001 rather than revising it.
 
+  # --- exp003, the vergence-acquisition experiment (pre-registered at 4456337) --
+
+  - id: bio-019
+    statement: Depth error on the intersection of three search-window arms' valid sets.
+    value:
+      W_wide_default:      {median_abs_err: 0.01476, p90: 0.32149, rmse: 0.44905}
+      N_narrow_fixed:      {median_abs_err: 0.11074, p90: 2.11645, rmse: 1.01189}
+      V_narrow_recentred:  {median_abs_err: 0.11106, p90: 1.02881, rmse: 0.58944}
+    units: m
+    n: {seeds: 16, budget: 18, intersection_pixels: 37383}
+    stimulus_family: analytic_fixture
+    matcher: block
+    configuration: >-
+      exp003, policy A' fixed across arms, narrow half-width 2 px, W is the port's
+      dmin=0 dmax=56; metrics on the INTERSECTION of the three arms' union-of-valid
+      masks, which is what makes them comparable across differing coverage
+    provenance:
+      cited_as: visgraf/bio-3d-vision
+      source: experiments/exp003_vergence_acquisition/results.json, verdicts.json
+      experiment: exp003_vergence_acquisition
+      run_id: null
+      measured_at_sha: b77b24e
+    status: measured
+    notes: >-
+      Both narrow arms are ~7.5x worse than the wide baseline on the pixels all
+      three measure. Narrowing the disparity search window does not improve
+      quality on this stimulus; it destroys it. V vs W is distinguishable at 2.01x
+      and 1.98x the declared bar; N vs W at 11.30x and 14.06x.
+      V vs N on the median is 0.01x the bar — as close as this bar can express —
+      while on p90 V is better at 3.02x. Acting buys tail behaviour and nothing
+      else.
+      DO NOT cite the pooled numbers from this experiment: they mix a quality
+      change with a coverage change and answer neither question. They are in
+      results.json under the key pooled_CONFOUNDED for exactly that reason.
+
+  - id: bio-020
+    statement: Coverage and its error cost for each search-window arm.
+    value:
+      W: {union_valid: 53168, excluded_n: 15785, excluded_median_err: 0.00643}
+      N: {union_valid: 46993, excluded_n: 9610,  excluded_median_err: 0.02691}
+      V: {union_valid: 64731, excluded_n: 27348, excluded_median_err: 0.23487}
+      V_coverage_gain_over_W: {pixels: 11563, fraction: 0.217}
+      N_coverage_loss_vs_W: {pixels: -6175}
+    units: {union_valid: count, excluded_n: count, excluded_median_err: m}
+    n: {seeds: 16, budget: 18}
+    stimulus_family: analytic_fixture
+    matcher: block
+    configuration: >-
+      an arm's valid set is the UNION over its run of per-fixation valid masks;
+      the excluded set is that minus the three-way intersection
+    provenance:
+      cited_as: visgraf/bio-3d-vision
+      source: experiments/exp003_vergence_acquisition/results.json
+      experiment: exp003_vergence_acquisition
+      run_id: null
+      measured_at_sha: b77b24e
+    status: measured
+    notes: >-
+      V buys 21.7% more coverage and it is BAD COVERAGE: the median error on
+      pixels only V reaches is 0.235 m, 16x the wide baseline's error on the
+      shared pixels. N does not even buy coverage — narrowing without re-centring
+      LOSES 6175 pixels, because matches whose true disparity falls outside a
+      fixed window fail the ratio and consistency tests faster than the receding
+      border constraint adds columns. Narrowing is not free coverage.
+
+  - id: bio-021
+    statement: Cost of each search-window arm, in disparity hypotheses and front-end invocations.
+    value:
+      W: {hypotheses: 57,  front_end_calls: 1,  distinct_windows: 1.0}
+      N: {hypotheses: 62,  front_end_calls: 2,  distinct_windows: 1.0}
+      V: {hypotheses: 147, front_end_calls: 19, distinct_windows: 5.2}
+      V_over_W_hypotheses: 2.6
+    units: {hypotheses: count, front_end_calls: count, distinct_windows: count}
+    n: {seeds: 16, budget: 18}
+    stimulus_family: analytic_fixture
+    matcher: block
+    configuration: >-
+      hypotheses = sum over front-end invocations of (dmax - dmin + 1); each is
+      evaluated twice per call, once in cost_volume and once inside
+      lr_consistency, so absolute figures double and ratios do not
+    provenance:
+      cited_as: visgraf/bio-3d-vision
+      source: experiments/exp003_vergence_acquisition/results.json
+      experiment: exp003_vergence_acquisition
+      run_id: null
+      measured_at_sha: b77b24e
+    status: measured
+    notes: >-
+      The pre-registration predicted V = 142 and said it would be confirmed by
+      counting. Measured 147: V re-acquires at all 18 fixations including the
+      first, so 57 + 18x5, not 57 + 17x5. Correction recorded rather than the
+      prediction quietly restated.
+      V's 5.2 distinct windows is also the non-degeneracy evidence: the arm really
+      does re-centre.
+
+  - id: bio-022
+    statement: The ported vergence controller produces no signed error signal for out-of-window targets.
+    value:
+      surviving_valid_fraction_outside_window: 0.418
+      their_median_d_sub: 10.32
+      true_disparity_of_those_pixels: 18.96
+      observed_verging_away: [10.0, 7.935, 5.951]
+      fixations_with_target_inside_own_window: 0.64
+      median_abs_d_fix_error_px: 0.96
+    units: {their_median_d_sub: px, true_disparity_of_those_pixels: px, median_abs_d_fix_error_px: px}
+    n: {seeds: 16, budget: 18, diagnostic_seed: 0}
+    stimulus_family: analytic_fixture
+    matcher: block
+    configuration: narrow window [8,12] against a near card at true disparity 18.96 px
+    provenance:
+      cited_as: visgraf/bio-3d-vision
+      source: experiments/exp003_vergence_acquisition/findings.md, diagnosed at design time
+      experiment: exp003_vergence_acquisition
+      run_id: null
+      measured_at_sha: b77b24e
+    status: measured
+    notes: >-
+      THE MECHANISM UNDER bio-019 AND bio-020. ActiveStereo.vergence takes the
+      median of d_sub over VALID pixels in a foveal window. A pixel whose true
+      disparity lies outside the window usually fails validity and is excluded
+      from that median — only 41.8% survive, and their median d_sub reads 10.32
+      against a truth of 18.96. The survivors return an arbitrary in-window
+      disparity rather than a signed "too near / too far": at seed 0 fixations 5-7
+      the controller verged AWAY from the target, 10.0 -> 7.935 -> 5.951.
+      The pixels carrying the vergence error signal are exactly the pixels the
+      validity mask removes.
+      A RESULT ABOUT THE PORTED CONTROLLER, NOT ABOUT VERGENCE. An estimator with
+      a signed out-of-range error signal is untested; recorded as od-003.
+
   # ==============================================================================
   # GAPS — measurements that were NOT made, and whose absence is load-bearing.
   # ==============================================================================

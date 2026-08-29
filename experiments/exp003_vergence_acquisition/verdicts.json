@@ -1,0 +1,137 @@
+{
+ "n_seeds": 16,
+ "verdicts": {
+  "V_vs_W_intersection": {
+   "rows": {
+    "median_abs_err": {
+     "region": "intersection",
+     "metric": "median_abs_err",
+     "baseline_mean": 0.014760136604309082,
+     "other_mean": 0.11105692386627197,
+     "mean_diff": 0.09629678726196289,
+     "sd_diff": 0.04792843507501599,
+     "materiality_bar": 0.00029520273208618166,
+     "bar": 0.04792843507501599,
+     "fraction_of_bar": 2.009178624573124,
+     "distinguishable": true,
+     "direction": "worse"
+    },
+    "p90": {
+     "region": "intersection",
+     "metric": "p90",
+     "baseline_mean": 0.3214867576956752,
+     "other_mean": 1.0288065448403358,
+     "mean_diff": 0.7073197871446608,
+     "sd_diff": 0.35716791424504474,
+     "materiality_bar": 0.006429735153913504,
+     "bar": 0.35716791424504474,
+     "fraction_of_bar": 1.9803564624211594,
+     "distinguishable": true,
+     "direction": "worse"
+    },
+    "rmse": {
+     "region": "intersection",
+     "metric": "rmse",
+     "baseline_mean": 0.44905081346125086,
+     "other_mean": 0.5894430154106872,
+     "mean_diff": 0.1403922019494364,
+     "sd_diff": 0.17128376204762097,
+     "materiality_bar": 0.008981016269225017,
+     "bar": 0.17128376204762097,
+     "fraction_of_bar": 0.8196468846264834,
+     "distinguishable": false,
+     "direction": "worse"
+    }
+   },
+   "indistinguishable_on_primary": false
+  },
+  "V_vs_N_intersection": {
+   "rows": {
+    "median_abs_err": {
+     "region": "intersection",
+     "metric": "median_abs_err",
+     "baseline_mean": 0.1107446625828743,
+     "other_mean": 0.11105692386627197,
+     "mean_diff": 0.00031226128339767456,
+     "sd_diff": 0.04608924530367927,
+     "materiality_bar": 0.002214893251657486,
+     "bar": 0.04608924530367927,
+     "fraction_of_bar": 0.006775144208593647,
+     "distinguishable": false,
+     "direction": "worse"
+    },
+    "p90": {
+     "region": "intersection",
+     "metric": "p90",
+     "baseline_mean": 2.1164463609457025,
+     "other_mean": 1.0288065448403358,
+     "mean_diff": -1.0876398161053664,
+     "sd_diff": 0.3605366340464951,
+     "materiality_bar": 0.04232892721891405,
+     "bar": 0.3605366340464951,
+     "fraction_of_bar": 3.016724830146119,
+     "distinguishable": true,
+     "direction": "better"
+    },
+    "rmse": {
+     "region": "intersection",
+     "metric": "rmse",
+     "baseline_mean": 1.0118884782445012,
+     "other_mean": 0.5894430154106872,
+     "mean_diff": -0.42244546283381396,
+     "sd_diff": 0.1700454575290294,
+     "materiality_bar": 0.020237769564890026,
+     "bar": 0.1700454575290294,
+     "fraction_of_bar": 2.484309013439515,
+     "distinguishable": true,
+     "direction": "better"
+    }
+   },
+   "indistinguishable_on_primary": false
+  },
+  "N_vs_W_intersection": {
+   "rows": {
+    "median_abs_err": {
+     "region": "intersection",
+     "metric": "median_abs_err",
+     "baseline_mean": 0.014760136604309082,
+     "other_mean": 0.1107446625828743,
+     "mean_diff": 0.09598452597856522,
+     "sd_diff": 0.008492141084541832,
+     "materiality_bar": 0.00029520273208618166,
+     "bar": 0.008492141084541832,
+     "fraction_of_bar": 11.302747448848322,
+     "distinguishable": true,
+     "direction": "worse"
+    },
+    "p90": {
+     "region": "intersection",
+     "metric": "p90",
+     "baseline_mean": 0.3214867576956752,
+     "other_mean": 2.1164463609457025,
+     "mean_diff": 1.7949596032500272,
+     "sd_diff": 0.12765816399879934,
+     "materiality_bar": 0.006429735153913504,
+     "bar": 0.12765816399879934,
+     "fraction_of_bar": 14.060672243938189,
+     "distinguishable": true,
+     "direction": "worse"
+    },
+    "rmse": {
+     "region": "intersection",
+     "metric": "rmse",
+     "baseline_mean": 0.44905081346125086,
+     "other_mean": 1.0118884782445012,
+     "mean_diff": 0.5628376647832503,
+     "sd_diff": 0.03133042206849067,
+     "materiality_bar": 0.008981016269225017,
+     "bar": 0.03133042206849067,
+     "fraction_of_bar": 17.9645733323619,
+     "distinguishable": true,
+     "direction": "worse"
+    }
+   },
+   "indistinguishable_on_primary": false
+  }
+ }
+}
