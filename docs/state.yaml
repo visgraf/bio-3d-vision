@@ -406,29 +406,56 @@ foreclosures:
     implemented_as: >-
       src/bio3dvision/sampling.py — a SamplingModel Protocol (direction, index,
       contains, shape, frame) with PinholeSampling as the only implementation,
-      plus route_through_sampling, the adapter that carries a policy's choice
-      across the boundary as a direction.
+      plus route_through_sampling, the adapter that turns a policy's choice into
+      a direction and back again. Note the "and back again": it returns a PIXEL,
+      because ActiveStereo consumes one. A ray is constructed on every step and
+      no ray leaves the adapter, which is why falsifier 2 is deferred rather than
+      answered.
     frame_declaration: >-
       Directions are unit vectors in the RECTIFIED LEFT-CAMERA frame: +x right
       along increasing column, +y down along increasing row, +z forward along the
       optical axis, right-handed. Stated at every public function that returns
       one, not at governance level — fc-006 records why, and the repetition
       across docstrings is deliberate.
-    cost_measured: >-
-      THE NUMBER STEP 15'S ESTIMATE SHOULD BE REVISED AGAINST. Implementing
-      od-001 required ZERO lines of change to existing modules. loop.py is
-      byte-identical to main (SHA-256 unchanged); matching.py, fixture.py,
-      figure.py, baseline.py and policy.py are untouched; the only edit to
-      pre-existing code is 10 added lines of exports in __init__.py, with zero
-      lines removed. The work is 257 lines of new module and 212 lines of new
-      test.
+    component_cost_measured: >-
+      A RESULT ABOUT THE COMPONENT, NOT ABOUT THE INTERFACE. Constructing the
+      sampling model cost ZERO lines of change to six existing modules — loop.py
+      byte-identical to main by SHA-256, and matching.py, fixture.py, figure.py,
+      baseline.py and policy.py untouched — with the only edit to pre-existing
+      code being 10 added lines of exports in __init__.py, nothing removed. The
+      work itself is 257 lines of new module and 212 lines of new test. The
+      pinhole round trip is exact over all 76800 indices with a pre-rounding
+      error of 2.8e-14 against the 0.5 that would flip one, 13 orders of margin.
+      That is real and it is what this commit measured. It is NOT a measurement
+      of what passing a ray costs.
     falsifier_2_outcome: >-
-      ADDITIVE, NOT INVASIVE. The migration inventory's reading — that the ray
-      commitment is a migration rather than a re-derivation — is SUPPORTED. The
-      empty diff to loop.py is the evidence the falsifier asked for. Step 15's
-      cost estimate can be revised down for the interface change specifically;
-      this says nothing about the cost of the components that consume the rays,
-      which do not exist.
+      DEFERRED. Not additive, not invasive — UNANSWERED, and the earlier verdict
+      of ADDITIVE was an overstatement of what was measured.
+      Why the evidence does not bear on the question: route_through_sampling
+      converts index -> ray -> index and hands ActiveStereo a PIXEL. No ray
+      crosses the boundary in this commit. The empty diff to loop.py therefore
+      follows from the round trip being the identity — ActiveStereo receives a
+      value bit-identical to the one it received before, so of course it did not
+      have to change — and not from the ray commitment being cheap. The test that
+      would discriminate has not been run, because nothing yet consumes a ray.
+      Falsifier 2 asked whether PASSING A RAY is invasive. That remains open.
+    step_15_estimate: >-
+      NOT REVISED, in either direction. It is untested. It will be tested by the
+      first commit in which a geometry layer consumes a ray directly — that is,
+      the first commit in which model.index drops out of the policy path and
+      route_through_sampling's second hop disappears. Until then there is no
+      measurement of the interface cost to revise an estimate against, and this
+      foreclosure supplies none.
+    amendment: >-
+      Corrected after first writing, in place, because the original was an
+      overstatement rather than a verdict that later data reversed — the two are
+      different and are handled differently here. cost_measured claimed to be
+      "the number step 15's estimate should be revised against" and
+      falsifier_2_outcome read ADDITIVE, NOT INVASIVE with the migration
+      inventory's reading SUPPORTED. Neither was measured. The component cost is
+      kept under its own name above; the interface verdict is now deferred; and
+      step 15's estimate is explicitly not revised. fv-006-2 carried the same
+      overstatement and is corrected in the same commit.
     reproduction: >-
       Uniform sampling on the existing pinhole grid is exactly the identity:
       index -> ray -> index is bit-exact over all 76 800 indices, with a
@@ -776,9 +803,9 @@ falsifier_verdicts:
       rather than sitting in front of them, then od-001 is invasive rather than
       additive, the migration inventory's reading was wrong, and step 15's cost
       estimate needs revising before Blender work begins.
-    verdict: did_not_fire
-    outcome: ADDITIVE
-    numbers:
+    verdict: DEFERRED
+    outcome: UNANSWERED
+    component_construction_cost:
       loop_py_lines_changed: 0
       loop_py_sha256_unchanged: true
       existing_modules_changed: 0
@@ -786,17 +813,30 @@ falsifier_verdicts:
       init_py_lines_removed: 0
       new_module_lines: 257
       new_test_lines: 212
+      round_trip_indices_exact: 76800
+      pre_rounding_margin_orders: 13
     detail: >-
-      The diff to loop.py is EMPTY — the file is byte-identical to main by
-      SHA-256 — and matching.py, fixture.py, figure.py, baseline.py and policy.py
-      are untouched. The only edit to pre-existing code is 10 added lines of
-      exports in __init__.py, with nothing removed.
-      So the migration inventory's reading is SUPPORTED: the ray commitment is a
-      migration and not a re-derivation, at least at the interface. Step 15's
-      estimate can be revised down for the interface change specifically. It says
-      nothing about the components that will CONSUME the rays, which do not exist
-      — the rays are currently produced and immediately converted back, because
-      ActiveStereo still takes a pixel.
+      THE MEASUREMENT DOES NOT BEAR ON THE FALSIFIER, and the earlier verdict of
+      did_not_fire / ADDITIVE was wrong about that.
+      route_through_sampling converts index -> ray -> index and hands ActiveStereo
+      a PIXEL, so no ray crosses the boundary in this commit. The empty diff to
+      loop.py follows from the round trip being the identity — ActiveStereo
+      received a bit-identical value, so it could not have needed to change — not
+      from passing a ray being cheap. Falsifier 2 asked whether passing a ray is
+      invasive; nothing here answers that, because nothing consumes a ray.
+      What the numbers above DO measure is the cost of CONSTRUCTING the sampling
+      model, which is a genuine result about the component: zero change to six
+      existing modules, 257 lines of new module, 212 of new test, and an exact
+      round trip over all 76800 indices with 13 orders of margin. Recorded under
+      its own name so it is not mistaken for an interface result again.
+      Step 15's estimate is NOT revised, in either direction. It will be tested by
+      the first commit in which a geometry layer consumes a ray directly and
+      model.index drops out of the policy path.
+    amended: >-
+      Corrected in place after first writing. The original claimed verdict
+      did_not_fire with outcome ADDITIVE and said the migration inventory's
+      reading was SUPPORTED. That overstated what was measured. fc-009 carried the
+      same overstatement and is corrected in the same commit.
     verified_at_commit: fef7b9e
 
 # ------------------------------------------------------------------------------
