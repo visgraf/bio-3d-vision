@@ -24,12 +24,21 @@ from bio3dvision.matching import (
     front_end_block,
     lr_consistency,
 )
+from bio3dvision.sampling import (
+    RECTIFIED_LEFT_CAMERA,
+    PinholeSampling,
+    SamplingModel,
+    route_through_sampling,
+)
 
 __all__ = [
     "ActiveStereo",
     "BaselineRun",
     "CameraParams",
     "PanelArrays",
+    "PinholeSampling",
+    "RECTIFIED_LEFT_CAMERA",
+    "SamplingModel",
     "cost_volume",
     "decode_disparity",
     "error_summary",
@@ -37,6 +46,7 @@ __all__ = [
     "lr_consistency",
     "make_synthetic_scene",
     "panel_arrays",
+    "route_through_sampling",
     "run_baseline",
     "save_result_fig",
     "scale_to_depth",
