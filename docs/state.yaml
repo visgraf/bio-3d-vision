@@ -71,9 +71,13 @@ sequence:
       DERIVE IT, DO NOT TRUST IT. This half has no timestamp and needs none: it
       claims to be derivable, so the check is to derive it. Three questions, each
       with a definite answer from the repository alone:
-        (1) does every step in `complete` still have the artifact or foreclosure
-            named for it in `evidence`, and does that entry still say what is
-            claimed here;
+        (1) for every step in `complete`, does the entry named in `evidence`
+            EXIST, and does that entry, READ IN FULL, ACTUALLY DECIDE WHAT THE
+            STEP'S TITLE NAMES. Both halves are required and the second is the
+            one that bites: an id that resolves is not an id that agrees. If the
+            step is "Decide X", find the sentence in the named entry that decides
+            X. If there is no such sentence, the claim is unearned and this check
+            has failed, however well-formed the reference is;
         (2) is `next` the lowest-numbered step that is neither complete nor
             deferred;
         (3) does every id referenced anywhere in this block resolve — in
@@ -82,14 +86,42 @@ sequence:
             (od-001 -> fc-009) as resolving through its redirect, not as dangling.
       If all three hold, this half is current, whatever the date says. If one
       fails, the ledger and this block disagree and THE LEDGER IS RIGHT.
-      Run on arrival at dde3b47: all three pass.
-    complete: [1, 2, 3, 4, 7, 8, 9, 10]
+    checking_run: >-
+      Run on arrival at f58aa7d, against the STRENGTHENED clause (1): it FAILED,
+      on step 10. That failure is what this commit corrects, and the block below
+      is the corrected state. Re-run after the correction: all three pass.
+      The previous record here read "Run on arrival at dde3b47: all three pass."
+      It was run against the weaker clause (1) and it passed on a false claim.
+      See `checking_amended`.
+    checking_amended: >-
+      CLAUSE (1) WAS STRENGTHENED AFTER IT FAILED TO CATCH THE THING IT EXISTS TO
+      CATCH. It previously asked whether every step in `complete` "still has the
+      artifact or foreclosure named for it in `evidence`, and does that entry
+      still say what is claimed here" — which reads as a two-part test but was
+      applied as a one-part one, because "what is claimed here" was taken to mean
+      the `evidence` line's own words rather than the STEP'S TITLE.
+      The near-miss: `evidence` named fc-010 for step 10, fc-010 exists, its
+      `evidence` line ("taken on measured evidence; od-003 records what would
+      reopen it") is a true description of fc-010, and the check passed — the
+      block recorded "Run on arrival at dde3b47: all three pass", preserved in
+      `checking_run` above. The claim was still false. Step 10's title is "Decide the plant" and fc-010
+      decides the disparity search window; none of its eleven fields mentions a
+      plant, and fv-007-1 in this same file had already recorded that the
+      consequence toward the attentional branch WAS NOT INVOKED. A resolving id
+      and a true sentence about it were enough to pass a check meant to establish
+      that the step had been decided.
+      Caught instead by a cold session's arrival audit of the assumed repository
+      state, which is not where it should have been caught. Recorded rather than
+      silently swapped, in the style of `sequence.staleness.amended` and for the
+      same reason: the defect is worth more than the fix. A check that passes on a
+      false claim is the same shape as a claim that cannot fail.
+    complete: [1, 2, 3, 4, 7, 8, 9]
     deferred:
       - step: 5
         until: the end of Stage 0
       - step: 6
         until: the loop runs
-    next: 11
+    next: 10
     evidence:
       1: docs/migration-inventory.md — 114 items classified across both references
       2: docs/inherited-measurements.yaml — the carried-results record, 73 entries
@@ -98,7 +130,10 @@ sequence:
       7: the initial stub commit e3a17cf
       8: src/bio3dvision/{fixture,matching,loop,figure,baseline}.py, bit-identical to bioeye@e908170 (bio-009)
       9: fc-007, the first fw foreclosure (exp001), with its scope annotated and extended by fc-008 (exp002)
-      10: fc-010 (exp003), taken on measured evidence; od-003 records what would reopen it
+      # 10 IS NOT LISTED HERE, AND ITS ABSENCE IS THE CORRECTION. This line
+      # previously read "10: fc-010 (exp003), taken on measured evidence; od-003
+      # records what would reopen it". fc-010 does not decide the plant — see
+      # `checking_amended` above and the step 10 entry below.
     out_of_sequence:
       - what: >-
           The sample-index to unit-ray boundary. Was od-001; CLOSED, and now
@@ -184,9 +219,23 @@ sequence:
           - n: 10
             title: Decide the plant
             altitude: fw
-            status: complete
-            outcome: fc-010
-            note: See amendment am-002.
+            status: not_taken
+            outcome: null
+            note: See amendment am-002, and its correction am-002-c.
+            correction: >-
+              THIS ENTRY PREVIOUSLY READ `status: complete` WITH `outcome:
+              fc-010`. Both were false, and neither was ever derivable from the
+              ledger. fc-010 closes NARROWING THE DISPARITY SEARCH WINDOW in
+              favour of the wide search the port already does; none of its eleven
+              fields mentions the plant, and its own `scope` field says "THIS IS A
+              RESULT ABOUT THE PORTED CONTROLLER, NOT ABOUT VERGENCE".
+              fv-007-1, in this same file and predating the claim, had already
+              recorded that its stated consequence "IS NOT INVOKED... this does
+              not by itself direct step 10 toward the attentional branch. The
+              measured outcome bears on the same decision and is recorded as
+              od-003 rather than deciding it here."
+              So the file contradicted itself, and the half that was wrong is this
+              one. Corrected here to the state the ledger actually supports.
 
       - stage: 2
         name: Rendering
@@ -244,8 +293,45 @@ sequence:
         to: after the acquisition experiment (exp003)
         reason: >-
           A foreclosure taken without evidence is a guess carrying a decision's
-          authority. The plant was decided on measurement — fc-010 — rather than
-          ahead of it, and od-003 records precisely what evidence would reopen it.
+          authority. The plant is decided after the acquisition experiment
+          (exp003) rather than ahead of it.
+        reason_amended: >-
+          CORRECTED IN PLACE. The second half of this reason previously read "The
+          plant was decided on measurement — fc-010 — rather than ahead of it, and
+          od-003 records precisely what evidence would reopen it." THE REORDERING
+          THIS AMENDMENT RECORDS IS REAL AND STANDS; the claim appended to it was
+          not.
+          fc-010 is about the disparity search window, not the plant. Deciding the
+          plant on it would be exactly the substitution this amendment's own first
+          sentence warns against — a decision drawing authority from a measurement
+          that does not bear on it. od-003 is real and does record what would
+          reopen the vergence question, but it is a retest condition for one
+          estimator, not the evidence that a plant question was settled.
+          What actually happened is recorded as am-002-c below.
+      - id: am-002-c
+        corrects: am-002
+        what_was_inserted: >-
+          `sequence.plan` step 10 was marked complete with outcome fc-010, and
+          `sequence.position` listed 10 in `complete` with a matching `evidence`
+          line, in 19d2723.
+        who_and_how: >-
+          NOT THE PLAN RUNNING AHEAD OF THE LEDGER — AN UNEARNED CLAIM INSERTED
+          INTO THE PLAN. It was a Chat-surface decision supplied to the session
+          that wrote the sequence block as though it were already established, and
+          it was written into the `position` half, which is the half whose whole
+          standing is that everything in it is DERIVABLE. Nothing in the ledger
+          ever derived it.
+          The distinction matters because the two failures have different fixes. A
+          plan running ahead of the ledger is corrected by waiting; a claim
+          inserted into the derivable half is corrected by deleting it and by
+          asking why the derivation check passed. Both are done here — see
+          `position.checking_amended`.
+        why_it_is_recorded: >-
+          `plan` is already labelled `source: chat` and `standing: NOT ESTABLISHED
+          IN THIS REPOSITORY`, and that label did its job for the plan half. It
+          did not protect the `position` half, which carries the opposite label.
+          A claim that crosses from the first into the second loses its warning
+          without losing its origin, and nothing in the file marked the crossing.
 
 # ------------------------------------------------------------------------------
 # WHAT RUNS
