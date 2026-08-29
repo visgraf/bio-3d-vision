@@ -16,7 +16,183 @@ updated_at: 2026-08-29
 # the file, since it cannot name its own SHA; git records it either way. From the
 # next update onward, set it to the SHA this content was true at, so a reader can
 # tell a stale state file from a current one.
-updated_by_commit: b77b24e   # exp003's arms; this file is updated by the commit after it
+updated_by_commit: 5e181d0   # the last merge on main; see sequence.staleness
+
+# ------------------------------------------------------------------------------
+# SEQUENCE — where this project is, and what it plans next
+#
+# TWO HALVES, AND THEY HAVE DIFFERENT STANDING. `position` is established: it is
+# derivable from the foreclosure ledger and the merged history, and it cannot be
+# wrong without the ledger being wrong. `plan` is INTENT, supplied from the Chat
+# surface, and is not established by anything in this repository.
+#
+# The distinction is the same one docs/inherited-measurements.yaml draws between
+# `measured` and `inherited`, and for the same reason: a future session should
+# treat the plan half as a prior, not as a fact.
+#
+# Nothing normative lives here. Invariants are in CLAUDE.md, decisions in
+# `foreclosures`, measurements in docs/inherited-measurements.yaml. This block
+# exists so a session starting cold knows where it is.
+#
+# This block was originally specified as "position, not intent". That was wrong
+# and is corrected here by splitting it: eighteen planned steps, amended twice in
+# seven iterations and expected to be amended again, are not position.
+# ------------------------------------------------------------------------------
+sequence:
+
+  staleness:
+    updated_at: 2026-08-29
+    updated_by_commit: 5e181d0
+    rule: >-
+      Updated every iteration. STALE IF `updated_by_commit` LAGS THE LAST MERGE ON
+      `main`. A stale block is worse than none, because it is read by exactly the
+      session least able to notice — check it before trusting it.
+
+  # --- POSITION: established, derivable from the ledger and merged history -----
+  position:
+    standing: >-
+      Established. Every entry below is derivable from `foreclosures`, the
+      measurement record, and the merged history. It cannot be wrong without one
+      of those being wrong.
+    complete: [1, 2, 3, 4, 7, 8, 9, 10]
+    deferred:
+      - step: 5
+        until: the end of Stage 0
+      - step: 6
+        until: the loop runs
+    next: 11
+    evidence:
+      1: docs/migration-inventory.md — 114 items classified across both references
+      2: docs/inherited-measurements.yaml — the carried-results record, 73 entries
+      3: CLAUDE.md, docs/workflow.md, docs/state.yaml
+      4: pyproject.toml, CI, the flat package, spikes/
+      7: the initial stub commit e3a17cf
+      8: src/bio3dvision/{fixture,matching,loop,figure,baseline}.py, bit-identical to bioeye@e908170 (bio-009)
+      9: fc-007, the first fw foreclosure (exp001), with its scope annotated and extended by fc-008 (exp002)
+      10: fc-010 (exp003), taken on measured evidence; od-003 records what would reopen it
+    out_of_sequence:
+      - what: >-
+          The sample-index to unit-ray boundary. Was od-001; CLOSED, and now
+          recorded as fc-009 — it will not be found in `open_decisions`.
+        note: >-
+          Implemented as infrastructure closing an open decision, not as a
+          numbered step. Recorded here because a cold session finding fc-009 in
+          the ledger would otherwise have no step to attach it to. Its falsifier-2
+          verdict is DEFERRED, not additive; the geometry migration proper is
+          step 15.
+
+  # --- PLAN: intent, from Chat, NOT established here ---------------------------
+  plan:
+    source: chat
+    standing: >-
+      NOT ESTABLISHED IN THIS REPOSITORY. Supplied from the Chat surface, where it
+      lives as a document in the maintainer's hands. Nothing here measures or
+      pins it. Treat it as a prior, exactly as an `inherited` entry in
+      docs/inherited-measurements.yaml is treated — usable, and an assumption
+      whenever it is relied on.
+    amended: twice in seven iterations, and expected to be amended again
+    stages:
+
+      - stage: 0
+        name: Scaffold
+        steps:
+          - {n: 1, title: Audit the active-stereo structure, altitude: infra, status: complete}
+          - {n: 2, title: Decide how carried results are held, altitude: infra, status: complete}
+          - {n: 3, title: Adapt the methodology files, altitude: infra, status: complete}
+          - {n: 4, title: Generate the general research scaffold, altitude: infra, status: complete}
+          - n: 5
+            title: Create the template repository
+            altitude: infra
+            status: deferred
+            deferred_until: the end of Stage 0
+            note: See amendment am-001.
+          - n: 6
+            title: Update the research description for bio-3d-vision
+            altitude: infra
+            status: deferred
+            deferred_until: the loop runs
+            note: >-
+              A description written before the loop runs describes an intention.
+              Deferred until there is something to describe.
+          - {n: 7, title: Create the project repository, altitude: infra, status: complete}
+
+      - stage: 1
+        name: Gradient before infrastructure
+        steps:
+          - n: 8
+            title: Port the bioeye loop, the analytic fixture, and the four-panel figure
+            altitude: infra
+            status: complete
+          - n: 9
+            title: "First framework foreclosure: variance versus expected information gain"
+            altitude: fw
+            status: complete
+            outcome: fc-007, extended by fc-008
+          - n: 10
+            title: Decide the plant
+            altitude: fw
+            status: complete
+            outcome: fc-010
+            note: See amendment am-002.
+
+      - stage: 2
+        name: Rendering
+        steps:
+          - n: 11
+            title: Migrate the Blender rendering code
+            altitude: infra
+            status: next
+            why_it_sits_here: >-
+              ITS ALTITUDE IS infra, BUT IT IS NOT INFRASTRUCTURE MIGRATED ON
+              FAITH. Three foreclosures — fc-007, fc-008 and fc-010 — are each
+              limited by gap-010: this fixture has no true half-occlusions, so
+              every one of them holds for a stimulus without them and no further.
+              od-002 names Blender as the only instrument in this repository able
+              to produce a stimulus with a controlled contrast axis at occlusion
+              boundaries, which is what would lift that limit.
+              That is why Blender moved from step 7 to step 11: it is not being
+              migrated because a plan says so, but because three standing
+              foreclosures cannot be tested past their limit without it.
+          - {n: 12, title: Test rendering against the loop, altitude: geom, status: planned}
+          - {n: 13, title: Adapt the static pipeline to Blender rendering, altitude: geom, status: planned}
+          - {n: 14, title: Reproduce the static-scene result on Blender data, altitude: geom, status: planned}
+
+      - stage: 3
+        name: Geometry and results
+        steps:
+          - n: 15
+            title: Migrate the active-stereo geometry, in ray form
+            altitude: geom
+            status: planned
+            note: >-
+              fc-009 records that its cost estimate is UNTESTED and was not
+              revised. It will be tested by the first commit in which a geometry
+              layer consumes a ray directly.
+          - {n: 16, title: Incorporate the carried results, altitude: geom, status: planned}
+
+      - stage: 4
+        name: The loop
+        steps:
+          - {n: 17, title: Build and test the active loop, altitude: fw, status: planned}
+          - {n: 18, title: Prototype the omnidirectional rig in Blender, altitude: fw, status: planned}
+
+    amendments:
+      - id: am-001
+        moved: step 5, Create the template repository
+        from: its numbered position
+        to: after step 7, deferred to the end of Stage 0
+        reason: >-
+          A template extracted from a working instance is an OBSERVATION; one
+          built first is a GUESS. The template is extracted after this repository
+          works, not designed before it.
+      - id: am-002
+        moved: step 10, Decide the plant
+        from: its numbered position
+        to: after the acquisition experiment (exp003)
+        reason: >-
+          A foreclosure taken without evidence is a guess carrying a decision's
+          authority. The plant was decided on measurement — fc-010 — rather than
+          ahead of it, and od-003 records precisely what evidence would reopen it.
 
 # ------------------------------------------------------------------------------
 # WHAT RUNS
