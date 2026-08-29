@@ -193,3 +193,42 @@ than needing one more case.
   objective and revisiting were varied.
 - **C's advantage at step 0 is real but not durable**, and a shorter budget would
   have reported a different story. Budget was declared in advance at 18.
+
+---
+
+# Amendment, added 2026-08-29 by exp002 — C_vs_B flips with more seeds
+
+**Added, not edited.** Everything above is left exactly as it was recorded. The
+disagreement between the two runs is the information, and overwriting the
+original verdict would destroy it.
+
+exp002 re-evaluated this comparison at **exp001's own endpoint, step 18**, with
+**16 seeds** instead of 8, using the same bar. The harness was verified first:
+seeds 0–7 at step 18 reproduce every number above with `max|Δ| = 0.000e+00`, so
+the two runs differ only in the eight added seeds.
+
+| | exp001 (8 seeds) | exp002 (16 seeds) |
+|---|---|---|
+| median \|err\| diff, B − C | +0.00181 | **+0.00233** |
+| bar | 0.00187 | 0.00210 |
+| fraction of bar | 0.97 | **1.11** |
+| **verdict** | indistinguishable | **DISTINGUISHABLE, B worse** |
+
+**The verdict above flips.** This section of the original — *"B and C are
+technically indistinguishable by the declared rule … the median comparison lands
+at 0.97 of its bar, a knife-edge"* — was right to flag its own fragility, and the
+fragility was real.
+
+**What this does not change.** exp001's falsifier 2 fired on the *argmax*
+disjunct: B and C never selected the same candidate, 0 of 144, with picks a
+median 115 px apart. That evidence is untouched, and the flip points the same way,
+so `cn-001` is strengthened rather than revised. What changes is only that the
+trajectory disjunct now fires too, where before it did not.
+
+**What it says about the method.** The original verdict was reported at 0.97 of
+its bar rather than rounded to "indistinguishable" and left there. That is why
+this was cheap to re-check and why the flip is legible rather than a surprise. A
+verdict reported without its margin would have been indistinguishable — in the
+other sense — from a robust one.
+
+Recorded as `bio-018`. See `experiments/exp002_saliency_value/findings.md`.

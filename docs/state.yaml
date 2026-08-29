@@ -16,7 +16,7 @@ updated_at: 2026-08-29
 # the file, since it cannot name its own SHA; git records it either way. From the
 # next update onward, set it to the SHA this content was true at, so a reader can
 # tell a stale state file from a current one.
-updated_by_commit: ed0683a   # exp001's arms; this file is updated by the commit after it
+updated_by_commit: c0b54a4   # exp002's arms; this file is updated by the commit after it
 
 # ------------------------------------------------------------------------------
 # WHAT RUNS
@@ -38,7 +38,8 @@ runs:
   library:
     package: bio3dvision
     modules: [fixture, matching, loop, figure, baseline, policy]
-    lines: 862
+    lines: 927
+    policies: [A, A_prime, B, C, D, E]
     public_api: [ActiveStereo, BaselineRun, CameraParams, PanelArrays, cost_volume,
                  decode_disparity, error_summary, front_end_block, lr_consistency,
                  make_synthetic_scene, panel_arrays, run_baseline, save_result_fig,
@@ -67,6 +68,18 @@ runs:
       question: Does the gaze objective matter, once revisiting is controlled for?
       answer: No, on this fixture. See foreclosure fc-007.
       pre_registered: 19aee2a, committed alone before any arm was run
+      amended: >-
+        By exp002, by addition: its C_vs_B verdict flips with 16 seeds (bio-018),
+        and its scope is narrower than it read — a null about the choice among
+        variance-derived objectives, not about saliency.
+    - id: exp002_saliency_value
+      question: >-
+        Does posterior variance carry information beyond the validity mask?
+      answer: >-
+        Yes, but barely. Mask-only coverage is distinguishably worse than
+        variance-driven allocation, so variance is not empty (fc-008) — but the
+        mask is worth 65x more than the variance on median error. See fc-008.
+      pre_registered: 9179a55, committed alone before the runner existed
   not_present:
     - Geometry. No rays, no directions, no sensor model (od-001 is unimplemented).
     - Any rendered stimulus. Blender still has no experiment attached (od-002).
@@ -108,6 +121,22 @@ measurements:
       not repeating does.
     caveat: >-
       One fixture with no true half-occlusions (gap-010), one budget, one matcher.
+
+  - ids: [bio-014, bio-015, bio-016, bio-017, bio-018]
+    commit: c0b54a4
+    what: >-
+      exp002's six arms over 16 seeds at 40 fixations; the value of the validity
+      mask and of posterior variance beyond it, separately quantified; their
+      ratio; and the re-evaluation of exp001's C_vs_B with 16 seeds.
+    where: docs/inherited-measurements.yaml, status "measured"
+    headline: >-
+      Posterior variance does carry information beyond the validity mask, but the
+      mask is worth 65x more on median error (3.5x on p90). A policy knowing only
+      where the data is recovers 97.3% of the median-error benefit of the full
+      variance-driven policy.
+    caveat: >-
+      One fixture with no true half-occlusions (gap-010) — the limit that binds
+      the 65:1 ratio hardest.
 
 measurements_note: >-
   No longer empty. Values enter this list only when a run in THIS repository
@@ -330,7 +359,71 @@ foreclosures:
       arm passed a pixel to step(fixation=...). Nothing here measured the
       interface type, so closing od-001 on this evidence would be unsupported.
       od-001 stays open.
+    scope_annotation_added_by_exp002: >-
+      NARROWER THAN IT LOOKS. Every arm exp001 compared was informed by posterior
+      variance, so this foreclosure is a null about the CHOICE AMONG
+      VARIANCE-DERIVED OBJECTIVES, not about saliency. exp002 ran the uninformed
+      arms and found that variance DOES carry information beyond the validity
+      mask: mask-only coverage (E) is distinguishably worse than argmax-variance
+      plus inhibition of return (A') on both primary metrics, at 40 and again at
+      45 fixations. See fc-008 and bio-016. The original verdict stands; only its
+      scope is clarified.
+      exp002 also strengthens it: at 40 fixations with 16 seeds, C is
+      distinguishably WORSE than A' on median (1.05x bar), where exp001 found them
+      indistinguishable at 18 fixations with 8 seeds. The cheap remedy is at least
+      as good as the field integral, which is the direction this foreclosure
+      already went.
     decided_in: experiments/exp001_gaze_objective/findings.md
+
+  - id: fc-008
+    altitude: fw
+    closed: >-
+      Replacing variance-driven gaze allocation with uninformed or mask-only
+      coverage.
+    in_favour_of: >-
+      Keeping a posterior-variance-driven policy — argmax v plus inhibition of
+      return, unchanged from fc-007.
+    rationale: >-
+      Measured and pre-registered, and it closes the gap fc-007 left open. All
+      four exp001 arms read posterior variance, so fc-007 could not say whether
+      variance mattered at all. exp002 ran two deliberately impoverished arms: D
+      (blind raster, no information) and E (masked coverage, the validity mask
+      only), at a pitch derived from the inhibition radius so that spacing is not
+      confounded with policy type.
+      E is DISTINGUISHABLY WORSE than A' on both primary metrics — median +0.00028
+      at 1.38x the bar, p90 +0.04957 at 1.96x — and worse than C on p90. So the
+      strong outcome, that the allocation half of the framework's claim is empty
+      here, does NOT hold. Posterior variance carries information beyond the mask.
+      The verdict survives the check that nearly overturned it: A' and C had
+      converged by step 40 while D and E had not, making the gap plausibly an
+      approach-rate artefact. Re-run to 45 fixations (E's lattice limit,
+      post-hoc), E has stopped improving — median moved 1e-5 and p90 got worse —
+      and the gap persists at 1.17x and 1.55x the bar.
+    but_the_effect_is_small: >-
+      THE SIZE MATTERS AS MUCH AS THE SIGN, and this foreclosure should not be
+      cited without it. The validity mask is worth 0.01854 m of median error
+      (63.7% of D's), and posterior variance on top of it is worth 0.00028 m
+      (2.7% of E's) — a ratio of 65 : 1. On p90 the ratio narrows to 3.5 : 1.
+      A policy that knows only WHERE THE DATA IS recovers 97.3% of the
+      median-error benefit and 88.4% of the p90 benefit of the full
+      variance-driven policy. Variance is a real but small correction on a much
+      larger effect that is purely about coverage. See bio-015, bio-016, bio-017.
+    limit_on_this_foreclosure: >-
+      THIS FIXTURE HAS NO TRUE HALF-OCCLUSIONS (gap-010). Its right image is
+      resampled from its left, so high posterior variance here never marks a
+      region that is geometrically UNMEASURABLE — only one that is hard to match.
+      The two structurally different sources of high variance that motivate an
+      active policy are therefore represented by one of them.
+      So this holds FOR A STIMULUS WITHOUT HALF-OCCLUSIONS AND NO FURTHER. The
+      claim most exposed is the 65:1 ratio: on a stimulus with real occlusions the
+      variance channel would carry a signal about geometric unmeasurability that
+      it cannot carry here, and the ratio could move a long way.
+    what_would_lift_it: >-
+      A rendered stimulus with a controlled contrast axis at half-occlusion
+      boundaries — gap-001, and od-002 which names Blender as the only instrument
+      here able to produce one. NOT by growing the fixture: that is fc-004.
+    cost_to_reopen: An experiment on a stimulus with true half-occlusions.
+    decided_in: experiments/exp002_saliency_value/findings.md
 
 # ------------------------------------------------------------------------------
 # FALSIFIER VERDICTS
@@ -526,6 +619,88 @@ falsifier_verdicts:
       argmax moves under grid refinement is not finely steering the policy. That
       flatness is consistent with, and may partly explain, the fv-004-1 null.
     verified_at_commit: ed0683a
+
+  - iteration: 5
+    id: fv-005-1
+    falsifier: >-
+      If E (masked coverage) is indistinguishable from A' and from C at the exp001
+      bars, then posterior variance contributes nothing beyond the validity mask
+      on this stimulus, and the allocation half of the framework's claim is empty
+      here.
+    verdict: did_not_fire
+    numbers:
+      E_vs_A_prime_median: {diff: 0.00028, bar: 0.00021, x_bar: 1.38, direction: E_worse}
+      E_vs_A_prime_p90: {diff: 0.04957, bar: 0.02535, x_bar: 1.96, direction: E_worse}
+      E_vs_C_median: {diff: -0.00038, bar: 0.00052, x_bar: 0.74, direction: indistinguishable}
+      E_vs_C_p90: {diff: 0.05154, bar: 0.02375, x_bar: 2.17, direction: E_worse}
+      post_hoc_at_45_fixations: {median_x_bar: 1.17, p90_x_bar: 1.55}
+    detail: >-
+      Variance does carry information beyond the mask. Recorded as fc-008, and
+      fc-007's scope is annotated: exp001's null was about the choice among
+      variance-derived objectives, not about saliency.
+      The verdict survived the caveat that nearly overturned it. The declared
+      convergence analysis showed A' and C converged by step 40 while D and E had
+      not, which would have made the gap an approach-rate artefact; at that point
+      the E-A' median gap was 0.7 steps of E's own improvement rate. Re-run to 45
+      fixations, E's lattice limit and post-hoc, E has stopped improving and the
+      gap persists.
+      Size, which matters as much as sign: the mask is worth 65x more than the
+      variance on median, 3.5x on p90. A mask-only policy recovers 97.3% of the
+      median benefit.
+    verified_at_commit: c0b54a4
+
+  - iteration: 5
+    id: fv-005-2
+    falsifier: >-
+      If D (blind raster) ties with E (masked coverage), even the validity mask
+      contributes nothing and the result is purely about spacing.
+    verdict: FIRED
+    numbers:
+      D_vs_E_median: {diff: 0.01854, bar: 0.00039, x_bar: 47.0}
+      D_vs_E_p90: {diff: 0.17445, bar: 0.02967, x_bar: 5.9}
+      D_vs_E_rmse: {diff: 0.03176, bar: 0.00949, x_bar: 3.4}
+      D_fixations_on_invalid: {mean: 19.44, of: 40, fraction: 0.486}
+    detail: >-
+      D does not tie with E; it is worse by 47x the bar on median. The validity
+      mask is not free information — D spends 49% of its budget outside the valid
+      region because its lattice is blind to where the data is. Quantified and
+      recorded as bio-015 rather than left in prose, as required.
+    verified_at_commit: c0b54a4
+
+  - iteration: 5
+    id: fv-005-harness
+    falsifier: >-
+      Declared check: seeds 0-7 at step 18 must reproduce exp001's recorded
+      values, or the harness has drifted and nothing in exp002 is comparable.
+    verdict: passed
+    numbers:
+      max_abs_delta: 0.0
+      arms_checked: [A, A_prime, B, C]
+    detail: >-
+      Exact reproduction for all four shared arms, so exp001 is re-derivable from
+      exp002's run and the two differ only in the eight added seeds. This is what
+      licenses the C_vs_B re-check below.
+    verified_at_commit: c0b54a4
+
+  - iteration: 5
+    id: fv-005-recheck
+    falsifier: >-
+      exp001's C_vs_B was recorded indistinguishable at 0.97 of its bar. Declared
+      in advance: re-evaluate at step 18 with 16 seeds, and if it flips, amend by
+      addition rather than by editing the original verdict.
+    verdict: FLIPPED
+    numbers:
+      exp001_8_seeds: {mean_diff: 0.00181, bar: 0.00187, x_bar: 0.97, verdict: indistinguishable}
+      exp002_16_seeds: {mean_diff: 0.00233, bar: 0.00210, x_bar: 1.11, verdict: distinguishable_B_worse}
+    detail: >-
+      It flips. exp001's findings are amended by addition; the original verdict is
+      left in place. exp001's falsifier-2 conclusion is unaffected — it fired on
+      the argmax disjunct, 0 of 144 agreement, which this does not touch — and the
+      flip strengthens cn-001. Recorded as bio-018.
+      Worth noting for the method: the original was reported at 0.97 of its bar
+      rather than rounded to a verdict, which is why the flip is legible rather
+      than a surprise.
+    verified_at_commit: c0b54a4
 
 # ------------------------------------------------------------------------------
 # STANDING CONSTRAINTS
