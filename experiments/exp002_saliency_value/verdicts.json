@@ -1,0 +1,244 @@
+{
+ "E_vs_A_prime": {
+  "label": "E_vs_A_prime",
+  "rows": {
+   "median_abs_err": {
+    "metric": "median_abs_err",
+    "baseline_mean": 0.010301247239112854,
+    "other_mean": 0.010585218667984009,
+    "mean_diff": 0.0002839714288711548,
+    "sd_diff": 0.00019241229622604823,
+    "materiality_bar": 0.00020602494478225709,
+    "bar": 0.00020602494478225709,
+    "fraction_of_bar": 1.378335177671216,
+    "distinguishable": true,
+    "direction": "worse"
+   },
+   "p90": {
+    "metric": "p90",
+    "baseline_mean": 0.3785295844078067,
+    "other_mean": 0.42810367792844767,
+    "mean_diff": 0.049574093520641,
+    "sd_diff": 0.025346698611761816,
+    "materiality_bar": 0.007570591688156134,
+    "bar": 0.025346698611761816,
+    "fraction_of_bar": 1.95584025675189,
+    "distinguishable": true,
+    "direction": "worse"
+   },
+   "rmse": {
+    "metric": "rmse",
+    "baseline_mean": 0.47347365400495645,
+    "other_mean": 0.4743625140201092,
+    "mean_diff": 0.0008888600151526829,
+    "sd_diff": 0.00046892100911944675,
+    "materiality_bar": 0.00946947308009913,
+    "bar": 0.00946947308009913,
+    "fraction_of_bar": 0.09386583684584254,
+    "distinguishable": false,
+    "direction": "worse"
+   }
+  },
+  "indistinguishable_on_primary": false,
+  "convergence_index": {
+   "median_abs_err": null,
+   "p90": null,
+   "both_primary": null
+  }
+ },
+ "E_vs_C": {
+  "label": "E_vs_C",
+  "rows": {
+   "median_abs_err": {
+    "metric": "median_abs_err",
+    "baseline_mean": 0.010965846478939056,
+    "other_mean": 0.010585218667984009,
+    "mean_diff": -0.0003806278109550476,
+    "sd_diff": 0.0005164530646540912,
+    "materiality_bar": 0.00021931692957878114,
+    "bar": 0.0005164530646540912,
+    "fraction_of_bar": 0.7370036834034157,
+    "distinguishable": false,
+    "direction": "better"
+   },
+   "p90": {
+    "metric": "p90",
+    "baseline_mean": 0.3765614837408068,
+    "other_mean": 0.42810367792844767,
+    "mean_diff": 0.05154219418764092,
+    "sd_diff": 0.02375078634301859,
+    "materiality_bar": 0.007531229674816136,
+    "bar": 0.02375078634301859,
+    "fraction_of_bar": 2.1701257989208202,
+    "distinguishable": true,
+    "direction": "worse"
+   },
+   "rmse": {
+    "metric": "rmse",
+    "baseline_mean": 0.47375385604165093,
+    "other_mean": 0.4743625140201092,
+    "mean_diff": 0.0006086579784582262,
+    "sd_diff": 0.0006109103204143557,
+    "materiality_bar": 0.009475077120833019,
+    "bar": 0.009475077120833019,
+    "fraction_of_bar": 0.06423778621494902,
+    "distinguishable": false,
+    "direction": "worse"
+   }
+  },
+  "indistinguishable_on_primary": false,
+  "convergence_index": {
+   "median_abs_err": 36,
+   "p90": null,
+   "both_primary": null
+  }
+ },
+ "D_vs_E": {
+  "label": "D_vs_E",
+  "rows": {
+   "median_abs_err": {
+    "metric": "median_abs_err",
+    "baseline_mean": 0.010585218667984009,
+    "other_mean": 0.029123127460479736,
+    "mean_diff": 0.018537908792495728,
+    "sd_diff": 0.0003940983352982987,
+    "materiality_bar": 0.00021170437335968017,
+    "bar": 0.0003940983352982987,
+    "fraction_of_bar": 47.03878989609058,
+    "distinguishable": true,
+    "direction": "worse"
+   },
+   "p90": {
+    "metric": "p90",
+    "baseline_mean": 0.42810367792844767,
+    "other_mean": 0.6025504633784294,
+    "mean_diff": 0.1744467854499818,
+    "sd_diff": 0.029665423308952284,
+    "materiality_bar": 0.008562073558568953,
+    "bar": 0.029665423308952284,
+    "fraction_of_bar": 5.880475179241353,
+    "distinguishable": true,
+    "direction": "worse"
+   },
+   "rmse": {
+    "metric": "rmse",
+    "baseline_mean": 0.4743625140201092,
+    "other_mean": 0.5061193598800834,
+    "mean_diff": 0.031756845859974216,
+    "sd_diff": 0.0012709185267746823,
+    "materiality_bar": 0.009487250280402185,
+    "bar": 0.009487250280402185,
+    "fraction_of_bar": 3.3473182346179207,
+    "distinguishable": true,
+    "direction": "worse"
+   }
+  },
+  "indistinguishable_on_primary": false,
+  "convergence_index": {
+   "median_abs_err": null,
+   "p90": null,
+   "both_primary": null
+  }
+ },
+ "A_prime_vs_C": {
+  "label": "A_prime_vs_C",
+  "rows": {
+   "median_abs_err": {
+    "metric": "median_abs_err",
+    "baseline_mean": 0.010301247239112854,
+    "other_mean": 0.010965846478939056,
+    "mean_diff": 0.0006645992398262024,
+    "sd_diff": 0.0006353152966732939,
+    "materiality_bar": 0.00020602494478225709,
+    "bar": 0.0006353152966732939,
+    "fraction_of_bar": 1.0460935590662592,
+    "distinguishable": true,
+    "direction": "worse"
+   },
+   "p90": {
+    "metric": "p90",
+    "baseline_mean": 0.3785295844078067,
+    "other_mean": 0.3765614837408068,
+    "mean_diff": -0.0019681006669999244,
+    "sd_diff": 0.0035308678795670134,
+    "materiality_bar": 0.007570591688156134,
+    "bar": 0.007570591688156134,
+    "fraction_of_bar": 0.2599665585028094,
+    "distinguishable": false,
+    "direction": "better"
+   },
+   "rmse": {
+    "metric": "rmse",
+    "baseline_mean": 0.47347365400495645,
+    "other_mean": 0.47375385604165093,
+    "mean_diff": 0.00028020203669445673,
+    "sd_diff": 0.0005475947042249383,
+    "materiality_bar": 0.00946947308009913,
+    "bar": 0.00946947308009913,
+    "fraction_of_bar": 0.029590034664476125,
+    "distinguishable": false,
+    "direction": "worse"
+   }
+  },
+  "indistinguishable_on_primary": false,
+  "convergence_index": {
+   "median_abs_err": null,
+   "p90": 11,
+   "both_primary": null
+  },
+  "post_hoc_annotation": {
+   "status": "post-hoc, not pre-registered",
+   "points": [
+    "POST-HOC. Computed because the harness produced it, not declared in advance. exp002's pre-registration declares only the C_vs_B re-check.",
+    "NOT THE SAME MEASUREMENT AS exp001'S. exp001's verdict was at step 18 with 8 seeds; this is at the extended 40-fixation budget with 16 seeds. Different budget and different seed set, so it does not directly contradict the earlier verdict \u2014 the two are not comparable rows.",
+    "SPLIT AT THE NOISE FLOOR. median 1.05x bar favouring A_prime, p90 0.26x bar favouring C, rmse 0.03x bar favouring A_prime. One metric crossing a bar by 5% while another points the other way is not a reversal.",
+    "fc-007 IS NOT REOPENED. It stands on its declared evidence. This row is a flag for a future PRE-REGISTERED test at the longer budget, not a change to the ledger. Recorded in docs/state.yaml as outstanding, not scheduled."
+   ],
+   "direction_correction": "The commissioning note described this row as 'distinguishable on median_abs_err at 1.05x bar with C better', and its noise-floor point as 'median favouring C, p90 favouring A_prime'. Both are inverted. Measured at step 40 over 16 seeds, lower being better: median A_prime=0.01030 vs C=0.01097, so the median separation favours A_PRIME; p90 A_prime=0.37853 vs C=0.37656, so p90 favours C. The consequence matters: the row does not appear to contradict fc-007, which chose A_prime over C \u2014 on median it points the same way. The real misreading risk is narrower: a DISTINGUISHABLE label sitting beside exp001's indistinguishable verdict for the same pair, which could read as the earlier verdict overturned.",
+   "declared_in": "experiments/exp002_saliency_value/findings.md"
+  }
+ },
+ "C_vs_B_recheck": {
+  "label": "C_vs_B_recheck",
+  "rows": {
+   "median_abs_err": {
+    "metric": "median_abs_err",
+    "baseline_mean": 0.010834820568561554,
+    "other_mean": 0.013164304196834564,
+    "mean_diff": 0.0023294836282730103,
+    "sd_diff": 0.0020982488282921944,
+    "materiality_bar": 0.00021669641137123108,
+    "bar": 0.0020982488282921944,
+    "fraction_of_bar": 1.11020370742636,
+    "distinguishable": true,
+    "direction": "worse"
+   },
+   "p90": {
+    "metric": "p90",
+    "baseline_mean": 0.3762169569730759,
+    "other_mean": 0.464986462891102,
+    "mean_diff": 0.0887695059180261,
+    "sd_diff": 0.0977216313312141,
+    "materiality_bar": 0.0075243391394615175,
+    "bar": 0.0977216313312141,
+    "fraction_of_bar": 0.9083915680567591,
+    "distinguishable": false,
+    "direction": "worse"
+   },
+   "rmse": {
+    "metric": "rmse",
+    "baseline_mean": 0.47333585160616376,
+    "other_mean": 0.4790615001193749,
+    "mean_diff": 0.005725648513211123,
+    "sd_diff": 0.010240760950770094,
+    "materiality_bar": 0.009466717032123276,
+    "bar": 0.010240760950770094,
+    "fraction_of_bar": 0.559103814719995,
+    "distinguishable": false,
+    "direction": "worse"
+   }
+  },
+  "indistinguishable_on_primary": false
+ },
+ "harness_reproduces_exp001": true
+}

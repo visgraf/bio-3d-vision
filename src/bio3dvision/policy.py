@@ -31,6 +31,7 @@ not ``Delta_c(c)``; whether the cheap version tracks it is falsifier 2.
 
 from __future__ import annotations
 
+import math
 from typing import Any, Protocol
 
 import numpy as np
@@ -62,6 +63,16 @@ CANDIDATE_STRIDE = 4
 
 #: The port's saliency blur, from ActiveStereo.step. Carried, not endorsed.
 SALIENCY_SIGMA = 4.0
+
+#: Raster pitch for the uninformed arms (exp002), derived from INHIBITION_RADIUS
+#: rather than chosen: A' claims an area of pi*R^2 per fixation, a pitch-p lattice
+#: claims p^2, so equalising the areal footprint per fixation gives p = R*sqrt(pi).
+#:
+#: Matching p to R itself would equalise a length against a radius, making the
+#: raster pi times denser — 40 fixations would then claim 30% of the valid area
+#: against 95% here, and a blind arm would lose for having looked at less of the
+#: image rather than for being blind. See exp002's pre-registration.
+RASTER_PITCH = INHIBITION_RADIUS * math.sqrt(math.pi)
 
 
 class Policy(Protocol):
@@ -222,9 +233,63 @@ def policy_c(
     return cands[int(np.argmax(scores))]
 
 
+# --- the uninformed arms (exp002) -------------------------------------------
+#
+# Neither reads engine.var. Both are deterministic scans indexed by how many
+# fixations have already happened, so they are stateless and reproducible.
+
+
+def raster_lattice(
+    shape: tuple[int, int], pitch: float = RASTER_PITCH, origin: tuple[int, int] = (0, 0)
+) -> list[Fixation]:
+    """Row-major lattice of the given pitch over ``shape``, from ``origin``."""
+    r0, c0 = origin
+    rows = np.arange(r0, shape[0], pitch)
+    cols = np.arange(c0, shape[1], pitch)
+    return [(int(round(r)), int(round(c))) for r in rows for c in cols]
+
+
+def policy_d(engine: Any, visited: list[Fixation]) -> Fixation | None:
+    """D — blind raster. Uses NO information, not even the validity mask.
+
+    A fixed pitch-``RASTER_PITCH`` scan of the whole frame from (0, 0). Roughly
+    41% of its lattice falls outside the valid region, and those fixations are
+    largely wasted — that is what "uses no information" means, and it is the
+    quantity being measured rather than an artefact.
+
+    Fixating deep in the invalid band is safe: ``vergence`` finds no valid pixel
+    in its window, falls back to the raw ``d_sub``, and clamps ``D_fix`` into
+    [0.5, 8] m.
+    """
+    lattice = raster_lattice(engine.valid.shape)
+    i = len(visited)
+    return lattice[i] if i < len(lattice) else None
+
+
+def policy_e(engine: Any, visited: list[Fixation]) -> Fixation | None:
+    """E — masked coverage. Uses the validity mask and nothing else.
+
+    The same pitch as D, laid over the valid region's bounding box and skipping
+    invalid lattice points. E is D plus one bit per pixel; the bit is used both
+    to place the raster and to skip holes, because E is the "mask only" arm and
+    should be the strongest version of that.
+    """
+    ys, xs = np.where(engine.valid)
+    origin = (int(ys.min()), int(xs.min()))
+    lattice = [
+        p
+        for p in raster_lattice(engine.valid.shape, origin=origin)
+        if p[0] <= int(ys.max()) and p[1] <= int(xs.max()) and engine.valid[p]
+    ]
+    i = len(visited)
+    return lattice[i] if i < len(lattice) else None
+
+
 POLICIES: dict[str, Policy] = {
     "A": policy_a,
     "A_prime": policy_a_prime,
     "B": policy_b,
     "C": policy_c,
+    "D": policy_d,
+    "E": policy_e,
 }

@@ -1349,6 +1349,145 @@ measurements:
       argmax is not stable under grid refinement — which is consistent with, and
       may partly explain, the fv-004-1 null.
 
+  # --- exp002, the saliency-value experiment (pre-registered at 9179a55) -------
+
+  - id: bio-014
+    statement: Final-step depth error for six gaze policies over 16 seeds, 40 fixations.
+    value:
+      D_blind_raster:      {median_abs_err: 0.02912, p90: 0.60255, rmse: 0.50612, distinct: 40.00, on_invalid: 19.44}
+      E_masked_coverage:   {median_abs_err: 0.01059, p90: 0.42810, rmse: 0.47436, distinct: 40.00, on_invalid: 0.0}
+      A_argmax_variance:   {median_abs_err: 0.01414, p90: 0.43140, rmse: 0.47810, distinct: 10.06, on_invalid: 0.0}
+      B_single_pixel_delta: {median_abs_err: 0.01339, p90: 0.43330, rmse: 0.47630, distinct: 15.00, on_invalid: 0.0}
+      C_field_integral:    {median_abs_err: 0.01097, p90: 0.37656, rmse: 0.47375, distinct: 30.38, on_invalid: 0.0}
+      A_prime_variance_IOR: {median_abs_err: 0.01030, p90: 0.37853, rmse: 0.47347, distinct: 40.00, on_invalid: 0.0}
+    units: {median_abs_err: m, p90: m, rmse: m, distinct: count, on_invalid: count}
+    n: {seeds: 16, budget: 40, pixels: 53098}
+    stimulus_family: analytic_fixture
+    matcher: block
+    configuration: >-
+      exp002, raster pitch 35.449 px (= R*sqrt(pi)), inhibition radius 20.0,
+      candidate stride 4 for B and C, fovea sigma 34.0, means over seeds 0-15 at
+      fixation 40, over valid known pixels
+    provenance:
+      cited_as: visgraf/bio-3d-vision
+      source: experiments/exp002_saliency_value/results.json
+      experiment: exp002_saliency_value
+      run_id: null
+      measured_at_sha: c0b54a4
+    status: measured
+    notes: >-
+      Harness verified against exp001 before use: seeds 0-7 at step 18 reproduce
+      exp001's recorded values with max|delta| = 0 for all four shared arms.
+      A's lockup is far worse at 40 steps than at 18 — 10.06 distinct fixations of
+      40, and its median error RISES monotonically from 0.01197 at step 6 to
+      0.01414 at step 40. Extending the budget makes the ported baseline worse.
+
+  - id: bio-015
+    statement: Value of the validity mask for gaze allocation — the D-to-E gap.
+    value:
+      median_abs_err: {D: 0.02912, E: 0.01059, gain: 0.01854, fraction_of_D: 0.637, x_bar: 47.0}
+      p90:            {D: 0.60255, E: 0.42810, gain: 0.17445, fraction_of_D: 0.290, x_bar: 5.9}
+      rmse:           {D: 0.50612, E: 0.47436, gain: 0.03176, x_bar: 3.4}
+    units: m
+    n: {seeds: 16, budget: 40}
+    stimulus_family: analytic_fixture
+    matcher: block
+    configuration: >-
+      D and E share a pitch (35.449 px) and differ only in that E knows the
+      validity mask; D spends 19.44 of 40 fixations outside the valid region
+    provenance:
+      cited_as: visgraf/bio-3d-vision
+      source: experiments/exp002_saliency_value/verdicts.json
+      experiment: exp002_saliency_value
+      run_id: null
+      measured_at_sha: c0b54a4
+    status: measured
+    notes: >-
+      exp002's falsifier 2. D does NOT tie with E: the gap is 47x the declared bar
+      on median. Knowing where the data is cuts median error by 63.7%. This is the
+      value of ONE BIT PER PIXEL, and it is the largest effect exp002 measured.
+
+  - id: bio-016
+    statement: Value of posterior variance beyond the validity mask — the E-to-A-prime gap.
+    value:
+      median_abs_err: {E: 0.01059, A_prime: 0.01030, gain: 0.00028, fraction_of_E: 0.027, x_bar: 1.38}
+      p90:            {E: 0.42810, A_prime: 0.37853, gain: 0.04957, fraction_of_E: 0.116, x_bar: 1.96}
+      at_45_fixations: {median_x_bar: 1.17, p90_x_bar: 1.55}
+    units: m
+    n: {seeds: 16, budget: 40}
+    stimulus_family: analytic_fixture
+    matcher: block
+    configuration: >-
+      A' and E both fixate 40 distinct valid pixels; A' orders them by posterior
+      variance, E by raster scan
+    provenance:
+      cited_as: visgraf/bio-3d-vision
+      source: experiments/exp002_saliency_value/verdicts.json, extension45.json
+      experiment: exp002_saliency_value
+      run_id: null
+      measured_at_sha: c0b54a4
+    status: measured
+    notes: >-
+      exp002's falsifier 1, which does NOT fire: E is distinguishably worse than A'
+      on both primary metrics, so posterior variance DOES carry information beyond
+      the mask. The verdict survives a post-hoc extension to 45 fixations, E's
+      lattice limit, where E has stopped improving (median moved 1e-5, p90 got
+      worse) and the gap persists at 1.17x and 1.55x the bar — so it is not an
+      approach-rate artefact.
+      Read alongside bio-015: a policy knowing only WHERE THE DATA IS recovers
+      97.3% of the median-error benefit and 88.4% of the p90 benefit of the full
+      variance-driven policy. Variance is a small correction on a much larger
+      coverage effect.
+
+  - id: bio-017
+    statement: Ratio of the validity mask's value to posterior variance's value in gaze allocation.
+    value: {median_abs_err: 65.3, p90: 3.5}
+    units: ratio
+    n: {seeds: 16, budget: 40}
+    stimulus_family: analytic_fixture
+    matcher: block
+    configuration: (D-E) / (E-A_prime), per metric, at fixation 40
+    provenance:
+      cited_as: visgraf/bio-3d-vision
+      source: derived from bio-015 and bio-016
+      experiment: exp002_saliency_value
+      run_id: null
+      measured_at_sha: c0b54a4
+    status: measured
+    notes: >-
+      On the median, knowing where the data is is worth 65x more than knowing how
+      uncertain it is. On p90 the ratio narrows to 3.5:1 — variance earns most of
+      its keep in the tail, which is where the hard pixels are.
+      MOST EXPOSED TO gap-010 of anything in this record. On a stimulus with real
+      half-occlusions the variance channel would carry a signal about geometric
+      unmeasurability that it cannot carry here, and this ratio could move a long
+      way. Do not cite it as a general property of the framework.
+
+  - id: bio-018
+    statement: exp001's C-vs-B verdict at step 18, re-evaluated with 16 seeds instead of 8.
+    value:
+      exp001_8_seeds:  {mean_diff: 0.00181, bar: 0.00187, fraction_of_bar: 0.97, verdict: indistinguishable}
+      exp002_16_seeds: {mean_diff: 0.00233, bar: 0.00210, fraction_of_bar: 1.11, verdict: distinguishable}
+    units: m
+    n: {seeds: 16, step: 18}
+    stimulus_family: analytic_fixture
+    matcher: block
+    configuration: exp001's endpoint and bar, 8 additional seeds
+    provenance:
+      cited_as: visgraf/bio-3d-vision
+      source: experiments/exp002_saliency_value/verdicts.json
+      experiment: exp002_saliency_value
+      run_id: null
+      measured_at_sha: c0b54a4
+    status: measured
+    notes: >-
+      THE VERDICT FLIPS. exp001 recorded this as indistinguishable at 0.97 of its
+      bar and flagged the fragility; with 8 more seeds it is distinguishable, B
+      worse. exp001's findings are amended BY ADDITION, leaving the original
+      verdict in place. exp001's falsifier-2 conclusion is unaffected — it fired on
+      the argmax disjunct (0 of 144 agreement), untouched by this — and the flip
+      strengthens cn-001 rather than revising it.
+
   # ==============================================================================
   # GAPS — measurements that were NOT made, and whose absence is load-bearing.
   # ==============================================================================
