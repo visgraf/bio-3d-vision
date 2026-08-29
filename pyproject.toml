@@ -12,6 +12,8 @@ requires-python = ">=3.12"
 # the maintainer's call, not the scaffold's.
 dependencies = [
     "numpy>=1.26",
+    "scipy>=1.11",
+    "matplotlib>=3.8",
 ]
 
 [project.optional-dependencies]
@@ -50,3 +52,8 @@ warn_unreachable = true
 [[tool.mypy.overrides]]
 module = "spikes.*"
 ignore_errors = true
+
+# scipy and matplotlib ship no type stubs.
+[[tool.mypy.overrides]]
+module = ["scipy.*", "matplotlib.*"]
+ignore_missing_imports = true

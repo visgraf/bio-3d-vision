@@ -36,10 +36,19 @@ def _python_files(*roots: str) -> list[pathlib.Path]:
 
 
 def test_package_imports() -> None:
-    """The library imports and is empty, which is the accurate state."""
+    """The library imports and exports the ported baseline.
+
+    This assertion used to read ``__all__ == []``, which was the accurate state
+    until the port landed. Updated rather than deleted: the point is that the
+    public surface is stated somewhere a change has to pass through.
+    """
     import bio3dvision
 
-    assert bio3dvision.__all__ == []
+    assert "run_baseline" in bio3dvision.__all__
+    assert "ActiveStereo" in bio3dvision.__all__
+    assert "make_synthetic_scene" in bio3dvision.__all__
+    assert "save_result_fig" in bio3dvision.__all__
+    assert sorted(bio3dvision.__all__) == bio3dvision.__all__, "__all__ is kept sorted"
 
 
 def test_governed_trees_do_not_import_spikes() -> None:
