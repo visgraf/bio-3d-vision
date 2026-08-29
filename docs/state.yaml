@@ -115,13 +115,13 @@ sequence:
       silently swapped, in the style of `sequence.staleness.amended` and for the
       same reason: the defect is worth more than the fix. A check that passes on a
       false claim is the same shape as a claim that cannot fail.
-    complete: [1, 2, 3, 4, 7, 8, 9]
+    complete: [1, 2, 3, 4, 7, 8, 9, 10]
     deferred:
       - step: 5
         until: the end of Stage 0
       - step: 6
         until: the loop runs
-    next: 10
+    next: 11
     evidence:
       1: docs/migration-inventory.md — 114 items classified across both references
       2: docs/inherited-measurements.yaml — the carried-results record, 73 entries
@@ -130,10 +130,10 @@ sequence:
       7: the initial stub commit e3a17cf
       8: src/bio3dvision/{fixture,matching,loop,figure,baseline}.py, bit-identical to bioeye@e908170 (bio-009)
       9: fc-007, the first fw foreclosure (exp001), with its scope annotated and extended by fc-008 (exp002)
-      # 10 IS NOT LISTED HERE, AND ITS ABSENCE IS THE CORRECTION. This line
-      # previously read "10: fc-010 (exp003), taken on measured evidence; od-003
-      # records what would reopen it". fc-010 does not decide the plant — see
-      # `checking_amended` above and the step 10 entry below.
+      # This line previously read "10: fc-010 (exp003), taken on measured
+      # evidence; od-003 records what would reopen it". fc-010 does not decide
+      # the plant; see `checking_amended` above and am-002-c.
+      10: fc-011, taken by the maintainer on the evidence of fc-008 and fc-010 — a decision, not a run
     out_of_sequence:
       - what: >-
           The sample-index to unit-ray boundary. Was od-001; CLOSED, and now
@@ -219,8 +219,8 @@ sequence:
           - n: 10
             title: Decide the plant
             altitude: fw
-            status: not_taken
-            outcome: null
+            status: complete
+            outcome: fc-011
             note: See amendment am-002, and its correction am-002-c.
             correction: >-
               THIS ENTRY PREVIOUSLY READ `status: complete` WITH `outcome:
@@ -915,6 +915,106 @@ foreclosures:
       (od-003), or a stimulus with half-occlusions (od-002).
     decided_in: experiments/exp003_vergence_acquisition/findings.md
 
+  - id: fc-011
+    altitude: fw
+    closed: >-
+      Modelling L5 as a mechanical plant — an actuator layer whose job is to move
+      the eyes — as the branch this project develops next.
+    in_favour_of: >-
+      L5 models ATTENTIONAL ALLOCATION: where the system spends its limited
+      measurement budget, not how an eyeball is driven there.
+    decided_by: >-
+      The maintainer, on the evidence of fc-008 and fc-010. NOT DERIVED FROM A
+      MEASUREMENT IN THIS REPOSITORY, and recorded that way deliberately: it is a
+      judgement about which of two branches to develop, taken on an asymmetry
+      between two states of knowledge (below), not a result that a run produced.
+    the_asymmetry_that_decided_it: >-
+      THIS IS THE WHOLE ARGUMENT, and it is about states of knowledge rather than
+      about outcomes.
+      ALLOCATION IS MEASURED, AND IT WORKS WEAKLY. exp002 ran the deliberately
+      impoverished arms and found posterior variance does carry information beyond
+      the validity mask (fc-008) — distinguishably, on both primary metrics, and
+      small: the mask is worth 65x more than the variance on median error, and a
+      policy knowing only where the data is recovers 97.3% of the median benefit.
+      That is a weak positive. It is still a positive, and it is repeatable.
+      ACQUISITION IS MEASURED ONCE, WITH A CONTROLLER THAT CANNOT STEER. exp003
+      measured verging-to-acquire as worse than not verging on every axis except
+      coverage (fc-010) — but fc-010's own `mechanism` field localises the failure
+      to the estimator, not to the act.
+      A weak measured positive and a single measurement made with a broken
+      instrument are different states of knowledge, and this decision reflects the
+      difference. It develops the branch that has evidence, and it does not
+      convert the absence of a working instrument into evidence against the branch
+      that lacked one.
+    the_plant_is_untested_not_refuted: >-
+      READ THIS BEFORE CITING fc-010 AGAINST A PLANT. fc-010 is evidence about ONE
+      VERGENCE ESTIMATOR, and that estimator PROVABLY cannot produce the signal a
+      plant would need.
+      The proof is structural, not statistical, and it is in fc-010's `mechanism`:
+      ActiveStereo.vergence estimates fixation disparity as the median of d_sub
+      over VALID pixels in a foveal window. A pixel whose true disparity lies
+      outside the window generally fails validity and is excluded from that
+      median, so the estimate is confined to the window's interior BY
+      CONSTRUCTION. It can report a value; it cannot report "too near" or "too
+      far". The measured instance: at window [8,12] with the near card at 18.96 px
+      only 41.8% of pixels survive and their median d_sub reads 10.32, and at seed
+      0 fixations 5-7 the controller verged AWAY from the target, 10.0 -> 7.9 ->
+      5.95.
+      An actuator commanded by a signal that cannot carry a sign is not a test of
+      actuation. So fc-010 is not evidence about mechanical actuation as such, and
+      this foreclosure does not treat it as any.
+      WHY THIS IS SPELLED OUT RATHER THAN ASSUMED: writing fc-010 into the ledger
+      as evidence against plants would repeat the exact overstatement fc-009's
+      amendment already had to correct once — a measurement recorded as bearing on
+      a question it does not bear on. It was corrected there in place; it is
+      pre-empted here.
+    retest_condition: >-
+      od-003, which is pointed at rather than restated. It records what evidence
+      would reopen the vergence question and what it would cost, and duplicating
+      its terms here would create a second copy to keep in step with it.
+    agrees_with: >-
+      fv-007-1, which recorded at b77b24e that exp003's falsifier did not fire on
+      its stated condition and that "THE STATED CONSEQUENCE IS NOT INVOKED... this
+      does not by itself direct step 10 toward the attentional branch. The
+      measured outcome bears on the same decision and is recorded as od-003 rather
+      than deciding it here."
+      This foreclosure is the decision fv-007-1 declined to take on that evidence,
+      taken now by the maintainer, on a stated asymmetry, and NOT on the falsifier
+      firing. The two entries agree: the falsifier did not license this, and this
+      does not claim it did. fv-007-1 carries a reciprocal pointer back to here.
+    forecloses_nothing_downstream: >-
+      AN ATTENTIONAL L5 MUST NOT MAKE A PLANT UNREPRESENTABLE. This closes a
+      branch of development, not a region of design space, and the difference has
+      to survive into the code or the foreclosure will quietly become structural.
+      CONCRETELY, AND THIS IS THE TESTABLE PART: no assumption that sensory data
+      is FIXED ACROSS FIXATIONS may be baked into any interface. An interface that
+      takes the image pair once and then serves fixations out of it forever is
+      cheap to write, is adequate for every experiment run so far, and would make
+      a plant unrepresentable without anyone deciding that it should be. exp003's
+      arm V is the existing counter-example: it re-runs the front end every
+      fixation, and it is the first arm in either repository in which an action
+      changes what data exists.
+      So the shape to preserve is the one arm V already needs. Any interface added
+      after this foreclosure must be able to express "the data changed because the
+      system moved", whether or not anything currently moves.
+    cost_to_reopen: >-
+      Low as a decision, and that is the point of recording it this way: nothing
+      is being built that a plant would have to be dug out of. Reopening it needs
+      the retest in od-003, not an unwinding of work.
+    decided_in: >-
+      docs/state.yaml, this entry. There is no findings file because there was no
+      run: this is a maintainer's decision on the evidence already in the ledger,
+      not a result. fc-007, fc-008 and fc-010 were each decided in an
+      experiment's findings; this one is not, and the difference is visible here
+      rather than inferred.
+    vocabulary_note: >-
+      "L5" IS CHAT-SURFACE VOCABULARY AND IS NOT DEFINED IN THIS REPOSITORY. The
+      layer numbering belongs to the framework document the maintainer holds; the
+      only other place it surfaces here is fc-007's `does_not_close`, on the
+      L6-to-L1 interface. Recorded so that a session finding "L5" here does not go
+      looking for a definition that is not in the tree. The clause that this
+      repository can actually check is `forecloses_nothing_downstream`.
+
 # ------------------------------------------------------------------------------
 # FALSIFIER VERDICTS
 #
@@ -1298,6 +1398,15 @@ falsifier_verdicts:
       direct step 10 toward the attentional branch. The measured outcome bears on
       the same decision and is recorded as od-003 rather than deciding it here.
     verified_at_commit: b77b24e
+    what_took_the_decision_later: >-
+      fc-011, by the maintainer, on a stated asymmetry between a weak measured
+      positive for allocation (fc-008) and a single acquisition measurement made
+      with an estimator that provably cannot steer (fc-010) — NOT on this
+      falsifier firing, which it did not.
+      Pointer added so the two entries agree in place rather than having to be
+      reconciled by a reader. Between b77b24e and that decision, step 10 was
+      briefly recorded as complete with outcome fc-010, which contradicted this
+      verdict directly; see am-002-c.
 
   - iteration: 7
     id: fv-007-2
