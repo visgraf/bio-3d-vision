@@ -16,7 +16,7 @@ updated_at: 2026-08-29
 # the file, since it cannot name its own SHA; git records it either way. From the
 # next update onward, set it to the SHA this content was true at, so a reader can
 # tell a stale state file from a current one.
-updated_by_commit: ae11496   # the port; this file is updated by the commit after it
+updated_by_commit: ed0683a   # exp001's arms; this file is updated by the commit after it
 
 # ------------------------------------------------------------------------------
 # WHAT RUNS
@@ -37,8 +37,8 @@ runs:
       does: Renders the four panels to results/fig_result.png and returns their data.
   library:
     package: bio3dvision
-    modules: [fixture, matching, loop, figure, baseline]
-    lines: 643
+    modules: [fixture, matching, loop, figure, baseline, policy]
+    lines: 862
     public_api: [ActiveStereo, BaselineRun, CameraParams, PanelArrays, cost_volume,
                  decode_disparity, error_summary, front_end_block, lr_consistency,
                  make_synthetic_scene, panel_arrays, run_baseline, save_result_fig,
@@ -62,6 +62,11 @@ runs:
     note: >-
       Deviations are later commits, one at a time, each reporting its effect on the
       trajectory. They are decisions, not cleanups. Nothing here is step 9.
+  experiments:
+    - id: exp001_gaze_objective
+      question: Does the gaze objective matter, once revisiting is controlled for?
+      answer: No, on this fixture. See foreclosure fc-007.
+      pre_registered: 19aee2a, committed alone before any arm was run
   not_present:
     - Geometry. No rays, no directions, no sensor model (od-001 is unimplemented).
     - Any rendered stimulus. Blender still has no experiment attached (od-002).
@@ -88,6 +93,21 @@ measurements:
       These measure the PREDECESSOR'S loop, exactly — the port is bit-identical to
       it. They are this repository's measurements of inherited behaviour, and a
       baseline for deviations, not a result about anything new.
+
+  - ids: [bio-010, bio-011, bio-012, bio-013]
+    commit: ed0683a
+    what: >-
+      exp001's four gaze-policy arms over 8 seeds: final-step primary metrics,
+      the A-vs-C and B-vs-C argmax agreement rates, and the candidate-stride
+      ladder.
+    where: docs/inherited-measurements.yaml, status "measured"
+    headline: >-
+      A' and C are indistinguishable on both primary metrics, while both beat the
+      ported baseline. A and C never select the same fixation (0 of 144), and
+      neither do B and C. Which pixel is fixated barely matters on this fixture;
+      not repeating does.
+    caveat: >-
+      One fixture with no true half-occlusions (gap-010), one budget, one matcher.
 
 measurements_note: >-
   No longer empty. Values enter this list only when a run in THIS repository
@@ -265,6 +285,53 @@ foreclosures:
       elevation. A sentence in a governance file has nothing to fail against.
     cost_to_reopen: None mechanically; the reason not to is recorded above.
 
+  - id: fc-007
+    altitude: fw
+    closed: >-
+      Reframing the gaze objective from posterior variance to expected information
+      gain.
+    in_favour_of: >-
+      argmax of posterior variance plus inhibition of return at the predecessor's
+      20.0 px radius.
+    rationale: >-
+      Measured, pre-registered, and against the hypothesis that motivated the
+      experiment. exp001 ran four arms over 8 seeds: the principled objective
+      (argmax of the field integral of expected variance reduction) and the cheap
+      remedy (argmax variance + inhibition of return) are INDISTINGUISHABLE on
+      both declared primary metrics, at a threshold declared before any arm ran.
+      Both beat the ported baseline; neither beats the other. The two objectives
+      never once selected the same fixation (0 of 144 comparisons at matched
+      state), so this is not "the objectives agree" — it is that the choice does
+      not change the outcome, while the ~1e4x cost difference is real.
+    first_fw_foreclosure: true
+    cost_to_reopen: >-
+      An experiment on a stimulus with true half-occlusions. This one cannot
+      settle the question there — see the limit below — so reopening is not
+      merely allowed, it is anticipated.
+    limit_on_this_foreclosure: >-
+      gap-010: the fixture has no true half-occlusions. Its right image is
+      resampled from its left, so the (170, 94) failure driving the lockup is a
+      MATCHING failure in a fully visible region, not an occlusion. The two
+      structurally different sources of high posterior variance that motivated the
+      experiment are therefore represented by only one of their two mechanisms.
+      THIS FORECLOSES THE QUESTION FOR A STIMULUS WITHOUT OCCLUSIONS AND NO
+      FURTHER. Everything measured is consistent with the objective mattering a
+      great deal on a stimulus with real occlusions.
+    what_would_lift_it: >-
+      A rendered stimulus with a controlled contrast axis at half-occlusion
+      boundaries — gap-001, and od-002 which names Blender as the only instrument
+      in this repository able to produce one. NOT by growing the fixture: that is
+      fc-004, and reopening it needs an ADR and a better reason than needing one
+      more case.
+    does_not_close: >-
+      od-001, despite a natural-looking association. od-001 decides whether the
+      L6-to-L1 interface passes a DIRECTION or a PIXEL — a question about the type
+      of the boundary. exp001 varied the OBJECTIVE behind the choice, and every
+      arm passed a pixel to step(fixation=...). Nothing here measured the
+      interface type, so closing od-001 on this evidence would be unsupported.
+      od-001 stays open.
+    decided_in: experiments/exp001_gaze_objective/findings.md
+
 # ------------------------------------------------------------------------------
 # FALSIFIER VERDICTS
 #
@@ -382,3 +449,112 @@ falsifier_verdicts:
       breaks to follow. This is evidence that fc-002 was not closed too early, not
       evidence that it will hold at 3000 lines.
     verified_at_commit: ae11496
+
+  - iteration: 4
+    id: fv-004-1
+    falsifier: >-
+      If A' and C produce indistinguishable trajectories at the declared
+      threshold, then controlling for revisiting is sufficient and changing the
+      objective is not warranted; the reframe from variance to expected
+      information gain is foreclosed.
+    verdict: FIRED
+    numbers:
+      seeds: 8
+      budget: 18
+      median_abs_err: {A: 0.01318, A_prime: 0.01126, B: 0.01244, C: 0.01063}
+      p90: {A: 0.41180, A_prime: 0.36736, B: 0.42003, C: 0.36848}
+      rmse_secondary: {A: 0.47532, A_prime: 0.47246, B: 0.47622, C: 0.47291}
+      C_vs_A_prime_median: {diff: -0.00063, bar: 0.00088, fraction_of_bar: 0.72}
+      C_vs_A_prime_p90: {diff: 0.00112, bar: 0.00793, fraction_of_bar: 0.14}
+      argmax_agreement_A_vs_C: 0.000
+      spearman_A_vs_C: 0.348
+    detail: >-
+      Indistinguishable on both primary metrics, and the two primaries do not even
+      agree on a direction — C is nominally better on median and nominally worse
+      on p90 — which is what a null looks like. Both remedies DO beat the ported
+      baseline on median (A' -0.00192, C -0.00255, both distinguishable), so the
+      lockup is real and both fixes work; they just do not differ from each other.
+      The result that makes this more than a negative: A and C never select the
+      same fixation, 0 of 144. The objectives disagree completely about where to
+      look and produce indistinguishable outcomes. Which pixel is fixated barely
+      matters on this fixture; not repeating does.
+      The pre-registered contingency was checked: the fifth diagnostic arm was to
+      run only if C beat A'. It did not, so the blur confound does not threaten
+      the conclusion and the arm was not run.
+    verified_at_commit: ed0683a
+
+  - iteration: 4
+    id: fv-004-2
+    falsifier: >-
+      If B does not track C — different arms of the argmax, or a materially worse
+      trajectory — then the cheap single-pixel approximation is unusable and any
+      information-gain policy costs a field integral per candidate per step.
+    verdict: FIRED
+    numbers:
+      argmax_agreement_B_vs_C: 0.000
+      comparisons: 144
+      median_argmax_distance_px: 115.2
+      fovea_sigma_px: 34.0
+      sigmas_apart: 3.4
+      spearman_B_vs_C: 0.278
+      B_vs_C_median: {diff: 0.00181, bar: 0.00187, fraction_of_bar: 0.97}
+      distinct_fixations: {B: 11.88, C: 17.50}
+    detail: >-
+      Fires on the first disjunct, unambiguously. On the second it does not: the
+      declared rule returns "indistinguishable" for the trajectory, but by a 3%
+      margin, and that is reported as the knife-edge it is rather than rounded to
+      a verdict. Recorded as constraint cn-001.
+    verified_at_commit: ed0683a
+
+  - iteration: 4
+    id: fv-004-stride
+    falsifier: >-
+      Declared design check: halving the candidate stride must not change the
+      fixation selected at step 1; if it does, the grid is too coarse and the
+      stride is reduced before any arm is scored.
+    verdict: FIRED at the pre-registered value, protocol followed
+    numbers:
+      stride_8: {candidates: 824, selected: [128, 176]}
+      stride_4: {candidates: 3314, selected: [120, 180]}
+      stride_2: {candidates: 13269, selected: [120, 180]}
+      stride_1: {candidates: 53098, selected: [118, 187]}
+    detail: >-
+      Stride 8 failed its halving check, so the stride was reduced to 4 — which
+      passes — and the stride-8 run was DISCARDED, not reported. Recorded because
+      it qualifies the main result: stride 2 fails the same check, the competing
+      picks are 7-9 px apart against a 34 px fovea sigma, and an objective whose
+      argmax moves under grid refinement is not finely steering the policy. That
+      flatness is consistent with, and may partly explain, the fv-004-1 null.
+    verified_at_commit: ed0683a
+
+# ------------------------------------------------------------------------------
+# STANDING CONSTRAINTS
+#
+# Measured costs and impossibilities that bind future work regardless of what is
+# decided. Not decisions; consequences.
+# ------------------------------------------------------------------------------
+constraints:
+
+  - id: cn-001
+    from: exp001, falsifier 2
+    statement: >-
+      Any information-gain gaze policy costs a full field integral per candidate
+      per step. The cheap single-pixel approximation does not substitute for it.
+    evidence: >-
+      B (argmax of the single-pixel Delta_c(c)) and C (argmax of the field
+      integral Delta_total(c)) never selected the same candidate: argmax agreement
+      0.000 over 144 comparisons (8 seeds x 18 steps), evaluated at the same state
+      on the same grid, with picks a median 115 px apart — 3.4 x the 34 px fovea
+      sigma, i.e. non-overlapping regions rather than neighbouring pixels.
+      Spearman over the grid +0.278.
+    cost_measured: >-
+      C at stride 4 is 3314 field integrals per step, 1.8 s per step, against
+      under a millisecond for argmax v with inhibition of return — roughly 1e4x.
+    binds: >-
+      Whoever reopens fc-007. It does not bind current work, because fc-007
+      forecloses adopting such a policy at all.
+    caveat: >-
+      B and C were technically INDISTINGUISHABLE on the declared trajectory
+      metrics, but the median comparison landed at 0.97 of its bar — a knife-edge,
+      unlike the A'-vs-C verdict. This constraint rests on the argmax evidence,
+      which is unambiguous, not on the trajectory comparison, which is not.
