@@ -988,50 +988,64 @@ measurements:
   # ==============================================================================
 
   - id: gap-001
-    statement: The contrast-split occluded/matched variance ratio has never been measured on any synthetic stimulus family.
+    statement: >-
+      Whether the photograph occluded/matched variance anti-calibration is a property of
+      real imagery or of high contrast is undetermined, and the pooled ratios already
+      disagree across stimulus families.
     value: null
     units: ratio
     n: null
-    stimulus_family: [rds, rendered_chart]
+    stimulus_family: [rds, rendered_chart, middlebury2014]
     matcher: [block, energy, multiscale_energy]
     configuration: not measured
     provenance:
       cited_as: visgraf/active-stereo@3f7a263
       source: >-
-        absence across experiments/exp001_matcher_baseline/findings.md:24-27,
-        experiments/exp003_appearance_and_matching/findings.md:121-126,
-        experiments/exp005_energy_decoder/findings.md:27-33 (RDS, pooled only);
-        present only at experiments/exp004_real_data_transfer/findings.md:83-99,
+        the disagreement itself, between
+        experiments/exp004_real_data_transfer/findings.md:41-42 (block, pooled median,
+        Middlebury photographs, 0.324) and
+        experiments/exp005_energy_decoder/findings.md:33 (block, pooled, RDS, 1.923);
+        contrast-split values exist only at
+        experiments/exp004_real_data_transfer/findings.md:76-99,
         experiments/exp005_energy_decoder/findings.md:72-74 and
-        experiments/exp006_multiscale_energy/findings.md:83-88 (photographs)
+        experiments/exp006_multiscale_energy/findings.md:83-88, all photographs
       experiment: [exp001, exp003, exp004, exp005, exp006]
       run_id: null
       measured_at_sha: null
     status: gap
     notes: >-
-      CORRECTION TO THE BRIEF THAT COMMISSIONED THIS RECORD. The gap was given as "the
-      occluded/matched variance ratio was measured on photographs only (exp004,
-      exp006); exp001 measured hallucination on RDS but reported no variance ratio."
-      The second clause is confirmed — exp001's table carries MAE, spread, coverage and
-      hallucination and no variance column. The first clause is FALSE, and the
-      instruction was to verify before recording, so the gap is not recorded as stated.
-      Two counter-examples: exp005 Stage A reports an occluded/matched variance ratio
-      on RDS (findings.md:33 — block 1.923, energy 0.957), and exp003 reports one on a
-      rendered chart (4.73, as-exp003-occluded-matched-variance-ratio). What is
-      genuinely absent is narrower and sharper: every synthetic measurement is POOLED
-      over contrast, while on photographs the inversion lives specifically in the
-      HIGH-CONTRAST cell (0.254 in exp006, and below the matched median in 8 of 8
-      scenes in exp004). The pooled synthetic numbers are on the safe side of 1.0
-      (1.923 on RDS, 4.73 on the chart) and the pooled photograph number is on the
-      dangerous side (0.324) — so pooling is exactly where the disagreement could be
-      hiding, and no synthetic run has ever split it.
-      Why load-bearing here: any precision weighting applied to a synthetic stimulus in
-      this repository inherits an untested premise, and it is untested in BOTH
-      directions — the photograph result may not transfer, and the RDS result may be
-      concealing the same inversion inside a pooled average. A further obstacle worth
-      stating: a contrast split may not even be well defined on a binary random-dot
-      stereogram, which would mean testing the photograph finding synthetically
-      requires a stimulus family that neither reference repository contains.
+      THE POOLED NUMBERS ALREADY DISAGREE, and that is a stronger statement than an
+      ambiguity about pooling. Same matcher, same statistic, same name: block matching's
+      pooled median occluded/matched variance ratio is 0.324 on Middlebury photographs
+      (as-exp004-heldout-medians) and 1.923 on RDS (as-exp005a-rds-comparison). A factor
+      of 5.94, and a reversal of sign about 1.0 — on photographs the variance in
+      half-occlusions is LOWER than in matched regions, on RDS it is roughly twice as
+      HIGH. One of these says the estimator is dangerous and the other says it is safe.
+      Both were measured; neither has been reproduced here.
+      THE OPEN QUESTION, stated precisely: is the anti-calibration a property of REAL
+      IMAGERY, or a property of HIGH CONTRAST? On photographs the two are confounded,
+      and the contrast split (exp004:76-99, exp006:83-88) shows the inversion living
+      specifically in the high-contrast cell — 0.254 in exp006, below the matched median
+      in 8 of 8 scenes in exp004 — while the low-contrast cell inflates safely. That is
+      consistent with either answer.
+      RDS CANNOT SEPARATE THEM, because RDS has no contrast axis. A binary random-dot
+      field is contrast-uniform by construction, so its pooled 1.923 is not a
+      low-contrast measurement, a high-contrast measurement, or an average of the two —
+      there is no axis along which to ask. The RDS result therefore cannot adjudicate
+      the photograph result in either direction, and the apparent disagreement between
+      0.324 and 1.923 may be a real difference between stimulus families, or an artefact
+      of comparing a contrast-uniform stimulus against a contrast-varying one. Nothing
+      measured distinguishes these.
+      Why load-bearing here: any precision weighting applied to any stimulus in this
+      repository inherits an untested premise, and it is untested in BOTH directions —
+      the photograph result may not transfer, and the RDS result may be concealing the
+      same inversion. Closing this needs a stimulus with a controlled contrast axis at
+      half-occlusion boundaries; recorded as open decision od-002 in docs/state.yaml.
+      A further obstacle worth stating: a contrast split may not even be well defined on
+      a binary random-dot stereogram, which would mean testing the photograph finding
+      synthetically requires a stimulus family that neither reference repository
+      contains. See also gap-010: this repository's ported fixture has no true
+      half-occlusions at all, so it cannot even pose the question.
 
   - id: gap-002
     statement: The effect of vertical disparity on matching has never been measured, though its magnitude has.

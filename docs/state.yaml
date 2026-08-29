@@ -116,6 +116,36 @@ open_decisions:
       - What the sensor model does with a sample index that has no valid ray.
     blocked_on: Nothing. Deliberately not started; the repository does not run yet.
 
+  - id: od-002
+    altitude: fw
+    status: open
+    title: Closing gap-001 needs a stimulus with a controlled contrast axis at half-occlusion boundaries.
+    decision: >-
+      Not taken. Recorded, not scheduled. Nothing about this is work to start now.
+    problem: >-
+      gap-001 asks whether the occluded/matched variance anti-calibration is a property
+      of real imagery or of high contrast. Answering it requires a stimulus in which
+      contrast at half-occlusion boundaries can be VARIED while the occlusion geometry
+      is held fixed. Nothing in either predecessor can produce one, and neither can the
+      fixture ported in this repository (gap-010 — it has no true half-occlusions).
+    why_blender: >-
+      Blender is the only instrument in this repository capable of it: it can hold
+      geometry bit-identical across conditions while changing surface appearance, which
+      is exactly what the predecessor's exp003 did on a coplanar material chart. That
+      experiment varied albedo texture on COPLANAR patches, so it had no occlusion
+      geometry to speak of; the question here needs a depth step with controlled
+      contrast across it.
+    why_it_is_fw: >-
+      It decides what the one rendered source is FOR. Blender is committed to as the
+      single rendered source (fc-003) and currently has no experiment attached to it at
+      all — the commitment has been made and never exercised. Attaching the first
+      experiment to it sets the precedent for what renders are used to answer.
+    why_not_scheduled: >-
+      The repository does not run yet, and od-001 has not been implemented. Recording it
+      here is the point: gap-001 otherwise names a question with no identified
+      instrument, which reads as unanswerable rather than as unscheduled.
+    depends_on: [gap-001, gap-010, fc-003]
+
 # ------------------------------------------------------------------------------
 # FORECLOSURE LEDGER
 #
@@ -194,3 +224,60 @@ foreclosures:
       in the rectified left-camera frame, and the two agree only at zero
       elevation. A sentence in a governance file has nothing to fail against.
     cost_to_reopen: None mechanically; the reason not to is recorded above.
+
+# ------------------------------------------------------------------------------
+# FALSIFIER VERDICTS
+#
+# Every specification carries a falsifier (docs/workflow.md). A verdict that
+# lives only in a pull-request body is not in the tree and a cold session cannot
+# read it — and by this repository's own argument, a verdict with no durable
+# record cannot be checked, which is the same defect as a specification with no
+# falsifier. They are recorded here, with the numbers, whichever way they came
+# out.
+# ------------------------------------------------------------------------------
+falsifier_verdicts:
+
+  - iteration: 2
+    id: fv-002-1
+    falsifier: >-
+      If a substantial fraction of carried measurements cannot be given recoverable
+      provenance — no SHA, no config, no n — then "data with provenance" is not
+      achievable for them, they are prose after all, and the carry decision was wrong.
+    verdict: did_not_fire
+    qualification: fired partially and narrowly, as the specification anticipated
+    numbers:
+      inherited_entries: 41
+      lacking_measured_at_sha: 3
+      lacking_measured_at_sha_fraction: 0.073
+      lacking_n: 0
+      lacking_configuration: 0
+    detail: >-
+      All three are exp001 (as-exp001-foveal-mae, -coverage, -hallucination), whose
+      source records "(pre-commit)" in its own SHA column at
+      experiments/exp001_matcher_baseline/findings.md:22. The remaining 38 carry a real
+      commit. Every inherited entry has an n. Provenance is recoverable for 92.7% of the
+      record, so the carry decision stands and Part A did not need revisiting.
+    machine_checkable: >-
+      measured_at_sha is null on exactly those three entries, so the defect is queryable
+      rather than buried in prose.
+    verified_at_commit: ed80270
+
+  - iteration: 2
+    id: fv-002-2
+    falsifier: >-
+      If the CLAUDE.md written for this repository is not substantially shorter than
+      active-stereo's, the invariants are not doing the work of the rules they replace
+      and the methodology has not simplified.
+    verdict: did_not_fire
+    numbers:
+      this_repo_lines: 111
+      reference_lines: 192
+      reduction_lines: 81
+      reduction_fraction: 0.42
+      this_repo_words: 886
+      reference_words: 1498
+      word_reduction_fraction: 0.41
+    detail: >-
+      Reference is visgraf/active-stereo@3f7a263 CLAUDE.md. 42% fewer lines and 41%
+      fewer words, so the reduction is not an artefact of line wrapping.
+    verified_at_commit: ed80270
