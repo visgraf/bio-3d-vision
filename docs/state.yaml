@@ -12,11 +12,17 @@
 schema_version: 1
 updated_at: 2026-08-29
 
-# The commit this file last described. Left null on the commit that introduces
-# the file, since it cannot name its own SHA; git records it either way. From the
-# next update onward, set it to the SHA this content was true at, so a reader can
-# tell a stale state file from a current one.
-updated_by_commit: 5e181d0   # the last merge on main; see sequence.staleness
+# PROVENANCE, NOT A STALENESS TEST. This names the repository state the file
+# describes — the same role `measured_at_sha` plays on a measurement. It
+# NECESSARILY LAGS the commit that carries it, because no commit can name the
+# merge that contains it, and that lag is not staleness. Do not compare it
+# against HEAD and conclude anything.
+#
+# It previously carried the comment "so a reader can tell a stale state file from
+# a current one", which invited exactly that comparison and would have failed
+# after every merge. Staleness is tested per half, in `sequence`, and each half
+# gets the test it can actually pass.
+updated_by_commit: dde3b47   # the repository state this file describes
 
 # ------------------------------------------------------------------------------
 # SEQUENCE — where this project is, and what it plans next
@@ -41,12 +47,19 @@ updated_by_commit: 5e181d0   # the last merge on main; see sequence.staleness
 sequence:
 
   staleness:
-    updated_at: 2026-08-29
-    updated_by_commit: 5e181d0
-    rule: >-
-      Updated every iteration. STALE IF `updated_by_commit` LAGS THE LAST MERGE ON
-      `main`. A stale block is worse than none, because it is read by exactly the
-      session least able to notice — check it before trusting it.
+    note: >-
+      NO SINGLE RULE, BECAUSE THE TWO HALVES GO STALE DIFFERENTLY. Each half
+      carries the check it can actually pass; see `position.checking` and
+      `plan.staleness`.
+    amended: >-
+      Corrected in place. This block previously read "stale if `updated_by_commit`
+      lags the last merge on `main`" and recorded 5e181d0. That rule COULD NOT
+      PASS: merging the block advanced `main` to dde3b47, and no commit can name
+      the merge that contains it, so the rule fired immediately and would have
+      fired after every subsequent merge. A check that always fires is one a cold
+      session learns to skip, which is the failure the rule was written to
+      prevent. Recorded rather than silently swapped, because the defect is worth
+      more than the fix: it is the same shape as a claim that cannot fail.
 
   # --- POSITION: established, derivable from the ledger and merged history -----
   position:
@@ -54,6 +67,22 @@ sequence:
       Established. Every entry below is derivable from `foreclosures`, the
       measurement record, and the merged history. It cannot be wrong without one
       of those being wrong.
+    checking: >-
+      DERIVE IT, DO NOT TRUST IT. This half has no timestamp and needs none: it
+      claims to be derivable, so the check is to derive it. Three questions, each
+      with a definite answer from the repository alone:
+        (1) does every step in `complete` still have the artifact or foreclosure
+            named for it in `evidence`, and does that entry still say what is
+            claimed here;
+        (2) is `next` the lowest-numbered step that is neither complete nor
+            deferred;
+        (3) does every id referenced anywhere in this block resolve — in
+            `foreclosures`, `open_decisions`, or docs/inherited-measurements.yaml
+            — counting an id this block names as CLOSED and redirects
+            (od-001 -> fc-009) as resolving through its redirect, not as dangling.
+      If all three hold, this half is current, whatever the date says. If one
+      fails, the ledger and this block disagree and THE LEDGER IS RIGHT.
+      Run on arrival at dde3b47: all three pass.
     complete: [1, 2, 3, 4, 7, 8, 9, 10]
     deferred:
       - step: 5
@@ -91,6 +120,30 @@ sequence:
       docs/inherited-measurements.yaml is treated — usable, and an assumption
       whenever it is relied on.
     amended: twice in seven iterations, and expected to be amended again
+    staleness:
+      last_amended_commit: 19d2723
+      rule: >-
+        STALE IF AN AMENDMENT HAS BEEN TAKEN SINCE `last_amended_commit` AND IS
+        NOT RECORDED BELOW. This half is the one that can rot silently — it is
+        not derivable from anything here, so nothing in the repository
+        contradicts it when it goes wrong.
+        The marker is the last commit that CHANGED THE PLAN, not the last merge.
+        Merges that do not touch the plan do not make it stale, which is why this
+        will not fire spuriously — and why, unlike the rule it replaces, it can
+        be passed.
+      checking: >-
+        Two steps, because this file changes for many reasons and only some of
+        them are amendments.
+          (1) `git log <last_amended_commit>..main -- docs/state.yaml` lists
+              commits that touched the file at all. Most will not have touched the
+              plan — the commit that wrote this rule did not.
+          (2) For any that did, compare `sequence.plan` between the two revisions.
+              ONLY a change to a step, a stage, or `amendments` bumps
+              `last_amended_commit`. A change to any other part of this file,
+              including this rule itself, does not make the plan stale.
+        One clause is not answerable from the repository at all: whether the
+        maintainer has taken an amendment that was never recorded here. No marker
+        can close that, and it is exactly what `source: chat` is warning about.
     stages:
 
       - stage: 0
