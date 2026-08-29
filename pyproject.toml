@@ -1,0 +1,52 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "bio-3d-vision"
+version = "0.0.0"
+description = "Research project on active 3D vision."
+readme = "README.md"
+requires-python = ">=3.12"
+# No `license` field: this repository has no LICENSE file yet, and adding one is
+# the maintainer's call, not the scaffold's.
+dependencies = [
+    "numpy>=1.26",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0",
+    "mypy>=1.11",
+    "ruff>=0.6",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/bio3dvision"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q --strict-markers"
+markers = [
+    "infrastructure: pins the scaffold, not any result about vision",
+]
+
+[tool.ruff]
+line-length = 100
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM"]
+
+[tool.mypy]
+python_version = "3.12"
+files = ["src"]
+strict = true
+warn_unreachable = true
+
+# spikes/ is deliberately exempt from typing, linting and tests. It is where you
+# try things; its only permitted output is a decision or a deletion. The import
+# ban that keeps it out of the library is enforced in tests/test_scaffold.py.
+[[tool.mypy.overrides]]
+module = "spikes.*"
+ignore_errors = true

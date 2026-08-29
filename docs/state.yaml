@@ -1,0 +1,196 @@
+# ==============================================================================
+# STATE — written by Code, read by Chat. Never the reverse.
+#
+# Chat does not edit this file. That is what keeps it a report of what is true
+# rather than a record of what was intended. It is the only durable channel from
+# Code back to Chat, and it is why a Chat session can start without a briefing.
+#
+# Update it in the same commit as the change it describes. If it disagrees with
+# the repository, the repository is right and this file is a bug.
+# ==============================================================================
+
+schema_version: 1
+updated_at: 2026-08-29
+
+# The commit this file last described. Left null on the commit that introduces
+# the file, since it cannot name its own SHA; git records it either way. From the
+# next update onward, set it to the SHA this content was true at, so a reader can
+# tell a stale state file from a current one.
+updated_by_commit: null
+
+# ------------------------------------------------------------------------------
+# WHAT RUNS
+# ------------------------------------------------------------------------------
+runs:
+  summary: >-
+    Nothing runs yet. There is no geometry, no matcher, no loop, and no
+    stimulus. The repository contains a package skeleton, CI, and documents.
+    No science.
+  entry_points: []
+  library:
+    package: bio3dvision
+    public_api: []
+    note: Flat by decision. See foreclosures fc-002.
+  test_suite:
+    exists: true
+    what_it_covers: >-
+      That the package imports and that the spikes/ import ban holds. Nothing
+      about vision. These are infrastructure tests and are labelled as such.
+  loop:
+    exists: false
+    note: >-
+      The active loop is the point of the project and has never been measured in
+      either predecessor either — see gap-004 in docs/inherited-measurements.yaml.
+
+# ------------------------------------------------------------------------------
+# LAST MEASURED NUMBERS
+# Measurements made BY THIS REPOSITORY, each with the commit that produced it.
+# Inherited priors are not measurements and do not belong here.
+# ------------------------------------------------------------------------------
+measurements: []
+measurements_note: >-
+  Empty, and that is the accurate state. Nothing has been measured here. Numbers
+  carried from the predecessors live in docs/inherited-measurements.yaml with
+  status `inherited`; every one is a prior awaiting re-test, not a baseline. Do
+  not copy one into this list — a value only enters here when a run in THIS
+  repository produced it, and it arrives with the commit that did.
+
+# ------------------------------------------------------------------------------
+# OPEN DECISIONS
+#
+# altitude — how far the decision reaches, and therefore how expensive it is to
+# get wrong:
+#   fw     framework. Changes the shape of the thing: interfaces between layers,
+#          what a type means, what the project is committed to. Expensive to
+#          reverse; reversing it invalidates work built on top.
+#   exp    experiment design. What gets measured, against what falsifier.
+#   impl   implementation. Local, reversible, no interface moves.
+#   infra  tooling, CI, layout. Reversible, affects no result.
+# ------------------------------------------------------------------------------
+open_decisions:
+
+  - id: od-001
+    altitude: fw
+    status: taken_by_maintainer_awaiting_implementation
+    title: The L6 to L1 interface takes a direction, not a pixel.
+    decision: >-
+      The boundary from the active-sampling layer into geometry passes a
+      direction — a unit ray in a stated frame — and not a pixel index. Taken by
+      the maintainer. Not yet implemented, and NOT work to start now.
+    what_it_replaces:
+      reference: visgraf/active-stereo@3f7a263
+      symbol: geometry/oculomotor.py:286 target_to_fixation
+      current_signature: "target_to_fixation(target_px: tuple[int, int], depth_at_target, rig, current)"
+      current_behaviour: >-
+        Takes a pixel and un-projects it inline at oculomotor.py:391-392 using
+        rig.focal_px and rig.principal_point, then rotates the resulting ray into
+        the head frame. The pinhole intrinsics are consumed inside the geometry
+        layer, at the one place the reference calls "the only place a pixel
+        becomes a rotation".
+    consequence: >-
+      Under the ray commitment the un-projection moves OUT of geometry and into a
+      sensor model that maps a sample index to a unit ray. Neither reference
+      repository contains such a component: projection.py runs world -> pixel
+      only, and the inverse exists nowhere as a named thing — it is the four
+      inline lines cited above. So this is a component to be written, not a
+      component to be migrated.
+    why_it_is_fw: >-
+      It moves an intrinsic out of a layer and creates a boundary that does not
+      exist yet. Everything built against the pixel-taking signature would have
+      to move with it.
+    evidence:
+      - >-
+        docs/migration-inventory.md measured that 43 of 59 core geometry tests in
+        the reference assert nothing requiring a focal length, principal point,
+        or pixel — so the ray content is already largely separable from the
+        intrinsic, and the coupling is in the StereoRig type rather than in the
+        mathematics.
+      - >-
+        The same inventory measured two places where the coupling is definitional
+        rather than incidental: ADR-0017's rectification criterion ("puts the
+        plane of regard on the principal row") and the toed-in projection's
+        pixel-valued observables. Those do not follow the ray commitment for free.
+    open_parts:
+      - What frame the unit ray is expressed in, and where that is declared.
+      - Whether the sensor model is a protocol with pinhole as one implementation.
+      - What the sensor model does with a sample index that has no valid ray.
+    blocked_on: Nothing. Deliberately not started; the repository does not run yet.
+
+# ------------------------------------------------------------------------------
+# FORECLOSURE LEDGER
+#
+# Options this repository has closed, and what reopening one would cost. Recorded
+# so that a later session can tell "we decided against this" from "nobody thought
+# of it" — the two look identical in a codebase and are not the same thing.
+# ------------------------------------------------------------------------------
+foreclosures:
+
+  - id: fc-001
+    closed: Carrying the predecessors' implementations.
+    in_favour_of: >-
+      Carrying tests, method notes, pinned ADRs, and measurements-with-provenance.
+      Implementations are rewritten against carried tests.
+    rationale: >-
+      "Carry only what can fail." Applied in docs/migration-inventory.md over 114
+      classified items from both references.
+    cost_to_reopen: Low for any single module; the references are public and pinned.
+    decided_in: docs/migration-inventory.md
+
+  - id: fc-002
+    closed: A directory per framework layer.
+    in_favour_of: A flat package, with structure added when something needs it.
+    rationale: >-
+      Measured in the reference at 3f7a263: geometry 830, encoding 374, inference
+      456, scaling 95, control 151, policy 200, scenes 2069 lines, library total
+      4913. Stimulus infrastructure is 2069/4913 = 42.1%. The three layers that
+      make it "active Bayesian" rather than a stereo matcher — scaling (metric
+      scaling and MLE fusion), control (the vergence loop), policy (gaze) — are
+      446/4913 = 9.1% between them. A directory per layer is an invitation to
+      fill it, and the invitation was accepted unevenly.
+    cost_to_reopen: Low. Splitting a flat package later is mechanical.
+
+  - id: fc-003
+    closed: More than one rendered stimulus source.
+    in_favour_of: Blender, alone.
+    rationale: >-
+      One renderer to verify, one set of conventions to state. The reference
+      records that nothing inside Blender can be covered by its test suite
+      (gap-009), and that cost is worth paying once, not twice.
+    cost_to_reopen: Medium. Needs an ADR, written after trying it.
+
+  - id: fc-004
+    closed: Growing the analytic fixture into a stimulus corpus.
+    in_favour_of: >-
+      One analytic fixture — closed-form, milliseconds, no monocular depth cues —
+      that exists so tests are fast and exact.
+    rationale: >-
+      It is a test fixture. A finding that rests on it has misused it. This is
+      the specific mechanism behind fc-002's 42%: stimulus infrastructure grows
+      because each addition is individually reasonable.
+    cost_to_reopen: >-
+      Low mechanically, high in judgement — reopening it is how the predecessor
+      got where it did, so it needs an ADR and a reason that is not "we needed
+      one more case".
+
+  - id: fc-005
+    closed: A definition of done made only of artifact-quality clauses.
+    in_favour_of: A definition of done whose first clause is a progress term.
+    rationale: >-
+      The predecessor's five clauses were all about artifact quality — tests
+      pass, new behaviour has a test, docstrings state units and frames, the ADR
+      is written, the diff is clean (CLAUDE.md:113-117 at 3f7a263). Every one can
+      be satisfied by a perfect component added to a loop that has never run,
+      which is what happened.
+    cost_to_reopen: None mechanically. It is a rule, and rules are reopened by argument.
+
+  - id: fc-006
+    closed: CLAUDE.md as the authority on units and frames.
+    in_favour_of: >-
+      Frames declared at the function that returns the value; CLAUDE.md governs
+      process only.
+    rationale: >-
+      The predecessor's §3 declared depth "metres, cyclopean frame" and
+      geometry/oculomotor.py:337-348 records that this is false — the value is z
+      in the rectified left-camera frame, and the two agree only at zero
+      elevation. A sentence in a governance file has nothing to fail against.
+    cost_to_reopen: None mechanically; the reason not to is recorded above.
