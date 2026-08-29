@@ -155,14 +155,32 @@ verdict is left in place, as declared. exp001's falsifier-2 conclusion is
 unaffected: it fired on the argmax disjunct (0/144 agreement), which this does not
 touch, and the flip strengthens rather than weakens it.
 
-## Not pre-registered, but worth recording: C vs A′ also separates
+## A′ vs C — post-hoc, and not a reversal of anything
 
-At 40 fixations with 16 seeds, C is distinguishably **worse** than A′ on median
-(+0.00066, 1.05× bar), where exp001 found them indistinguishable at 18 fixations
-with 8 seeds. Marginal, and it points the same way `fc-007` already went — the
-cheap remedy is at least as good as the field integral — so `fc-007` is
-strengthened, not threatened. Flagged as a post-hoc observation at 1.05× its bar,
-not a result.
+`verdicts.json` carries an `A_prime_vs_C` row that **this experiment did not
+declare**: the pre-registration commits only to the `C_vs_B` re-check. It exists
+because the harness produced it, and it is labelled in the artifact itself
+(`post_hoc_annotation`) rather than only here, so the label travels with the
+datum. Four points. It is **post-hoc**, not declared in advance. It is **not the
+same measurement as exp001's** — that verdict was step 18 with 8 seeds, this is
+the extended 40-fixation budget with 16, so the two are not comparable rows and
+this does not directly contradict the earlier one. It is **split at the noise
+floor**: median 1.05× bar favouring A′, p90 0.26× bar favouring C, rmse 0.03×
+favouring A′; one metric crossing a bar by 5% while another points the other way
+is not a reversal. And **`fc-007` is not reopened** — it stands on its declared
+evidence, and this row is a flag for a future pre-registered test at the longer
+budget, recorded in `docs/state.yaml` as outstanding and not scheduled.
+
+One correction, since the point of the label is to prevent a misreading rather
+than introduce one. This row was described to me as separating *in C's favour*,
+and appearing to contradict `fc-007`. Measured, it separates the other way: on
+median A′ = 0.01030 against C = 0.01097, so the crossing metric favours **A′**,
+and it is p90 (0.37853 against 0.37656) that favours C. So the row does not
+contradict `fc-007`, which chose A′ over C — on the metric that crosses, it
+points the same way. The genuine misreading risk is narrower: a
+**DISTINGUISHABLE** label sitting next to exp001's *indistinguishable* verdict
+for the same pair, which a cold session could read as the earlier verdict having
+been overturned. It was not; it was measured at a different budget.
 
 ## The limit
 

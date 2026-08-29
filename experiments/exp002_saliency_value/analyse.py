@@ -23,6 +23,44 @@ SECONDARY = ("rmse",)
 RELATIVE_FLOOR = 0.02  # exp001's materiality floor, reused
 
 
+#: Attached to the A_prime_vs_C entry when verdicts.json is written.
+#:
+#: That comparison is NOT declared in exp002's pre-registration, which declares
+#: only the C_vs_B re-check. It was computed because the harness produced it. Left
+#: unlabelled beside fc-007 it is a durable misreading risk for a cold session, so
+#: the label travels with the datum rather than living only in prose.
+A_PRIME_VS_C_ANNOTATION = {
+    "status": "post-hoc, not pre-registered",
+    "points": [
+        "POST-HOC. Computed because the harness produced it, not declared in "
+        "advance. exp002's pre-registration declares only the C_vs_B re-check.",
+        "NOT THE SAME MEASUREMENT AS exp001'S. exp001's verdict was at step 18 "
+        "with 8 seeds; this is at the extended 40-fixation budget with 16 seeds. "
+        "Different budget and different seed set, so it does not directly "
+        "contradict the earlier verdict — the two are not comparable rows.",
+        "SPLIT AT THE NOISE FLOOR. median 1.05x bar favouring A_prime, p90 0.26x "
+        "bar favouring C, rmse 0.03x bar favouring A_prime. One metric crossing a "
+        "bar by 5% while another points the other way is not a reversal.",
+        "fc-007 IS NOT REOPENED. It stands on its declared evidence. This row is a "
+        "flag for a future PRE-REGISTERED test at the longer budget, not a change "
+        "to the ledger. Recorded in docs/state.yaml as outstanding, not scheduled.",
+    ],
+    "direction_correction": (
+        "The commissioning note described this row as 'distinguishable on "
+        "median_abs_err at 1.05x bar with C better', and its noise-floor point as "
+        "'median favouring C, p90 favouring A_prime'. Both are inverted. Measured "
+        "at step 40 over 16 seeds, lower being better: median A_prime=0.01030 vs "
+        "C=0.01097, so the median separation favours A_PRIME; p90 A_prime=0.37853 "
+        "vs C=0.37656, so p90 favours C. The consequence matters: the row does not "
+        "appear to contradict fc-007, which chose A_prime over C — on median it "
+        "points the same way. The real misreading risk is narrower: a "
+        "DISTINGUISHABLE label sitting beside exp001's indistinguishable verdict "
+        "for the same pair, which could read as the earlier verdict overturned."
+    ),
+    "declared_in": "experiments/exp002_saliency_value/findings.md",
+}
+
+
 def at(res: dict[str, Any], arm: str, metric: str, step: int | None = None) -> np.ndarray:
     """Metric per seed, at ``step`` (1-indexed) or at the final fixation."""
     out = []
@@ -125,6 +163,9 @@ def main() -> None:
         ci = convergence_index(res, base, other, budget)
         print(f"  convergence index (indistinguishable from here on): {ci}")
         verdicts[label]["convergence_index"] = ci
+        if label == "A_prime_vs_C":
+            verdicts[label]["post_hoc_annotation"] = A_PRIME_VS_C_ANNOTATION
+            print("  NOTE: post-hoc, not pre-registered — see post_hoc_annotation")
 
     print("\n" + "=" * 72)
     print("exp001 re-check: C_vs_B at step 18, now with 16 seeds")

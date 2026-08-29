@@ -368,11 +368,21 @@ foreclosures:
       plus inhibition of return (A') on both primary metrics, at 40 and again at
       45 fixations. See fc-008 and bio-016. The original verdict stands; only its
       scope is clarified.
-      exp002 also strengthens it: at 40 fixations with 16 seeds, C is
-      distinguishably WORSE than A' on median (1.05x bar), where exp001 found them
-      indistinguishable at 18 fixations with 8 seeds. The cheap remedy is at least
-      as good as the field integral, which is the direction this foreclosure
-      already went.
+      exp002 produced an A'-vs-C row at 40 fixations with 16 seeds that is
+      DISTINGUISHABLE on median at 1.05x bar, favouring A'. It points the same way
+      this foreclosure already went, but it is POST-HOC — exp002's
+      pre-registration declares only the C_vs_B re-check — and it is not the same
+      measurement as exp001's, which was step 18 with 8 seeds. It is also split at
+      the noise floor: median 1.05x favouring A', p90 0.26x favouring C, rmse
+      0.03x. It is recorded as a flag, not as evidence, and this foreclosure does
+      NOT rest on it. See the post_hoc_annotation in
+      experiments/exp002_saliency_value/verdicts.json.
+    outstanding_test: >-
+      A PRE-REGISTERED A'-versus-C comparison at the 40-45 fixation budget. exp001
+      settled the pair at 18 fixations with 8 seeds; nothing has settled it at the
+      longer budget, and the only figure that exists there is the post-hoc row
+      above. NOT SCHEDULED, and recorded here so the absence is visible rather
+      than inferred from a row that was never declared.
     decided_in: experiments/exp001_gaze_objective/findings.md
 
   - id: fc-008
