@@ -16,7 +16,7 @@ updated_at: 2026-08-29
 # the file, since it cannot name its own SHA; git records it either way. From the
 # next update onward, set it to the SHA this content was true at, so a reader can
 # tell a stale state file from a current one.
-updated_by_commit: c0b54a4   # exp002's arms; this file is updated by the commit after it
+updated_by_commit: fef7b9e   # od-001's implementation lands in the commit that carries this file
 
 # ------------------------------------------------------------------------------
 # WHAT RUNS
@@ -37,9 +37,12 @@ runs:
       does: Renders the four panels to results/fig_result.png and returns their data.
   library:
     package: bio3dvision
-    modules: [fixture, matching, loop, figure, baseline, policy]
-    lines: 927
+    modules: [fixture, matching, loop, figure, baseline, policy, sampling]
+    lines: 1225
     policies: [A, A_prime, B, C, D, E]
+    sampling: >-
+      SamplingModel Protocol with PinholeSampling; sits in front of ActiveStereo,
+      not inside it. Uniform configuration is the identity (fc-009).
     public_api: [ActiveStereo, BaselineRun, CameraParams, PanelArrays, cost_volume,
                  decode_disparity, error_summary, front_end_block, lr_consistency,
                  make_synthetic_scene, panel_arrays, run_baseline, save_result_fig,
@@ -81,7 +84,11 @@ runs:
         mask is worth 65x more than the variance on median error. See fc-008.
       pre_registered: 9179a55, committed alone before the runner existed
   not_present:
-    - Geometry. No rays, no directions, no sensor model (od-001 is unimplemented).
+    - >-
+      Geometry. There is a sampling model producing rays (fc-009) but nothing
+      that CONSUMES one: no oculomotor state, no rotations, no projection. The
+      rays are produced and immediately turned back into indices, because
+      ActiveStereo still takes a pixel.
     - Any rendered stimulus. Blender still has no experiment attached (od-002).
     - Any measurement of anything this repository has not inherited.
 
@@ -157,53 +164,6 @@ measurements_note: >-
 #   infra  tooling, CI, layout. Reversible, affects no result.
 # ------------------------------------------------------------------------------
 open_decisions:
-
-  - id: od-001
-    altitude: fw
-    status: taken_by_maintainer_awaiting_implementation
-    title: The L6 to L1 interface takes a direction, not a pixel.
-    decision: >-
-      The boundary from the active-sampling layer into geometry passes a
-      direction — a unit ray in a stated frame — and not a pixel index. Taken by
-      the maintainer. Not yet implemented, and NOT work to start now.
-    what_it_replaces:
-      reference: visgraf/active-stereo@3f7a263
-      symbol: geometry/oculomotor.py:286 target_to_fixation
-      current_signature: "target_to_fixation(target_px: tuple[int, int], depth_at_target, rig, current)"
-      current_behaviour: >-
-        Takes a pixel and un-projects it inline at oculomotor.py:391-392 using
-        rig.focal_px and rig.principal_point, then rotates the resulting ray into
-        the head frame. The pinhole intrinsics are consumed inside the geometry
-        layer, at the one place the reference calls "the only place a pixel
-        becomes a rotation".
-    consequence: >-
-      Under the ray commitment the un-projection moves OUT of geometry and into a
-      sensor model that maps a sample index to a unit ray. Neither reference
-      repository contains such a component: projection.py runs world -> pixel
-      only, and the inverse exists nowhere as a named thing — it is the four
-      inline lines cited above. So this is a component to be written, not a
-      component to be migrated.
-    why_it_is_fw: >-
-      It moves an intrinsic out of a layer and creates a boundary that does not
-      exist yet. Everything built against the pixel-taking signature would have
-      to move with it.
-    evidence:
-      - >-
-        docs/migration-inventory.md measured that 43 of 59 core geometry tests in
-        the reference assert nothing requiring a focal length, principal point,
-        or pixel — so the ray content is already largely separable from the
-        intrinsic, and the coupling is in the StereoRig type rather than in the
-        mathematics.
-      - >-
-        The same inventory measured two places where the coupling is definitional
-        rather than incidental: ADR-0017's rectification criterion ("puts the
-        plane of regard on the principal row") and the toed-in projection's
-        pixel-valued observables. Those do not follow the ray commitment for free.
-    open_parts:
-      - What frame the unit ray is expressed in, and where that is declared.
-      - Whether the sensor model is a protocol with pinhole as one implementation.
-      - What the sensor model does with a sample index that has no valid ray.
-    blocked_on: Nothing. Deliberately not started; the repository does not run yet.
 
   - id: od-002
     altitude: fw
@@ -434,6 +394,74 @@ foreclosures:
       here able to produce one. NOT by growing the fixture: that is fc-004.
     cost_to_reopen: An experiment on a stimulus with true half-occlusions.
     decided_in: experiments/exp002_saliency_value/findings.md
+
+  - id: fc-009
+    altitude: fw
+    closed: >-
+      Passing a pixel index across the boundary from the active-sampling layer
+      into geometry. Was od-001, taken by the maintainer and now implemented.
+    in_favour_of: >-
+      A unit ray in a stated frame, produced by a sampling model that sits in
+      front of ActiveStereo rather than inside it.
+    implemented_as: >-
+      src/bio3dvision/sampling.py — a SamplingModel Protocol (direction, index,
+      contains, shape, frame) with PinholeSampling as the only implementation,
+      plus route_through_sampling, the adapter that carries a policy's choice
+      across the boundary as a direction.
+    frame_declaration: >-
+      Directions are unit vectors in the RECTIFIED LEFT-CAMERA frame: +x right
+      along increasing column, +y down along increasing row, +z forward along the
+      optical axis, right-handed. Stated at every public function that returns
+      one, not at governance level — fc-006 records why, and the repetition
+      across docstrings is deliberate.
+    cost_measured: >-
+      THE NUMBER STEP 15'S ESTIMATE SHOULD BE REVISED AGAINST. Implementing
+      od-001 required ZERO lines of change to existing modules. loop.py is
+      byte-identical to main (SHA-256 unchanged); matching.py, fixture.py,
+      figure.py, baseline.py and policy.py are untouched; the only edit to
+      pre-existing code is 10 added lines of exports in __init__.py, with zero
+      lines removed. The work is 257 lines of new module and 212 lines of new
+      test.
+    falsifier_2_outcome: >-
+      ADDITIVE, NOT INVASIVE. The migration inventory's reading — that the ray
+      commitment is a migration rather than a re-derivation — is SUPPORTED. The
+      empty diff to loop.py is the evidence the falsifier asked for. Step 15's
+      cost estimate can be revised down for the interface change specifically;
+      this says nothing about the cost of the components that consume the rays,
+      which do not exist.
+    reproduction: >-
+      Uniform sampling on the existing pinhole grid is exactly the identity:
+      index -> ray -> index is bit-exact over all 76 800 indices, with a
+      pre-rounding float error of 2.8e-14 against the 0.5 that would flip an
+      index — 13 orders of margin. All six arms reproduce main bit-for-bit on
+      fixture arrays, d_sub, var_d, valid, scanpath, posterior mean and variance,
+      and all four figure panels, by np.array_equal rather than allclose.
+    what_it_does_not_do: >-
+      No foveated lattice, no spherical projection, no plant question. The
+      interface admits the first two without a signature change — direction is an
+      arbitrary index-to-unit-vector map, index returns the nearest sample, and
+      contains exists because membership stops being a bounds check on a
+      non-uniform lattice — but no speculative parameter was added for either.
+      They are decisions before they are code.
+    one_declaration_not_a_measurement: >-
+      PinholeSampling's principal point defaults to the geometric centre
+      ((H-1)/2, (W-1)/2). CameraParams carries no principal point because the
+      ported loop never projects a 3-D point, so nothing measured in this
+      repository constrains it, and nothing currently reads the absolute
+      orientation of the returned rays — only that the round trip is the
+      identity, which holds for any principal point. Recorded so that a later
+      component which does depend on absolute orientation knows this value was
+      chosen here rather than measured.
+    infrastructure: >-
+      Labelled infrastructure under CLAUDE.md's definition of done, clause 1. It
+      moved no measurement and closed no scientific question; it closed an open
+      decision, which is the clause's second admissible outcome.
+    cost_to_reopen: >-
+      Low. The pixel path is not deleted — ActiveStereo still consumes an index,
+      and route_through_sampling's second hop exists only because of that. When a
+      geometry layer arrives the ray goes straight into it and model.index drops
+      out of the path.
+    decided_in: docs/state.yaml od-001; implemented on branch feat/sampling-model
 
 # ------------------------------------------------------------------------------
 # FALSIFIER VERDICTS
@@ -711,6 +739,65 @@ falsifier_verdicts:
       rather than rounded to a verdict, which is why the flip is legible rather
       than a surprise.
     verified_at_commit: c0b54a4
+
+  - iteration: 6
+    id: fv-006-1
+    falsifier: >-
+      If uniform sampling through the model does not reproduce main bit-for-bit,
+      the sampling model has changed the measurement, and exp001 and exp002 are no
+      longer comparable to anything built after it.
+    verdict: did_not_fire
+    numbers:
+      arms_checked: [A, A_prime, B, C, D, E]
+      arrays_compared_per_arm: 12
+      divergences: 0
+      round_trip_indices_checked: 76800
+      round_trip_exact: true
+      pre_rounding_max_error_px: 2.8e-14
+      rounding_threshold_px: 0.5
+    detail: >-
+      Every arm reproduces exactly, by np.array_equal and not allclose, across the
+      fixture arrays, d_sub, var_d, valid, the scanpath, the posterior mean and
+      variance, and all four figure panels. There was no divergence to report a
+      magnitude for.
+      The reason it holds for any policy and any budget rather than for the ones
+      tested: index -> ray -> index is exact on every one of the 76800 samples,
+      with a pre-rounding float error of 2.8e-14 against the 0.5 that would flip
+      an index — 13 orders of margin. Both facts are pinned as tests.
+    verified_at_commit: fef7b9e
+    note: >-
+      This is the whole gradient for an infrastructure iteration. The artifact
+      regenerates unchanged, and that is the result.
+
+  - iteration: 6
+    id: fv-006-2
+    falsifier: >-
+      If implementing sample -> ray requires changing ActiveStereo's internals
+      rather than sitting in front of them, then od-001 is invasive rather than
+      additive, the migration inventory's reading was wrong, and step 15's cost
+      estimate needs revising before Blender work begins.
+    verdict: did_not_fire
+    outcome: ADDITIVE
+    numbers:
+      loop_py_lines_changed: 0
+      loop_py_sha256_unchanged: true
+      existing_modules_changed: 0
+      init_py_lines_added: 10
+      init_py_lines_removed: 0
+      new_module_lines: 257
+      new_test_lines: 212
+    detail: >-
+      The diff to loop.py is EMPTY — the file is byte-identical to main by
+      SHA-256 — and matching.py, fixture.py, figure.py, baseline.py and policy.py
+      are untouched. The only edit to pre-existing code is 10 added lines of
+      exports in __init__.py, with nothing removed.
+      So the migration inventory's reading is SUPPORTED: the ray commitment is a
+      migration and not a re-derivation, at least at the interface. Step 15's
+      estimate can be revised down for the interface change specifically. It says
+      nothing about the components that will CONSUME the rays, which do not exist
+      — the rays are currently produced and immediately converted back, because
+      ActiveStereo still takes a pixel.
+    verified_at_commit: fef7b9e
 
 # ------------------------------------------------------------------------------
 # STANDING CONSTRAINTS
