@@ -1,5 +1,17 @@
 # ==============================================================================
-# INHERITED MEASUREMENTS — every entry is a PRIOR, not a fact about this project.
+# MEASUREMENTS — inherited priors, this project's own numbers, and gaps.
+#
+# Read `status` on every entry. There are now three kinds:
+#
+#   inherited  Measured in a predecessor repository, under conditions this one
+#              has not adopted. A PRIOR, not a fact about this project. Using one
+#              without re-measuring is an assumption; say so when you do.
+#   measured   Produced by a run IN THIS REPOSITORY. These are facts about this
+#              project, and they are the only entries that are.
+#   gap        A measurement that was NOT made, and whose absence is load-bearing.
+#
+# The file keeps its name because most of it is still inherited and renaming it
+# would break every citation.
 #
 # Each value below was measured in a predecessor repository, under a geometry, a
 # matcher configuration, and a stimulus family that THIS repository has not
@@ -25,10 +37,15 @@
 schema_version: 1
 
 record:
-  status_of_every_measurement: inherited
-  meaning: >-
-    Measured elsewhere, under conditions this repository has not adopted.
-    A prior awaiting re-test. Not established, not a baseline, not a target.
+  statuses:
+    inherited: >-
+      Measured elsewhere, under conditions this repository has not adopted. A
+      prior awaiting re-test. Not established, not a baseline, not a target.
+    measured: >-
+      Produced by a run in this repository, with the commit that produced it.
+      These are the numbers this project owns rather than inherits.
+    gap: >-
+      Not measured. Recorded because the absence is load-bearing.
   compiled_at: 2026-08-29
   compiled_by: read of the reference checkouts named below; no run was executed
 
@@ -57,7 +74,7 @@ schema:
   matcher: block | sgbm | energy | multiscale_energy | none
   configuration: The settings that make the number reproducible.
   provenance: {cited_as, source, experiment, run_id, measured_at_sha}
-  status: inherited | gap
+  status: inherited | measured | gap
   notes: Optional. Caveats that travel with the value, from the source.
 
 measurements:
@@ -984,54 +1001,299 @@ measurements:
       fixation budget.
 
   # ==============================================================================
+  # MEASURED IN THIS REPOSITORY
+  #
+  # The first numbers this project owns. All produced by one run of the ported
+  # baseline: bio3dvision.run_baseline(steps=18, seed=0), block matcher, on the
+  # ported analytic fixture.
+  #
+  # What they are and are not. The port is bit-identical to
+  # visgraf/bioeye@e908170 (bio-009), so these describe the PREDECESSOR'S loop
+  # exactly — they are this repository's measurements of inherited behaviour, not
+  # measurements of anything new. Two of the three defects named in loop.py are
+  # visible in them, which is the point: they are the baseline a deviation is
+  # measured against.
+  #
+  # All were independently checked against values supplied from a different
+  # environment (Python 3.12.3, numpy 2.4.4, scipy 1.17.1, matplotlib 3.10.8) and
+  # reproduced to every digit given, here on Python 3.14.6, numpy 2.5.2,
+  # scipy 1.18.1, matplotlib 3.11.1.
+  # ==============================================================================
+
+  - id: bio-001
+    statement: Number of distinct fixations chosen by the greedy variance policy in an 18-step run.
+    value: {distinct: 9, steps: 18}
+    units: count
+    n: {runs: 1, seed: 0}
+    stimulus_family: analytic_fixture
+    matcher: block
+    configuration: run_baseline(steps=18, seed=0); fixture 240x320, f_px 700.0, baseline 0.065 m; win 7, dmin 0, dmax 56, fovea_sigma 34.0, prior 3.0 +/- 3.0
+    provenance:
+      cited_as: visgraf/bio-3d-vision
+      source: src/bio3dvision/baseline.py::run_baseline, pinned by tests/test_loop_port.py::test_nine_distinct_fixations_out_of_eighteen
+      experiment: null
+      run_id: null
+      measured_at_sha: ae11496
+    status: measured
+    notes: >-
+      Half the run buys nothing. The first eight fixations are eight distinct
+      pixels; the ninth is revisited ten times (bio-002).
+
+  - id: bio-002
+    statement: The loop locks onto a single pixel and never leaves it.
+    value: {pixel: [170, 94], first_step: 8, last_step: 17, consecutive_visits: 10}
+    units: count
+    n: {runs: 1, seed: 0}
+    stimulus_family: analytic_fixture
+    matcher: block
+    configuration: as bio-001
+    provenance:
+      cited_as: visgraf/bio-3d-vision
+      source: src/bio3dvision/loop.py::ActiveStereo.step, pinned by tests/test_loop_port.py::test_the_loop_locks_up_on_one_pixel
+      experiment: null
+      run_id: null
+      measured_at_sha: ae11496
+    status: measured
+    notes: >-
+      DEFECT 3 in loop.py (no inhibition of return), measured. The mechanism is
+      bio-004 and bio-005: one visit removes ~1.3% of that pixel's posterior
+      variance, so it remains the argmax indefinitely. This entry is expected to
+      be superseded when inhibition of return lands; the difference is the
+      measurement of that change.
+
+  - id: bio-003
+    statement: Depth RMSE over valid known pixels after each of 18 fixations.
+    value: [0.782438, 0.745775, 0.574893, 0.538088, 0.504212, 0.479029, 0.479183,
+            0.479266, 0.479366, 0.479391, 0.479392, 0.479385, 0.479374, 0.479360,
+            0.479346, 0.479333, 0.479319, 0.479306]
+    units: m
+    n: {runs: 1, seed: 0, pixels: 53098}
+    stimulus_family: analytic_fixture
+    matcher: block
+    configuration: as bio-001; RMSE over np.isfinite(depth_gt) & engine.valid
+    provenance:
+      cited_as: visgraf/bio-3d-vision
+      source: src/bio3dvision/loop.py::ActiveStereo.run, pinned by tests/test_loop_port.py::test_rmse_flattens_and_then_stops_improving
+      experiment: null
+      run_id: null
+      measured_at_sha: ae11496
+    status: measured
+    notes: >-
+      NOT frozen, though it is nearly so: from step 5 the value stays within
+      3.6e-4 of 0.4793, rising to a maximum at step 10 and drifting slightly down
+      thereafter. The first five fixations remove 0.303 m of RMSE; the last twelve
+      change it by 2.8e-4, three orders of magnitude less. Ground truth is used
+      here for measurement only and never enters control
+      (tests/test_loop_port.py::test_ground_truth_does_not_enter_control).
+
+  - id: bio-004
+    statement: Per-pixel state at the lockup pixel on its first visit, showing why the loop stalls.
+    value:
+      d_sub_px: 32.9157
+      true_disparity_px: 10.7113
+      d_fix_px: 10.1921
+      eta_px: 22.7236
+      var_d_px2: 1.012401e-02
+      sig_model: 22.1913
+      var_Z_m2: 492.4560
+      meas_prec: 0.002031
+      D_fix_m: 4.4643
+      dZ_deta: -0.4380
+    units: {d_sub_px: px, true_disparity_px: px, d_fix_px: px, eta_px: px, var_d_px2: px^2, var_Z_m2: m^2, D_fix_m: m}
+    n: {runs: 1, seed: 0, pixel: [170, 94], step: 8}
+    stimulus_family: analytic_fixture
+    matcher: block
+    configuration: as bio-001; state at the start of step 8, the pixel's first visit
+    provenance:
+      cited_as: visgraf/bio-3d-vision
+      source: src/bio3dvision/loop.py::ActiveStereo.step, pinned by tests/test_loop_port.py::test_lockup_pixel_first_visit_diagnostics
+      experiment: null
+      run_id: null
+      measured_at_sha: ae11496
+    status: measured
+    notes: >-
+      The matcher reports 32.92 px where the truth is 10.71 px — a gross
+      mismatch, not a precision error. The linearisation term then dominates:
+      sig_model 22.19 against a propagated-noise term of (0.438^2 x 0.0101) =
+      0.0019, so var_Z is 492 m^2 and is set almost entirely by how far the pixel
+      sits from the fixation disparity rather than by matcher confidence. The
+      resulting precision, 0.00203, is ~1.3% of the prior precision at that pixel.
+
+  - id: bio-005
+    statement: Posterior variance removed per visit at the lockup pixel, over its first four visits.
+    value: {before_first_visit: 6.2996, falls: [0.0796, 0.0776, 0.0757, 0.0738]}
+    units: m^2
+    n: {runs: 1, seed: 0, pixel: [170, 94]}
+    stimulus_family: analytic_fixture
+    matcher: block
+    configuration: as bio-001
+    provenance:
+      cited_as: visgraf/bio-3d-vision
+      source: src/bio3dvision/loop.py::ActiveStereo.step, pinned by tests/test_loop_port.py::test_posterior_variance_barely_falls_per_visit
+      experiment: null
+      run_id: null
+      measured_at_sha: ae11496
+    status: measured
+    notes: >-
+      The fall itself shrinks with each visit (0.0796 down to 0.0641 by the
+      tenth), so revisiting is not merely unproductive, it is decreasingly
+      productive. At ~1.3% removed per visit the pixel would need ~50 further
+      visits to stop being the argmax; the run has 10.
+
+  - id: bio-006
+    statement: Depth error distribution over valid known pixels after 18 fixations.
+    value: {rmse: 0.4793, median_abs: 0.0114, p90: 0.4166, p99: 2.1048, max: 2.6482}
+    units: m
+    n: {runs: 1, seed: 0, pixels: 53098}
+    stimulus_family: analytic_fixture
+    matcher: block
+    configuration: as bio-001
+    provenance:
+      cited_as: visgraf/bio-3d-vision
+      source: src/bio3dvision/baseline.py::error_summary, pinned by tests/test_loop_port.py::test_error_summary_over_valid_known_pixels
+      experiment: null
+      run_id: null
+      measured_at_sha: ae11496
+    status: measured
+    notes: >-
+      The median pixel is at 11 mm and the 99th percentile at 2.1 m — a spread of
+      184x. RMSE is therefore a poor single summary of this run, which is what
+      bio-007 quantifies.
+
+  - id: bio-007
+    statement: Share of total squared depth error carried by the worst 5% of valid pixels.
+    value: 0.8091
+    units: fraction
+    n: {runs: 1, seed: 0, pixels: 53098}
+    stimulus_family: analytic_fixture
+    matcher: block
+    configuration: as bio-001
+    provenance:
+      cited_as: visgraf/bio-3d-vision
+      source: src/bio3dvision/baseline.py::error_summary, pinned by tests/test_loop_port.py::test_error_is_concentrated_in_a_few_pixels
+      experiment: null
+      run_id: null
+      measured_at_sha: ae11496
+    status: measured
+    notes: >-
+      2655 pixels of 53098 carry 80.9% of the squared error. Any RMSE comparison
+      between iterations of this loop is therefore mostly a comparison of what
+      happened in a thin tail, and should be read alongside a percentile.
+
+  - id: bio-008
+    statement: Rank correlation between absolute depth error and reported posterior standard deviation.
+    value: {valid_pixels: 0.4189, all_known_pixels: 0.5662}
+    units: ratio
+    n: {runs: 1, seed: 0, valid_pixels: 53098, known_pixels: 76800}
+    stimulus_family: analytic_fixture
+    matcher: block
+    configuration: as bio-001; Spearman rank correlation
+    provenance:
+      cited_as: visgraf/bio-3d-vision
+      source: tests/test_loop_port.py::test_posterior_std_ranks_error_only_moderately
+      experiment: null
+      run_id: null
+      measured_at_sha: ae11496
+    status: measured
+    notes: >-
+      POSITIVE, so on this fixture the posterior is not anti-calibrated: more
+      uncertain pixels are genuinely more wrong, on average. This does NOT bear on
+      gap-001, and must not be cited as if it did — the anti-calibration is a
+      claim about HALF-OCCLUSIONS, and this fixture has none (gap-010). The
+      correlation being higher over all known pixels than over valid ones (0.57
+      against 0.42) is mostly the invalid border and low-confidence regions, which
+      are both very uncertain and very wrong, sitting in the wider set.
+
+  - id: bio-009
+    statement: The ported baseline is bit-identical to the predecessor implementation it was ported from.
+    value: {arrays_compared: 11, identical: 11}
+    units: count
+    n: {runs: 1, seed: 0}
+    stimulus_family: analytic_fixture
+    matcher: block
+    configuration: >-
+      Both implementations executed in the same interpreter (Python 3.14.6, numpy
+      2.5.2, scipy 1.18.1) and compared with np.array_equal including dtype and
+      shape: left, right, depth_gt, d_sub, var_d, valid_fe, posterior mean,
+      posterior var, valid mask, var_d after the sentinel, RMSE and D_fix
+      trajectories, plus the scanpath.
+    provenance:
+      cited_as: visgraf/bio-3d-vision
+      source: comparison against .reference/bioeye/active_stereo_demo.py at e908170, run out-of-tree
+      experiment: null
+      run_id: null
+      measured_at_sha: ae11496
+    status: measured
+    notes: >-
+      This is the entry that licenses every other bio- entry as a measurement of
+      the PREDECESSOR'S loop rather than of a lookalike. The comparison is run
+      out-of-tree deliberately: committed code may not read .reference/, enforced
+      by tests/test_scaffold.py, so this check cannot live in the suite and is not
+      re-run by CI. It is a one-time verification, and it is recorded as one.
+
+  # ==============================================================================
   # GAPS — measurements that were NOT made, and whose absence is load-bearing.
   # ==============================================================================
 
   - id: gap-001
-    statement: The contrast-split occluded/matched variance ratio has never been measured on any synthetic stimulus family.
+    statement: >-
+      Whether the photograph occluded/matched variance anti-calibration is a property of
+      real imagery or of high contrast is undetermined, and the pooled ratios already
+      disagree across stimulus families.
     value: null
     units: ratio
     n: null
-    stimulus_family: [rds, rendered_chart]
+    stimulus_family: [rds, rendered_chart, middlebury2014]
     matcher: [block, energy, multiscale_energy]
     configuration: not measured
     provenance:
       cited_as: visgraf/active-stereo@3f7a263
       source: >-
-        absence across experiments/exp001_matcher_baseline/findings.md:24-27,
-        experiments/exp003_appearance_and_matching/findings.md:121-126,
-        experiments/exp005_energy_decoder/findings.md:27-33 (RDS, pooled only);
-        present only at experiments/exp004_real_data_transfer/findings.md:83-99,
+        the disagreement itself, between
+        experiments/exp004_real_data_transfer/findings.md:41-42 (block, pooled median,
+        Middlebury photographs, 0.324) and
+        experiments/exp005_energy_decoder/findings.md:33 (block, pooled, RDS, 1.923);
+        contrast-split values exist only at
+        experiments/exp004_real_data_transfer/findings.md:76-99,
         experiments/exp005_energy_decoder/findings.md:72-74 and
-        experiments/exp006_multiscale_energy/findings.md:83-88 (photographs)
+        experiments/exp006_multiscale_energy/findings.md:83-88, all photographs
       experiment: [exp001, exp003, exp004, exp005, exp006]
       run_id: null
       measured_at_sha: null
     status: gap
     notes: >-
-      CORRECTION TO THE BRIEF THAT COMMISSIONED THIS RECORD. The gap was given as "the
-      occluded/matched variance ratio was measured on photographs only (exp004,
-      exp006); exp001 measured hallucination on RDS but reported no variance ratio."
-      The second clause is confirmed — exp001's table carries MAE, spread, coverage and
-      hallucination and no variance column. The first clause is FALSE, and the
-      instruction was to verify before recording, so the gap is not recorded as stated.
-      Two counter-examples: exp005 Stage A reports an occluded/matched variance ratio
-      on RDS (findings.md:33 — block 1.923, energy 0.957), and exp003 reports one on a
-      rendered chart (4.73, as-exp003-occluded-matched-variance-ratio). What is
-      genuinely absent is narrower and sharper: every synthetic measurement is POOLED
-      over contrast, while on photographs the inversion lives specifically in the
-      HIGH-CONTRAST cell (0.254 in exp006, and below the matched median in 8 of 8
-      scenes in exp004). The pooled synthetic numbers are on the safe side of 1.0
-      (1.923 on RDS, 4.73 on the chart) and the pooled photograph number is on the
-      dangerous side (0.324) — so pooling is exactly where the disagreement could be
-      hiding, and no synthetic run has ever split it.
-      Why load-bearing here: any precision weighting applied to a synthetic stimulus in
-      this repository inherits an untested premise, and it is untested in BOTH
-      directions — the photograph result may not transfer, and the RDS result may be
-      concealing the same inversion inside a pooled average. A further obstacle worth
-      stating: a contrast split may not even be well defined on a binary random-dot
-      stereogram, which would mean testing the photograph finding synthetically
-      requires a stimulus family that neither reference repository contains.
+      THE POOLED NUMBERS ALREADY DISAGREE, and that is a stronger statement than an
+      ambiguity about pooling. Same matcher, same statistic, same name: block matching's
+      pooled median occluded/matched variance ratio is 0.324 on Middlebury photographs
+      (as-exp004-heldout-medians) and 1.923 on RDS (as-exp005a-rds-comparison). A factor
+      of 5.94, and a reversal of sign about 1.0 — on photographs the variance in
+      half-occlusions is LOWER than in matched regions, on RDS it is roughly twice as
+      HIGH. One of these says the estimator is dangerous and the other says it is safe.
+      Both were measured; neither has been reproduced here.
+      THE OPEN QUESTION, stated precisely: is the anti-calibration a property of REAL
+      IMAGERY, or a property of HIGH CONTRAST? On photographs the two are confounded,
+      and the contrast split (exp004:76-99, exp006:83-88) shows the inversion living
+      specifically in the high-contrast cell — 0.254 in exp006, below the matched median
+      in 8 of 8 scenes in exp004 — while the low-contrast cell inflates safely. That is
+      consistent with either answer.
+      RDS CANNOT SEPARATE THEM, because RDS has no contrast axis. A binary random-dot
+      field is contrast-uniform by construction, so its pooled 1.923 is not a
+      low-contrast measurement, a high-contrast measurement, or an average of the two —
+      there is no axis along which to ask. The RDS result therefore cannot adjudicate
+      the photograph result in either direction, and the apparent disagreement between
+      0.324 and 1.923 may be a real difference between stimulus families, or an artefact
+      of comparing a contrast-uniform stimulus against a contrast-varying one. Nothing
+      measured distinguishes these.
+      Why load-bearing here: any precision weighting applied to any stimulus in this
+      repository inherits an untested premise, and it is untested in BOTH directions —
+      the photograph result may not transfer, and the RDS result may be concealing the
+      same inversion. Closing this needs a stimulus with a controlled contrast axis at
+      half-occlusion boundaries; recorded as open decision od-002 in docs/state.yaml.
+      A further obstacle worth stating: a contrast split may not even be well defined on
+      a binary random-dot stereogram, which would mean testing the photograph finding
+      synthetically requires a stimulus family that neither reference repository
+      contains. See also gap-010: this repository's ported fixture has no true
+      half-occlusions at all, so it cannot even pose the question.
 
   - id: gap-002
     statement: The effect of vertical disparity on matching has never been measured, though its magnitude has.
@@ -1217,3 +1479,52 @@ measurements:
       equivalent from an RDS". Load-bearing here because this repository commits to one
       rendered source, so every exp003 entry above inherits an unverified generator and
       the commitment does not by itself change that.
+
+  - id: gap-010
+    statement: The analytic fixture has no true half-occlusions, so no occlusion claim can be measured on it.
+    value: null
+    units: null
+    n: null
+    stimulus_family: analytic_fixture
+    matcher: [block]
+    configuration: not measurable on this fixture by construction
+    provenance:
+      cited_as: visgraf/bio-3d-vision
+      source: >-
+        src/bio3dvision/fixture.py::make_synthetic_scene, ported unchanged from
+        visgraf/bioeye@e908170:active_stereo_demo.py:75; verified empirically at
+        commit ae11496
+      experiment: null
+      run_id: null
+      measured_at_sha: ae11496
+    status: gap
+    notes: >-
+      The right image is not rendered, it is RESAMPLED FROM THE LEFT:
+      map_coordinates(left, [ys, xs + d_gt], order=1, mode="reflect"). There is one
+      texture array in the generator and no second surface, so no pixel of the right
+      image can contain anything the left image does not already contain — and that
+      is precisely what a half-occlusion is: a region visible to one eye and hidden
+      from the other, showing a DIFFERENT surface.
+      Verified rather than read off. Measured on the committed fixture at seed 0: 0
+      right-image values fall outside the left image's value range; 430 adjacent
+      right-pixel pairs have a non-increasing sampling position x + d(x), which is
+      exactly where a renderer would produce an occlusion band and where this
+      sampler instead re-reads left texture it has already used; and 2640 pixels
+      (3.4% of 76800) sample beyond the last column, where mode="reflect" folds
+      texture back rather than revealing unseen background.
+      TWO MECHANISMS, worth separating because the brief named only one.
+      mode="reflect" is the EDGE mechanism and accounts for the 3.4%. At interior
+      depth steps the occlusion is erased by something else: the forward map is
+      non-monotonic there, and linear interpolation of a non-monotonic map yields a
+      stretched copy of the occluding surface's texture. Removing mode="reflect"
+      would fix neither.
+      CONSEQUENCE, and it belongs next to gap-001: any occlusion claim measured on
+      this fixture is unsound, and that explicitly includes anything about the
+      occluded/matched variance ratio. The fixture cannot even pose gap-001's
+      question, let alone answer it — which is why closing gap-001 needs a rendered
+      stimulus (od-002 in docs/state.yaml).
+      This reinforces fc-004 concretely: the fixture is a TEST FIXTURE, and a
+      finding that rests on it has misused it. bio-008 is the live example — the
+      posterior std ranks error positively here (+0.42), and it would be a
+      straightforward misreading to cite that as evidence against the
+      anti-calibration. It is not evidence either way.

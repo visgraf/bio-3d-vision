@@ -16,44 +16,84 @@ updated_at: 2026-08-29
 # the file, since it cannot name its own SHA; git records it either way. From the
 # next update onward, set it to the SHA this content was true at, so a reader can
 # tell a stale state file from a current one.
-updated_by_commit: null
+updated_by_commit: ae11496   # the port; this file is updated by the commit after it
 
 # ------------------------------------------------------------------------------
 # WHAT RUNS
 # ------------------------------------------------------------------------------
 runs:
   summary: >-
-    Nothing runs yet. There is no geometry, no matcher, no loop, and no
-    stimulus. The repository contains a package skeleton, CI, and documents.
-    No science.
-  entry_points: []
+    The ported baseline runs. It is the predecessor's loop, verified bit-identical
+    to it, on the predecessor's analytic fixture, producing the predecessor's
+    four-panel figure. No new science: this is a measured starting point, not a
+    result.
+  entry_points:
+    - call: bio3dvision.run_baseline(steps=18, seed=0)
+      does: >-
+        Draws the analytic fixture, runs the block matcher once, then N fixations
+        of the active loop, and returns the engine, history and panel arrays.
+      cost: ~0.08 s for 18 steps
+    - call: bio3dvision.save_result_fig(engine, depth_gt, history, out=None)
+      does: Renders the four panels to results/fig_result.png and returns their data.
   library:
     package: bio3dvision
-    public_api: []
-    note: Flat by decision. See foreclosures fc-002.
+    modules: [fixture, matching, loop, figure, baseline]
+    lines: 643
+    public_api: [ActiveStereo, BaselineRun, CameraParams, PanelArrays, cost_volume,
+                 decode_disparity, error_summary, front_end_block, lr_consistency,
+                 make_synthetic_scene, panel_arrays, run_baseline, save_result_fig,
+                 scale_to_depth, true_disparity]
+    note: Still flat. Zero subpackages. See fc-002 and falsifier fv-003-2.
   test_suite:
     exists: true
+    count: 27
     what_it_covers: >-
-      That the package imports and that the spikes/ import ban holds. Nothing
-      about vision. These are infrastructure tests and are labelled as such.
+      The scaffold guards; the fixture's determinism and its lack of true
+      half-occlusions (gap-010); the ported trajectory, the lockup and its
+      per-pixel mechanism; the control/measurement boundary; and the four-panel
+      figure's reproducibility under a fixed seed.
   loop:
-    exists: false
+    exists: true
+    status: ported, faithful, with three known defects carried deliberately
+    defects_carried:
+      - "1e3 variance sentinel instead of nan - a convention this repository rejects"
+      - "gaussian_filter over np.where(valid, var, 0.0) in the gaze policy - mixing before masking"
+      - "no inhibition of return - the loop locks onto one pixel for its last 10 of 18 steps (bio-002)"
     note: >-
-      The active loop is the point of the project and has never been measured in
-      either predecessor either — see gap-004 in docs/inherited-measurements.yaml.
+      Deviations are later commits, one at a time, each reporting its effect on the
+      trajectory. They are decisions, not cleanups. Nothing here is step 9.
+  not_present:
+    - Geometry. No rays, no directions, no sensor model (od-001 is unimplemented).
+    - Any rendered stimulus. Blender still has no experiment attached (od-002).
+    - Any measurement of anything this repository has not inherited.
 
 # ------------------------------------------------------------------------------
 # LAST MEASURED NUMBERS
 # Measurements made BY THIS REPOSITORY, each with the commit that produced it.
 # Inherited priors are not measurements and do not belong here.
 # ------------------------------------------------------------------------------
-measurements: []
+measurements:
+  - ids: [bio-001, bio-002, bio-003, bio-004, bio-005, bio-006, bio-007, bio-008, bio-009]
+    commit: ae11496
+    what: >-
+      The ported baseline's trajectory, its lockup and the per-pixel mechanism
+      behind it, the error distribution, the error/uncertainty rank correlation,
+      and the bit-identity of the port against visgraf/bioeye@e908170.
+    where: docs/inherited-measurements.yaml, status "measured"
+    headline: >-
+      18 fixations, 9 of them distinct; the loop then spends its last 10 steps on
+      pixel (170, 94). RMSE 0.4793 m, flat from step 5 onward. The worst 5% of
+      pixels carry 80.9% of the squared error.
+    caveat: >-
+      These measure the PREDECESSOR'S loop, exactly — the port is bit-identical to
+      it. They are this repository's measurements of inherited behaviour, and a
+      baseline for deviations, not a result about anything new.
+
 measurements_note: >-
-  Empty, and that is the accurate state. Nothing has been measured here. Numbers
-  carried from the predecessors live in docs/inherited-measurements.yaml with
-  status `inherited`; every one is a prior awaiting re-test, not a baseline. Do
-  not copy one into this list — a value only enters here when a run in THIS
-  repository produced it, and it arrives with the commit that did.
+  No longer empty. Values enter this list only when a run in THIS repository
+  produced them, with the commit that did. Inherited priors stay in
+  docs/inherited-measurements.yaml with status "inherited" and are never promoted
+  here without a re-measurement.
 
 # ------------------------------------------------------------------------------
 # OPEN DECISIONS
@@ -115,6 +155,36 @@ open_decisions:
       - Whether the sensor model is a protocol with pinhole as one implementation.
       - What the sensor model does with a sample index that has no valid ray.
     blocked_on: Nothing. Deliberately not started; the repository does not run yet.
+
+  - id: od-002
+    altitude: fw
+    status: open
+    title: Closing gap-001 needs a stimulus with a controlled contrast axis at half-occlusion boundaries.
+    decision: >-
+      Not taken. Recorded, not scheduled. Nothing about this is work to start now.
+    problem: >-
+      gap-001 asks whether the occluded/matched variance anti-calibration is a property
+      of real imagery or of high contrast. Answering it requires a stimulus in which
+      contrast at half-occlusion boundaries can be VARIED while the occlusion geometry
+      is held fixed. Nothing in either predecessor can produce one, and neither can the
+      fixture ported in this repository (gap-010 — it has no true half-occlusions).
+    why_blender: >-
+      Blender is the only instrument in this repository capable of it: it can hold
+      geometry bit-identical across conditions while changing surface appearance, which
+      is exactly what the predecessor's exp003 did on a coplanar material chart. That
+      experiment varied albedo texture on COPLANAR patches, so it had no occlusion
+      geometry to speak of; the question here needs a depth step with controlled
+      contrast across it.
+    why_it_is_fw: >-
+      It decides what the one rendered source is FOR. Blender is committed to as the
+      single rendered source (fc-003) and currently has no experiment attached to it at
+      all — the commitment has been made and never exercised. Attaching the first
+      experiment to it sets the precedent for what renders are used to answer.
+    why_not_scheduled: >-
+      The repository does not run yet, and od-001 has not been implemented. Recording it
+      here is the point: gap-001 otherwise names a question with no identified
+      instrument, which reads as unanswerable rather than as unscheduled.
+    depends_on: [gap-001, gap-010, fc-003]
 
 # ------------------------------------------------------------------------------
 # FORECLOSURE LEDGER
@@ -194,3 +264,121 @@ foreclosures:
       in the rectified left-camera frame, and the two agree only at zero
       elevation. A sentence in a governance file has nothing to fail against.
     cost_to_reopen: None mechanically; the reason not to is recorded above.
+
+# ------------------------------------------------------------------------------
+# FALSIFIER VERDICTS
+#
+# Every specification carries a falsifier (docs/workflow.md). A verdict that
+# lives only in a pull-request body is not in the tree and a cold session cannot
+# read it — and by this repository's own argument, a verdict with no durable
+# record cannot be checked, which is the same defect as a specification with no
+# falsifier. They are recorded here, with the numbers, whichever way they came
+# out.
+# ------------------------------------------------------------------------------
+falsifier_verdicts:
+
+  - iteration: 2
+    id: fv-002-1
+    falsifier: >-
+      If a substantial fraction of carried measurements cannot be given recoverable
+      provenance — no SHA, no config, no n — then "data with provenance" is not
+      achievable for them, they are prose after all, and the carry decision was wrong.
+    verdict: did_not_fire
+    qualification: fired partially and narrowly, as the specification anticipated
+    numbers:
+      inherited_entries: 41
+      lacking_measured_at_sha: 3
+      lacking_measured_at_sha_fraction: 0.073
+      lacking_n: 0
+      lacking_configuration: 0
+    detail: >-
+      All three are exp001 (as-exp001-foveal-mae, -coverage, -hallucination), whose
+      source records "(pre-commit)" in its own SHA column at
+      experiments/exp001_matcher_baseline/findings.md:22. The remaining 38 carry a real
+      commit. Every inherited entry has an n. Provenance is recoverable for 92.7% of the
+      record, so the carry decision stands and Part A did not need revisiting.
+    machine_checkable: >-
+      measured_at_sha is null on exactly those three entries, so the defect is queryable
+      rather than buried in prose.
+    verified_at_commit: ed80270
+
+  - iteration: 2
+    id: fv-002-2
+    falsifier: >-
+      If the CLAUDE.md written for this repository is not substantially shorter than
+      active-stereo's, the invariants are not doing the work of the rules they replace
+      and the methodology has not simplified.
+    verdict: did_not_fire
+    numbers:
+      this_repo_lines: 111
+      reference_lines: 192
+      reduction_lines: 81
+      reduction_fraction: 0.42
+      this_repo_words: 886
+      reference_words: 1498
+      word_reduction_fraction: 0.41
+    detail: >-
+      Reference is visgraf/active-stereo@3f7a263 CLAUDE.md. 42% fewer lines and 41%
+      fewer words, so the reduction is not an artefact of line wrapping.
+    verified_at_commit: ed80270
+
+  - iteration: 3
+    id: fv-003-1
+    falsifier: >-
+      If the port's trajectory does not reproduce within numerical tolerance, then
+      either the port is wrong or the predecessor's numbers are
+      environment-dependent. Both matter before anything is built on this baseline.
+    verdict: did_not_fire
+    numbers:
+      supplied_quantities_checked: 20
+      reproduced: 20
+      diverged: 0
+      arrays_compared_against_the_original: 11
+      arrays_identical: 11
+    detail: >-
+      Neither disjunct holds. The port is bit-identical to
+      visgraf/bioeye@e908170 — both implementations executed in one interpreter and
+      compared with np.array_equal including dtype and shape, across left, right,
+      depth_gt, d_sub, var_d, valid_fe, posterior mean and var, the valid mask, the
+      sentinel-applied var_d, and the RMSE and D_fix trajectories, plus the
+      scanpath. And the numbers are not environment-dependent across the range
+      tested: every supplied value reproduced to the digits given, in a DIFFERENT
+      environment (Python 3.14.6 / numpy 2.5.2 / scipy 1.18.1 / matplotlib 3.11.1
+      against the supplied 3.12.3 / 2.4.4 / 1.17.1 / 3.10.8).
+      Reproduction was total, not partial: the trajectory AND the lockup both
+      reproduced, so the most informative outcome the specification anticipated did
+      not arise.
+      One correction, in the direction of precision rather than disagreement: the
+      RMSE is not literally frozen from step 5. It stays within 3.6e-4 of 0.4793,
+      rising to a maximum at step 10 (0.479392) and drifting down to 0.479306 by
+      step 17. Step 5 itself is 0.479029, which rounds to 0.4790 rather than
+      0.4793. The characterisation is right about the shape and about the
+      magnitude; "frozen" overstates it by a fourth decimal.
+    verified_at_commit: ae11496
+
+  - iteration: 3
+    id: fv-003-2
+    falsifier: >-
+      fc-002 closed "a directory per layer" in favour of a flat package. If roughly
+      400 lines of real code already requires subdirectories to stay navigable,
+      fc-002 was closed too early and should be reopened.
+    verdict: did_not_fire
+    numbers:
+      library_lines: 643
+      modules: 6
+      subpackages: 0
+      largest_module_lines: 200
+      test_lines: 383
+      test_modules: 3
+    detail: >-
+      The flat package held, and comfortably. 643 lines — more than the 400 the
+      falsifier anticipated — sit in six flat modules split along the seams the
+      predecessor's own file already had: fixture, matching, loop, figure, and a
+      baseline that composes them. The largest is loop.py at 200 lines. No
+      subdirectory was created, and none was wanted; the question was not avoided
+      by quietly adding structure.
+      Honest limit on this verdict: 643 lines is small, and the modules divide
+      cleanly because the predecessor's single file already had internal section
+      breaks to follow. This is evidence that fc-002 was not closed too early, not
+      evidence that it will hold at 3000 lines.
+    verified_at_commit: ae11496
