@@ -1231,6 +1231,124 @@ measurements:
       by tests/test_scaffold.py, so this check cannot live in the suite and is not
       re-run by CI. It is a one-time verification, and it is recorded as one.
 
+  # --- exp001, the gaze-objective experiment (pre-registered at 19aee2a) -------
+
+  - id: bio-010
+    statement: Final-step depth error for four gaze policies over 8 seeds, 18 fixations.
+    value:
+      A_argmax_variance:        {median_abs_err: 0.01318, p90: 0.41180, rmse: 0.47532, distinct: 9.62,  wasted_budget: 0.576}
+      A_prime_variance_plus_IOR: {median_abs_err: 0.01126, p90: 0.36736, rmse: 0.47246, distinct: 18.00, wasted_budget: 0.312}
+      B_single_pixel_delta:     {median_abs_err: 0.01244, p90: 0.42003, rmse: 0.47622, distinct: 11.88, wasted_budget: 0.424}
+      C_field_integral_delta:   {median_abs_err: 0.01063, p90: 0.36848, rmse: 0.47291, distinct: 17.50, wasted_budget: 0.000}
+    units: {median_abs_err: m, p90: m, rmse: m, distinct: count, wasted_budget: fraction}
+    n: {seeds: 8, budget: 18, pixels: 53098}
+    stimulus_family: analytic_fixture
+    matcher: block
+    configuration: >-
+      exp001, candidate stride 4 (3314 candidates), inhibition radius 20.0 px,
+      fovea sigma 34.0, means over seeds 0-7 at the final fixation, over valid
+      known pixels
+    provenance:
+      cited_as: visgraf/bio-3d-vision
+      source: experiments/exp001_gaze_objective/results.json, verdicts.json
+      experiment: exp001_gaze_objective
+      run_id: null
+      measured_at_sha: ed0683a
+    status: measured
+    notes: >-
+      A' and C are INDISTINGUISHABLE on both pre-registered primary metrics
+      (median diff -0.00063 against a bar of 0.00088; p90 diff +0.00112 against
+      0.00793) and do not even agree on a direction. Both beat A on median
+      (distinguishable). Two columns are partly tautological and must not be cited
+      as evidence: C's wasted_budget is 0.000 BY CONSTRUCTION since C maximises
+      the quantity the metric thresholds, and A' 's 18.00 distinct is by
+      construction since IOR forbids revisits. The informative one is C's 17.50
+      distinct with NO inhibition mechanism — the expected-reduction objective
+      self-inhibits.
+
+  - id: bio-011
+    statement: Rate at which argmax-variance and argmax-field-integral select the same fixation.
+    value: {argmax_agreement: 0.000, spearman_over_grid: 0.348}
+    units: {argmax_agreement: fraction, spearman_over_grid: ratio}
+    n: {seeds: 8, steps: 18, comparisons: 144}
+    stimulus_family: analytic_fixture
+    matcher: block
+    configuration: >-
+      Both objectives evaluated at the SAME state on the SAME stride-4 candidate
+      grid, driven along A's trajectory so only the objective varies
+    provenance:
+      cited_as: visgraf/bio-3d-vision
+      source: experiments/exp001_gaze_objective/run.py::agreement_probe
+      experiment: exp001_gaze_objective
+      run_id: null
+      measured_at_sha: ed0683a
+    status: measured
+    notes: >-
+      ZERO agreement across all 144 comparisons, while the fields are moderately
+      rank-correlated (+0.348). This is why the argmax rate and not the rank
+      correlation is the number to act on: +0.348 invites "the objectives broadly
+      agree, so of course the outcomes match", and the argmax rate says they never
+      agree and the outcomes match anyway — a different and stronger claim.
+      Together with bio-010: on this fixture WHICH pixel is fixated barely matters,
+      provided the same one is not fixated twice.
+
+  - id: bio-012
+    statement: Rate at which the single-pixel and field-integral objectives select the same fixation.
+    value:
+      argmax_agreement: 0.000
+      median_argmax_distance_px: 115.2
+      fovea_sigma_px: 34.0
+      sigmas_apart: 3.4
+      spearman_over_grid: 0.278
+    units: {argmax_agreement: fraction, median_argmax_distance_px: px, spearman_over_grid: ratio}
+    n: {seeds: 8, steps: 18, comparisons: 144}
+    stimulus_family: analytic_fixture
+    matcher: block
+    configuration: as bio-011, driven along C's trajectory
+    provenance:
+      cited_as: visgraf/bio-3d-vision
+      source: experiments/exp001_gaze_objective/run.py::agreement_probe_bc
+      experiment: exp001_gaze_objective
+      run_id: null
+      measured_at_sha: ed0683a
+    status: measured
+    notes: >-
+      The evidence for constraint cn-001. Zero agreement, and the picks are a
+      median 115 px apart — 3.4 fovea sigma, so non-overlapping regions of the
+      image rather than neighbouring pixels. The cheap approximation does not
+      approximate: it selects somewhere else entirely. Note the trajectory
+      comparison was technically indistinguishable by the declared rule, but at
+      0.97 of its bar — a knife-edge — so cn-001 rests on this entry and not on
+      that one.
+
+  - id: bio-013
+    statement: Fixation selected by the field-integral objective at step 1, against candidate-grid stride.
+    value:
+      stride_8: {candidates: 824,   selected: [128, 176]}
+      stride_4: {candidates: 3314,  selected: [120, 180]}
+      stride_2: {candidates: 13269, selected: [120, 180]}
+      stride_1: {candidates: 53098, selected: [118, 187]}
+    units: {candidates: count, selected: px}
+    n: {seeds: 1, step: 1}
+    stimulus_family: analytic_fixture
+    matcher: block
+    configuration: seed 0, first fixation, valid region rows 8-231 cols 64-311
+    provenance:
+      cited_as: visgraf/bio-3d-vision
+      source: experiments/exp001_gaze_objective/run.py::stride_check
+      experiment: exp001_gaze_objective
+      run_id: null
+      measured_at_sha: ed0683a
+    status: measured
+    notes: >-
+      The pre-registered stride of 8 FAILED its declared halving check, so the
+      stride was reduced to 4 — which passes — and the stride-8 run was discarded
+      rather than reported. Recorded because it qualifies exp001's whole result:
+      stride 2 fails the same check, and the competing picks sit 7-9 px apart
+      against a 34 px fovea sigma. The objective is FLAT near its maximum, so its
+      argmax is not stable under grid refinement — which is consistent with, and
+      may partly explain, the fv-004-1 null.
+
   # ==============================================================================
   # GAPS — measurements that were NOT made, and whose absence is load-bearing.
   # ==============================================================================
