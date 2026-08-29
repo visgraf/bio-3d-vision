@@ -16,44 +16,84 @@ updated_at: 2026-08-29
 # the file, since it cannot name its own SHA; git records it either way. From the
 # next update onward, set it to the SHA this content was true at, so a reader can
 # tell a stale state file from a current one.
-updated_by_commit: null
+updated_by_commit: ae11496   # the port; this file is updated by the commit after it
 
 # ------------------------------------------------------------------------------
 # WHAT RUNS
 # ------------------------------------------------------------------------------
 runs:
   summary: >-
-    Nothing runs yet. There is no geometry, no matcher, no loop, and no
-    stimulus. The repository contains a package skeleton, CI, and documents.
-    No science.
-  entry_points: []
+    The ported baseline runs. It is the predecessor's loop, verified bit-identical
+    to it, on the predecessor's analytic fixture, producing the predecessor's
+    four-panel figure. No new science: this is a measured starting point, not a
+    result.
+  entry_points:
+    - call: bio3dvision.run_baseline(steps=18, seed=0)
+      does: >-
+        Draws the analytic fixture, runs the block matcher once, then N fixations
+        of the active loop, and returns the engine, history and panel arrays.
+      cost: ~0.08 s for 18 steps
+    - call: bio3dvision.save_result_fig(engine, depth_gt, history, out=None)
+      does: Renders the four panels to results/fig_result.png and returns their data.
   library:
     package: bio3dvision
-    public_api: []
-    note: Flat by decision. See foreclosures fc-002.
+    modules: [fixture, matching, loop, figure, baseline]
+    lines: 643
+    public_api: [ActiveStereo, BaselineRun, CameraParams, PanelArrays, cost_volume,
+                 decode_disparity, error_summary, front_end_block, lr_consistency,
+                 make_synthetic_scene, panel_arrays, run_baseline, save_result_fig,
+                 scale_to_depth, true_disparity]
+    note: Still flat. Zero subpackages. See fc-002 and falsifier fv-003-2.
   test_suite:
     exists: true
+    count: 27
     what_it_covers: >-
-      That the package imports and that the spikes/ import ban holds. Nothing
-      about vision. These are infrastructure tests and are labelled as such.
+      The scaffold guards; the fixture's determinism and its lack of true
+      half-occlusions (gap-010); the ported trajectory, the lockup and its
+      per-pixel mechanism; the control/measurement boundary; and the four-panel
+      figure's reproducibility under a fixed seed.
   loop:
-    exists: false
+    exists: true
+    status: ported, faithful, with three known defects carried deliberately
+    defects_carried:
+      - "1e3 variance sentinel instead of nan - a convention this repository rejects"
+      - "gaussian_filter over np.where(valid, var, 0.0) in the gaze policy - mixing before masking"
+      - "no inhibition of return - the loop locks onto one pixel for its last 10 of 18 steps (bio-002)"
     note: >-
-      The active loop is the point of the project and has never been measured in
-      either predecessor either — see gap-004 in docs/inherited-measurements.yaml.
+      Deviations are later commits, one at a time, each reporting its effect on the
+      trajectory. They are decisions, not cleanups. Nothing here is step 9.
+  not_present:
+    - Geometry. No rays, no directions, no sensor model (od-001 is unimplemented).
+    - Any rendered stimulus. Blender still has no experiment attached (od-002).
+    - Any measurement of anything this repository has not inherited.
 
 # ------------------------------------------------------------------------------
 # LAST MEASURED NUMBERS
 # Measurements made BY THIS REPOSITORY, each with the commit that produced it.
 # Inherited priors are not measurements and do not belong here.
 # ------------------------------------------------------------------------------
-measurements: []
+measurements:
+  - ids: [bio-001, bio-002, bio-003, bio-004, bio-005, bio-006, bio-007, bio-008, bio-009]
+    commit: ae11496
+    what: >-
+      The ported baseline's trajectory, its lockup and the per-pixel mechanism
+      behind it, the error distribution, the error/uncertainty rank correlation,
+      and the bit-identity of the port against visgraf/bioeye@e908170.
+    where: docs/inherited-measurements.yaml, status "measured"
+    headline: >-
+      18 fixations, 9 of them distinct; the loop then spends its last 10 steps on
+      pixel (170, 94). RMSE 0.4793 m, flat from step 5 onward. The worst 5% of
+      pixels carry 80.9% of the squared error.
+    caveat: >-
+      These measure the PREDECESSOR'S loop, exactly — the port is bit-identical to
+      it. They are this repository's measurements of inherited behaviour, and a
+      baseline for deviations, not a result about anything new.
+
 measurements_note: >-
-  Empty, and that is the accurate state. Nothing has been measured here. Numbers
-  carried from the predecessors live in docs/inherited-measurements.yaml with
-  status `inherited`; every one is a prior awaiting re-test, not a baseline. Do
-  not copy one into this list — a value only enters here when a run in THIS
-  repository produced it, and it arrives with the commit that did.
+  No longer empty. Values enter this list only when a run in THIS repository
+  produced them, with the commit that did. Inherited priors stay in
+  docs/inherited-measurements.yaml with status "inherited" and are never promoted
+  here without a re-measurement.
 
 # ------------------------------------------------------------------------------
 # OPEN DECISIONS
@@ -281,3 +321,64 @@ falsifier_verdicts:
       Reference is visgraf/active-stereo@3f7a263 CLAUDE.md. 42% fewer lines and 41%
       fewer words, so the reduction is not an artefact of line wrapping.
     verified_at_commit: ed80270
+
+  - iteration: 3
+    id: fv-003-1
+    falsifier: >-
+      If the port's trajectory does not reproduce within numerical tolerance, then
+      either the port is wrong or the predecessor's numbers are
+      environment-dependent. Both matter before anything is built on this baseline.
+    verdict: did_not_fire
+    numbers:
+      supplied_quantities_checked: 20
+      reproduced: 20
+      diverged: 0
+      arrays_compared_against_the_original: 11
+      arrays_identical: 11
+    detail: >-
+      Neither disjunct holds. The port is bit-identical to
+      visgraf/bioeye@e908170 — both implementations executed in one interpreter and
+      compared with np.array_equal including dtype and shape, across left, right,
+      depth_gt, d_sub, var_d, valid_fe, posterior mean and var, the valid mask, the
+      sentinel-applied var_d, and the RMSE and D_fix trajectories, plus the
+      scanpath. And the numbers are not environment-dependent across the range
+      tested: every supplied value reproduced to the digits given, in a DIFFERENT
+      environment (Python 3.14.6 / numpy 2.5.2 / scipy 1.18.1 / matplotlib 3.11.1
+      against the supplied 3.12.3 / 2.4.4 / 1.17.1 / 3.10.8).
+      Reproduction was total, not partial: the trajectory AND the lockup both
+      reproduced, so the most informative outcome the specification anticipated did
+      not arise.
+      One correction, in the direction of precision rather than disagreement: the
+      RMSE is not literally frozen from step 5. It stays within 3.6e-4 of 0.4793,
+      rising to a maximum at step 10 (0.479392) and drifting down to 0.479306 by
+      step 17. Step 5 itself is 0.479029, which rounds to 0.4790 rather than
+      0.4793. The characterisation is right about the shape and about the
+      magnitude; "frozen" overstates it by a fourth decimal.
+    verified_at_commit: ae11496
+
+  - iteration: 3
+    id: fv-003-2
+    falsifier: >-
+      fc-002 closed "a directory per layer" in favour of a flat package. If roughly
+      400 lines of real code already requires subdirectories to stay navigable,
+      fc-002 was closed too early and should be reopened.
+    verdict: did_not_fire
+    numbers:
+      library_lines: 643
+      modules: 6
+      subpackages: 0
+      largest_module_lines: 200
+      test_lines: 383
+      test_modules: 3
+    detail: >-
+      The flat package held, and comfortably. 643 lines — more than the 400 the
+      falsifier anticipated — sit in six flat modules split along the seams the
+      predecessor's own file already had: fixture, matching, loop, figure, and a
+      baseline that composes them. The largest is loop.py at 200 lines. No
+      subdirectory was created, and none was wanted; the question was not avoided
+      by quietly adding structure.
+      Honest limit on this verdict: 643 lines is small, and the modules divide
+      cleanly because the predecessor's single file already had internal section
+      breaks to follow. This is evidence that fc-002 was not closed too early, not
+      evidence that it will hold at 3000 lines.
+    verified_at_commit: ae11496

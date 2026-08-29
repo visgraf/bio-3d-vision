@@ -4,11 +4,31 @@ FAITHFUL PORT of ``make_synthetic_scene`` from
 ``visgraf/bioeye@e908170:active_stereo_demo.py:47-77``. Numerically unchanged.
 
 This is a **test fixture, not a scene family** (CLAUDE.md; foreclosure fc-004).
-It exists so tests are fast and exact. A finding that rests on it has misused it,
-and there is a specific reason recorded in ``docs/inherited-measurements.yaml``
-as ``gap-010``: the right image is synthesised by inverse-warping the left with
-``mode="reflect"``, so the fixture has **no true half-occlusions**. Any occlusion
-claim measured here is unsound.
+It exists so tests are fast and exact.
+
+**It has no true half-occlusions, and therefore cannot support any occlusion
+claim.** Recorded as ``gap-010``. The right image is not rendered; it is
+resampled from the left by ``map_coordinates(left, [ys, xs + d_gt], order=1,
+mode="reflect")``. There is one texture array here and no second surface, so no
+pixel of the right image can contain anything the left does not already contain
+— and that is exactly what a half-occlusion is: a region visible to one eye and
+hidden from the other, showing a *different* surface.
+
+Measured on this fixture at seed 0: no right-image value falls outside the left
+image's range; 430 adjacent right-pixel pairs have a non-increasing sampling
+position (where a renderer would open an occlusion band, this sampler re-reads
+texture it has already used); and 2640 pixels, 3.4%, sample past the last column
+where ``mode="reflect"`` folds texture back instead of revealing background.
+
+Two mechanisms, and only one is the ``reflect`` mode: ``reflect`` handles the
+image edge, while interior depth steps lose their occlusions to linear
+interpolation of a non-monotonic forward map. Changing the boundary mode would
+fix neither.
+
+The consequence is specific: **anything measured here about the occluded/matched
+variance ratio is unsound** (``gap-001``). In particular ``bio-008`` — the
+posterior std ranks error positively on this fixture — is not evidence about the
+anti-calibration in either direction.
 """
 
 from __future__ import annotations
