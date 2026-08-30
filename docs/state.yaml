@@ -22,7 +22,7 @@ updated_at: 2026-08-29
 # a current one", which invited exactly that comparison and would have failed
 # after every merge. Staleness is tested per half, in `sequence`, and each half
 # gets the test it can actually pass.
-updated_by_commit: dde3b47   # the repository state this file describes
+updated_by_commit: f58aa7d   # the repository state this file describes
 
 # ------------------------------------------------------------------------------
 # SEQUENCE — where this project is, and what it plans next
@@ -71,25 +71,61 @@ sequence:
       DERIVE IT, DO NOT TRUST IT. This half has no timestamp and needs none: it
       claims to be derivable, so the check is to derive it. Three questions, each
       with a definite answer from the repository alone:
-        (1) does every step in `complete` still have the artifact or foreclosure
-            named for it in `evidence`, and does that entry still say what is
-            claimed here;
+        (1) for every step in `complete`, does the entry named in `evidence`
+            EXIST, and does that entry, READ IN FULL, ACTUALLY DECIDE WHAT THE
+            STEP'S TITLE NAMES. Both halves are required and the second is the
+            one that bites: an id that resolves is not an id that agrees. If the
+            step is "Decide X", find the sentence in the named entry that decides
+            X. If there is no such sentence, the claim is unearned and this check
+            has failed, however well-formed the reference is;
         (2) is `next` the lowest-numbered step that is neither complete nor
             deferred;
         (3) does every id referenced anywhere in this block resolve — in
-            `foreclosures`, `open_decisions`, or docs/inherited-measurements.yaml
-            — counting an id this block names as CLOSED and redirects
-            (od-001 -> fc-009) as resolving through its redirect, not as dangling.
+            `foreclosures`, `open_decisions`, `falsifier_verdicts`, or
+            docs/inherited-measurements.yaml — counting an id this block names as
+            CLOSED and redirects (od-001 -> fc-009) as resolving through its
+            redirect, not as dangling. `falsifier_verdicts` was added to this
+            list at step 11, when `evidence` first cited an fv- id; it was always
+            an id space in this file and the omission was an oversight, not a
+            decision that verdicts do not count as evidence.
       If all three hold, this half is current, whatever the date says. If one
       fails, the ledger and this block disagree and THE LEDGER IS RIGHT.
-      Run on arrival at dde3b47: all three pass.
-    complete: [1, 2, 3, 4, 7, 8, 9, 10]
+    checking_run: >-
+      Run on arrival at f58aa7d, against the STRENGTHENED clause (1): it FAILED,
+      on step 10. That failure is what this commit corrects, and the block below
+      is the corrected state. Re-run after the correction: all three pass.
+      The previous record here read "Run on arrival at dde3b47: all three pass."
+      It was run against the weaker clause (1) and it passed on a false claim.
+      See `checking_amended`.
+    checking_amended: >-
+      CLAUSE (1) WAS STRENGTHENED AFTER IT FAILED TO CATCH THE THING IT EXISTS TO
+      CATCH. It previously asked whether every step in `complete` "still has the
+      artifact or foreclosure named for it in `evidence`, and does that entry
+      still say what is claimed here" — which reads as a two-part test but was
+      applied as a one-part one, because "what is claimed here" was taken to mean
+      the `evidence` line's own words rather than the STEP'S TITLE.
+      The near-miss: `evidence` named fc-010 for step 10, fc-010 exists, its
+      `evidence` line ("taken on measured evidence; od-003 records what would
+      reopen it") is a true description of fc-010, and the check passed — the
+      block recorded "Run on arrival at dde3b47: all three pass", preserved in
+      `checking_run` above. The claim was still false. Step 10's title is "Decide the plant" and fc-010
+      decides the disparity search window; none of its eleven fields mentions a
+      plant, and fv-007-1 in this same file had already recorded that the
+      consequence toward the attentional branch WAS NOT INVOKED. A resolving id
+      and a true sentence about it were enough to pass a check meant to establish
+      that the step had been decided.
+      Caught instead by a cold session's arrival audit of the assumed repository
+      state, which is not where it should have been caught. Recorded rather than
+      silently swapped, in the style of `sequence.staleness.amended` and for the
+      same reason: the defect is worth more than the fix. A check that passes on a
+      false claim is the same shape as a claim that cannot fail.
+    complete: [1, 2, 3, 4, 7, 8, 9, 10, 11]
     deferred:
       - step: 5
         until: the end of Stage 0
       - step: 6
         until: the loop runs
-    next: 11
+    next: 12
     evidence:
       1: docs/migration-inventory.md — 114 items classified across both references
       2: docs/inherited-measurements.yaml — the carried-results record, 73 entries
@@ -98,7 +134,11 @@ sequence:
       7: the initial stub commit e3a17cf
       8: src/bio3dvision/{fixture,matching,loop,figure,baseline}.py, bit-identical to bioeye@e908170 (bio-009)
       9: fc-007, the first fw foreclosure (exp001), with its scope annotated and extended by fc-008 (exp002)
-      10: fc-010 (exp003), taken on measured evidence; od-003 records what would reopen it
+      # This line previously read "10: fc-010 (exp003), taken on measured
+      # evidence; od-003 records what would reopen it". fc-010 does not decide
+      # the plant; see `checking_amended` above and am-002-c.
+      10: fc-011, taken by the maintainer on the evidence of fc-008 and fc-010 — a decision, not a run
+      11: src/bio3dvision/blender_{render,load}.py, fv-011-1a and fv-011-1b, bio-024..bio-026
     out_of_sequence:
       - what: >-
           The sample-index to unit-ray boundary. Was od-001; CLOSED, and now
@@ -185,8 +225,22 @@ sequence:
             title: Decide the plant
             altitude: fw
             status: complete
-            outcome: fc-010
-            note: See amendment am-002.
+            outcome: fc-011
+            note: See amendment am-002, and its correction am-002-c.
+            correction: >-
+              THIS ENTRY PREVIOUSLY READ `status: complete` WITH `outcome:
+              fc-010`. Both were false, and neither was ever derivable from the
+              ledger. fc-010 closes NARROWING THE DISPARITY SEARCH WINDOW in
+              favour of the wide search the port already does; none of its eleven
+              fields mentions the plant, and its own `scope` field says "THIS IS A
+              RESULT ABOUT THE PORTED CONTROLLER, NOT ABOUT VERGENCE".
+              fv-007-1, in this same file and predating the claim, had already
+              recorded that its stated consequence "IS NOT INVOKED... this does
+              not by itself direct step 10 toward the attentional branch. The
+              measured outcome bears on the same decision and is recorded as
+              od-003 rather than deciding it here."
+              So the file contradicted itself, and the half that was wrong is this
+              one. Corrected here to the state the ledger actually supports.
 
       - stage: 2
         name: Rendering
@@ -194,7 +248,13 @@ sequence:
           - n: 11
             title: Migrate the Blender rendering code
             altitude: infra
-            status: next
+            status: complete
+            outcome: >-
+              A rendered stereo pair reaches the loop. 349 code lines in two
+              modules split at the testability boundary; fv-011-1a and
+              fv-011-1b both pass, the second against a real Blender 5.2.
+              Labelled infrastructure: it moved no measurement about vision and
+              closed no open decision. od-002 is untouched.
             why_it_sits_here: >-
               ITS ALTITUDE IS infra, BUT IT IS NOT INFRASTRUCTURE MIGRATED ON
               FAITH. Three foreclosures — fc-007, fc-008 and fc-010 — are each
@@ -206,7 +266,7 @@ sequence:
               That is why Blender moved from step 7 to step 11: it is not being
               migrated because a plan says so, but because three standing
               foreclosures cannot be tested past their limit without it.
-          - {n: 12, title: Test rendering against the loop, altitude: geom, status: planned}
+          - {n: 12, title: Test rendering against the loop, altitude: geom, status: next}
           - {n: 13, title: Adapt the static pipeline to Blender rendering, altitude: geom, status: planned}
           - {n: 14, title: Reproduce the static-scene result on Blender data, altitude: geom, status: planned}
 
@@ -244,8 +304,45 @@ sequence:
         to: after the acquisition experiment (exp003)
         reason: >-
           A foreclosure taken without evidence is a guess carrying a decision's
-          authority. The plant was decided on measurement — fc-010 — rather than
-          ahead of it, and od-003 records precisely what evidence would reopen it.
+          authority. The plant is decided after the acquisition experiment
+          (exp003) rather than ahead of it.
+        reason_amended: >-
+          CORRECTED IN PLACE. The second half of this reason previously read "The
+          plant was decided on measurement — fc-010 — rather than ahead of it, and
+          od-003 records precisely what evidence would reopen it." THE REORDERING
+          THIS AMENDMENT RECORDS IS REAL AND STANDS; the claim appended to it was
+          not.
+          fc-010 is about the disparity search window, not the plant. Deciding the
+          plant on it would be exactly the substitution this amendment's own first
+          sentence warns against — a decision drawing authority from a measurement
+          that does not bear on it. od-003 is real and does record what would
+          reopen the vergence question, but it is a retest condition for one
+          estimator, not the evidence that a plant question was settled.
+          What actually happened is recorded as am-002-c below.
+      - id: am-002-c
+        corrects: am-002
+        what_was_inserted: >-
+          `sequence.plan` step 10 was marked complete with outcome fc-010, and
+          `sequence.position` listed 10 in `complete` with a matching `evidence`
+          line, in 19d2723.
+        who_and_how: >-
+          NOT THE PLAN RUNNING AHEAD OF THE LEDGER — AN UNEARNED CLAIM INSERTED
+          INTO THE PLAN. It was a Chat-surface decision supplied to the session
+          that wrote the sequence block as though it were already established, and
+          it was written into the `position` half, which is the half whose whole
+          standing is that everything in it is DERIVABLE. Nothing in the ledger
+          ever derived it.
+          The distinction matters because the two failures have different fixes. A
+          plan running ahead of the ledger is corrected by waiting; a claim
+          inserted into the derivable half is corrected by deleting it and by
+          asking why the derivation check passed. Both are done here — see
+          `position.checking_amended`.
+        why_it_is_recorded: >-
+          `plan` is already labelled `source: chat` and `standing: NOT ESTABLISHED
+          IN THIS REPOSITORY`, and that label did its job for the plan half. It
+          did not protect the `position` half, which carries the opposite label.
+          A claim that crosses from the first into the second loses its warning
+          without losing its origin, and nothing in the file marked the crossing.
 
 # ------------------------------------------------------------------------------
 # WHAT RUNS
@@ -266,8 +363,9 @@ runs:
       does: Renders the four panels to results/fig_result.png and returns their data.
   library:
     package: bio3dvision
-    modules: [fixture, matching, loop, figure, baseline, policy, sampling, acquisition]
-    lines: 1332
+    modules: [fixture, matching, loop, figure, baseline, policy, sampling, acquisition,
+              blender_render, blender_load]
+    lines: 2098
     policies: [A, A_prime, B, C, D, E]
     sampling: >-
       SamplingModel Protocol with PinholeSampling; sits in front of ActiveStereo,
@@ -279,7 +377,28 @@ runs:
     note: Still flat. Zero subpackages. See fc-002 and falsifier fv-003-2.
   test_suite:
     exists: true
-    count: 27
+    count: 78
+    count_note: >-
+      70 run everywhere; 8 need the optional `blender` extra and skip without it.
+      CI installs the extra so those 8 run there — falsifier 1a is the only check
+      of the render path that needs no Blender binary, and skipping it in CI would
+      have left the path unverified in the one place it is always checked. THREE
+      of the 8 additionally need a Blender BINARY (the falsifier 1b tests) and
+      skip on the runner, with a reason naming what is unverified.
+    measured_in_ci: >-
+      75 passed, 3 skipped, on both 3.12 and 3.13 at 35d5f50. The 3 are falsifier
+      1b. Recorded because it is the number that says how much of the render path
+      CI actually covers, and because the count was first written here as two —
+      corrected against the run rather than against the guess.
+    count_corrected: >-
+      Read 27 until this commit, and had been wrong for some time — 27 is neither
+      the collected node count (69) nor the number of test functions (60). The
+      difference between those two is parametrisation, not missing tests.
+      Measured rather than counted by hand: `pytest --collect-only -q`. A stale
+      number in the file that describes what runs is a small defect with a large
+      shape — this is the channel a cold session trusts without checking.
+    test_functions: 60
+    environment_last_run: {python: 3.13.15, numpy: 2.5.2, scipy: 1.18.1, matplotlib: 3.11.1}
     what_it_covers: >-
       The scaffold guards; the fixture's determinism and its lack of true
       half-occlusions (gap-010); the ported trajectory, the lockup and its
@@ -331,7 +450,17 @@ runs:
       that CONSUMES one: no oculomotor state, no rotations, no projection. The
       rays are produced and immediately turned back into indices, because
       ActiveStereo still takes a pixel.
-    - Any rendered stimulus. Blender still has no experiment attached (od-002).
+    - >-
+      Any rendered STIMULUS, though no longer any rendered pair. Step 11 built the
+      path — bio3dvision.blender_render writes a rectified pair with a depth pass,
+      and load_render returns the same four-tuple make_synthetic_scene does, so
+      the loop consumes either without knowing which. What does not exist is a
+      rendered scene anyone has ASKED A QUESTION OF. The only scenes this
+      repository can build are ground-truth apparatus: tiled fronto-parallel
+      planes and a flat wall, both emission-shaded, neither a stimulus. Blender
+      still has no experiment attached (od-002), and the two limits that matter —
+      gap-010's missing half-occlusions and gap-001's contrast axis — are exactly
+      as open as before.
     - Any measurement of anything this repository has not inherited.
 
 # ------------------------------------------------------------------------------
@@ -403,6 +532,53 @@ measurements:
       One fixture with no true half-occlusions (gap-010), one window width, and a
       failure localised to the ported vergence estimator rather than to vergence
       (od-003).
+
+  - ids: [bio-023]
+    commit: f58aa7d
+    what: >-
+      The full suite, re-run in a freshly built environment on Python 3.13.15 —
+      an interpreter from the CI matrix, which nothing here had ever run on.
+    where: docs/inherited-measurements.yaml, status "measured"
+    headline: >-
+      69 of 69 pass, and so do ruff, ruff format --check and mypy. bio-001
+      through bio-008 are re-derived, because each is pinned by an assertion in
+      tests/test_loop_port.py.
+    caveat: >-
+      NARROWER THAN "REPRODUCED IN A FRESH ENVIRONMENT" SOUNDS. The numeric
+      libraries are identical to the original run — only the interpreter changed,
+      3.14.6 -> 3.13.15 — so this crosses interpreters, not library versions, and
+      fv-003-1 remains the wider claim. bio-009 is not covered (no test pins it)
+      and neither is bio-010..bio-022 (experiments/ is not run by pytest). The
+      port's baseline is re-verified; no experimental result is.
+    why_it_was_run: >-
+      Not planned. The environment the first seven iterations used was gone and
+      had to be rebuilt; rebuilding it on a CI-tested interpreter instead of the
+      untested 3.14 made the rebuild a measurement. Free, and not repeatable —
+      the numbers can only be checked against a genuinely unfamiliar environment
+      once.
+
+  - ids: [bio-024, bio-025, bio-026]
+    commit: f58aa7d
+    what: >-
+      The Blender path, at step 11: the EXR reader's silent-failure mode in the
+      library that was not chosen, the loaded depth of a live Blender 5.2 render
+      against analytic truth, and the depth channel's name across the two Blender
+      versions this repository reads.
+    where: docs/inherited-measurements.yaml, status "measured"
+    headline: >-
+      Rendered depth matches the analytic plane distances EXACTLY over 64320
+      pixels on three planes, so the pass is planar and in metres with no scale
+      error. The depth channel is named 'Z' in NEITHER file — R/G/B in bioeye's
+      Blender 4 artifact, 'V' in a Blender 5.2 render — so the carried
+      channel-naming tolerance is load-bearing rather than defensive. imageio
+      with no EXR backend returns a (2, 13379, 1) array for a (240, 320) depth
+      map and does not raise.
+    caveat: >-
+      bio-025 is apparatus, not a stimulus: fronto-parallel emission-shaded
+      planes with no occlusion, curvature or texture. It establishes that the
+      depth path is correct and nothing about what a render is worth as a
+      stimulus. THE RENDERER ITSELF REMAINS UNTESTED — gap-009 is narrowed to the
+      191 code lines that execute inside Blender, not closed.
 
 measurements_note: >-
   No longer empty. Values enter this list only when a run in THIS repository
@@ -829,6 +1005,106 @@ foreclosures:
       (od-003), or a stimulus with half-occlusions (od-002).
     decided_in: experiments/exp003_vergence_acquisition/findings.md
 
+  - id: fc-011
+    altitude: fw
+    closed: >-
+      Modelling L5 as a mechanical plant — an actuator layer whose job is to move
+      the eyes — as the branch this project develops next.
+    in_favour_of: >-
+      L5 models ATTENTIONAL ALLOCATION: where the system spends its limited
+      measurement budget, not how an eyeball is driven there.
+    decided_by: >-
+      The maintainer, on the evidence of fc-008 and fc-010. NOT DERIVED FROM A
+      MEASUREMENT IN THIS REPOSITORY, and recorded that way deliberately: it is a
+      judgement about which of two branches to develop, taken on an asymmetry
+      between two states of knowledge (below), not a result that a run produced.
+    the_asymmetry_that_decided_it: >-
+      THIS IS THE WHOLE ARGUMENT, and it is about states of knowledge rather than
+      about outcomes.
+      ALLOCATION IS MEASURED, AND IT WORKS WEAKLY. exp002 ran the deliberately
+      impoverished arms and found posterior variance does carry information beyond
+      the validity mask (fc-008) — distinguishably, on both primary metrics, and
+      small: the mask is worth 65x more than the variance on median error, and a
+      policy knowing only where the data is recovers 97.3% of the median benefit.
+      That is a weak positive. It is still a positive, and it is repeatable.
+      ACQUISITION IS MEASURED ONCE, WITH A CONTROLLER THAT CANNOT STEER. exp003
+      measured verging-to-acquire as worse than not verging on every axis except
+      coverage (fc-010) — but fc-010's own `mechanism` field localises the failure
+      to the estimator, not to the act.
+      A weak measured positive and a single measurement made with a broken
+      instrument are different states of knowledge, and this decision reflects the
+      difference. It develops the branch that has evidence, and it does not
+      convert the absence of a working instrument into evidence against the branch
+      that lacked one.
+    the_plant_is_untested_not_refuted: >-
+      READ THIS BEFORE CITING fc-010 AGAINST A PLANT. fc-010 is evidence about ONE
+      VERGENCE ESTIMATOR, and that estimator PROVABLY cannot produce the signal a
+      plant would need.
+      The proof is structural, not statistical, and it is in fc-010's `mechanism`:
+      ActiveStereo.vergence estimates fixation disparity as the median of d_sub
+      over VALID pixels in a foveal window. A pixel whose true disparity lies
+      outside the window generally fails validity and is excluded from that
+      median, so the estimate is confined to the window's interior BY
+      CONSTRUCTION. It can report a value; it cannot report "too near" or "too
+      far". The measured instance: at window [8,12] with the near card at 18.96 px
+      only 41.8% of pixels survive and their median d_sub reads 10.32, and at seed
+      0 fixations 5-7 the controller verged AWAY from the target, 10.0 -> 7.9 ->
+      5.95.
+      An actuator commanded by a signal that cannot carry a sign is not a test of
+      actuation. So fc-010 is not evidence about mechanical actuation as such, and
+      this foreclosure does not treat it as any.
+      WHY THIS IS SPELLED OUT RATHER THAN ASSUMED: writing fc-010 into the ledger
+      as evidence against plants would repeat the exact overstatement fc-009's
+      amendment already had to correct once — a measurement recorded as bearing on
+      a question it does not bear on. It was corrected there in place; it is
+      pre-empted here.
+    retest_condition: >-
+      od-003, which is pointed at rather than restated. It records what evidence
+      would reopen the vergence question and what it would cost, and duplicating
+      its terms here would create a second copy to keep in step with it.
+    agrees_with: >-
+      fv-007-1, which recorded at b77b24e that exp003's falsifier did not fire on
+      its stated condition and that "THE STATED CONSEQUENCE IS NOT INVOKED... this
+      does not by itself direct step 10 toward the attentional branch. The
+      measured outcome bears on the same decision and is recorded as od-003 rather
+      than deciding it here."
+      This foreclosure is the decision fv-007-1 declined to take on that evidence,
+      taken now by the maintainer, on a stated asymmetry, and NOT on the falsifier
+      firing. The two entries agree: the falsifier did not license this, and this
+      does not claim it did. fv-007-1 carries a reciprocal pointer back to here.
+    forecloses_nothing_downstream: >-
+      AN ATTENTIONAL L5 MUST NOT MAKE A PLANT UNREPRESENTABLE. This closes a
+      branch of development, not a region of design space, and the difference has
+      to survive into the code or the foreclosure will quietly become structural.
+      CONCRETELY, AND THIS IS THE TESTABLE PART: no assumption that sensory data
+      is FIXED ACROSS FIXATIONS may be baked into any interface. An interface that
+      takes the image pair once and then serves fixations out of it forever is
+      cheap to write, is adequate for every experiment run so far, and would make
+      a plant unrepresentable without anyone deciding that it should be. exp003's
+      arm V is the existing counter-example: it re-runs the front end every
+      fixation, and it is the first arm in either repository in which an action
+      changes what data exists.
+      So the shape to preserve is the one arm V already needs. Any interface added
+      after this foreclosure must be able to express "the data changed because the
+      system moved", whether or not anything currently moves.
+    cost_to_reopen: >-
+      Low as a decision, and that is the point of recording it this way: nothing
+      is being built that a plant would have to be dug out of. Reopening it needs
+      the retest in od-003, not an unwinding of work.
+    decided_in: >-
+      docs/state.yaml, this entry. There is no findings file because there was no
+      run: this is a maintainer's decision on the evidence already in the ledger,
+      not a result. fc-007, fc-008 and fc-010 were each decided in an
+      experiment's findings; this one is not, and the difference is visible here
+      rather than inferred.
+    vocabulary_note: >-
+      "L5" IS CHAT-SURFACE VOCABULARY AND IS NOT DEFINED IN THIS REPOSITORY. The
+      layer numbering belongs to the framework document the maintainer holds; the
+      only other place it surfaces here is fc-007's `does_not_close`, on the
+      L6-to-L1 interface. Recorded so that a session finding "L5" here does not go
+      looking for a definition that is not in the tree. The clause that this
+      repository can actually check is `forecloses_nothing_downstream`.
+
 # ------------------------------------------------------------------------------
 # FALSIFIER VERDICTS
 #
@@ -899,6 +1175,17 @@ falsifier_verdicts:
       diverged: 0
       arrays_compared_against_the_original: 11
       arrays_identical: 11
+    environment:
+      run_in: {python: 3.14.6, numpy: 2.5.2, scipy: 1.18.1, matplotlib: 3.11.1}
+      supplied_from: {python: 3.12.3, numpy: 2.4.4, scipy: 1.17.1, matplotlib: 3.10.8}
+      note: >-
+        Lifted out of `detail` below, where it was prose, and mirrored by
+        `provenance.environment` in docs/inherited-measurements.yaml. This
+        verdict's whole claim is that the numbers do not depend on their
+        environment, so the two environments it compares are the load-bearing
+        part of it and belong in a field. Still the widest reproduction on
+        record: it crosses BOTH the interpreter and all three numeric libraries.
+        bio-023 crosses only the interpreter.
     detail: >-
       Neither disjunct holds. The port is bit-identical to
       visgraf/bioeye@e908170 — both implementations executed in one interpreter and
@@ -1212,6 +1499,15 @@ falsifier_verdicts:
       direct step 10 toward the attentional branch. The measured outcome bears on
       the same decision and is recorded as od-003 rather than deciding it here.
     verified_at_commit: b77b24e
+    what_took_the_decision_later: >-
+      fc-011, by the maintainer, on a stated asymmetry between a weak measured
+      positive for allocation (fc-008) and a single acquisition measurement made
+      with an estimator that provably cannot steer (fc-010) — NOT on this
+      falsifier firing, which it did not.
+      Pointer added so the two entries agree in place rather than having to be
+      reconciled by a reader. Between b77b24e and that decision, step 10 was
+      briefly recorded as complete with outcome fc-010, which contradicted this
+      verdict directly; see am-002-c.
 
   - iteration: 7
     id: fv-007-2
@@ -1276,6 +1572,138 @@ falsifier_verdicts:
       fraction of the budget can report degeneracy that the full budget does not
       show.
     verified_at_commit: b77b24e
+
+  - iteration: 8
+    id: fv-011-1a
+    falsifier: >-
+      The loader reads bioeye@e908170's shipped depth_left.exr correctly, and
+      infer_depth_convention returns "planar" on it. If the depth path is wrong,
+      every ground-truth comparison built on it would be silently corrupt.
+    verdict: SPLIT — first clause did_not_fire, second clause REFUTED AS WRITTEN
+    numbers:
+      shape: [240, 320]
+      channels_present: [B, G, R]
+      channels_identical: true
+      depth_range_m: [1.7018, 5.0000]
+      finite_fraction: 1.0
+      whole_image_median_m: 3.4225
+      f_px: 311.1111111111111
+      baseline_m: 0.065
+      infer_depth_convention: unknown
+    detail: >-
+      THE LOADER CLAUSE PASSES. The shipped Blender 4.x artifact loads into the
+      same four-tuple make_synthetic_scene returns, with the same CameraParams
+      keys, at 240x320 and 1.702-5.000 m.
+      THE SECOND CLAUSE IS WRONG AS SPECIFIED, and reporting it as passed would
+      have required weakening the guard. infer_depth_convention returns "unknown"
+      on this file, not "planar", and "unknown" is the correct answer. The pass
+      IS planar — bioeye's render_stereo_blender.py:10 documents it as linear
+      camera-space Z in metres — but the inference is only meaningful on a
+      FRONTO-PARALLEL CALIBRATION RENDER and this is an ordinary scene of blocks.
+      That refusal is the entire guard. The reference's docstring records that an
+      earlier version answered "radial" here with complete confidence, because
+      any scene with nearer objects mid-frame has depth growing toward the
+      corners, and would have applied a spurious several-percent correction at
+      the field edge — indistinguishable from a modelling result. Making this
+      file answer "planar" means removing the radial-symmetry check that produces
+      the refusal, which is the near-miss restored.
+      So the specification asked for the one assertion that could only be
+      satisfied by breaking the thing it asked to carry. The known-answer test it
+      wanted exists and passes; it needs a flat-wall render and is fv-011-1b.
+      Recorded as split rather than as either verdict alone.
+    verified_at_commit: f58aa7d
+
+  - iteration: 8
+    id: fv-011-1b
+    falsifier: >-
+      The loader reads a fresh render from the installed Blender and the loaded
+      depth matches the analytic Z = f*I/d on fronto-parallel surfaces at known
+      distances, within a stated tolerance. This is the test gap-009 says the
+      reference does not have, and the reason Blender moved from step 7 to step
+      11: a renderer migrated before its consumer can only be self-tested.
+    verdict: did_not_fire
+    ran_against_a_real_blender: true
+    numbers:
+      blender: 5.2.0 LTS (fbe6228777e7)
+      planes_m: [2.0, 3.0, 4.5]
+      pixels_compared: 64320
+      max_abs_error_m: 0.0
+      tolerance_stated_m: 0.001
+      finite_fraction: 0.8375
+      disparity_range_px: [6.4198, 14.4444]
+      wall_render_convention: planar
+      tiled_render_convention: unknown
+    detail: >-
+      EXACT, over every pixel of all three planes, against a stated tolerance of
+      1 mm. The exactness is a property of the apparatus and not a surprise: the
+      planes sit at exactly representable distances and the Z pass is 32-bit
+      float, so no arithmetic sits between the geometry and the file.
+      It is not an insensitive test. A units error, an f_px scale error, or
+      colour management reaching the depth pass would all move it, and so would a
+      RADIAL pass compared against planar truth — that disagreement is zero at
+      the centre of frame and several percent at the edge, and the maximum here
+      is taken over whole planes including their edges. Zero is therefore a
+      positive result about the convention.
+      The convention guard was exercised in the same session on both scenes: it
+      answers "planar" on the flat wall and "unknown" on the three-plane scene.
+      Both are asserted together, because "planar" alone could come from an
+      inference that always says planar and "unknown" alone from one that never
+      decides.
+      A DEFECT THIS FOUND, worth recording because it would have made the
+      falsifier pass vacuously: the first version of the calibration scene stacked
+      full-frame planes concentrically, so the nearest occluded the rest and the
+      depth map contained exactly ONE distance. The render succeeded and reported
+      nothing. A falsifier written to check three distances would have checked
+      one. The planes are now tiled across the frame and the test asserts that
+      each distance is present, that nothing else is, and that the gaps between
+      them load as nan.
+    verified_at_commit: f58aa7d
+
+  - iteration: 8
+    id: fv-011-2
+    falsifier: >-
+      If the minimum Blender path exceeds roughly 400 lines, the "migrate the
+      minimum" reading was wrong, the Blender surface is not separable at the
+      granularity assumed, and step 11's scope needs revisiting before more is
+      built on it.
+    verdict: did_not_fire ON CODE, FIRED ON TOTAL LINES
+    numbers:
+      reference_total: 1834
+      migrated_total_lines: 756
+      migrated_code_lines: 349
+      migrated_doc_and_comment_lines: 247
+      migrated_blank_lines: 139
+      breakdown_code:
+        render_path: 191
+        calibration_scenes: 50
+        loader: 108
+      largest_function_code_lines: {setup_depth_output: 45, render_stereo: 45, load_render: 31}
+    detail: >-
+      BOTH NUMBERS ARE REPORTED BECAUSE THE VERDICT DEPENDS ON WHICH IS MEANT, and
+      the specification did not say. 349 code lines is under the threshold; 756
+      lines of file is over it, nearly twice.
+      The reading taken here is that it did not fire, and the reason is what the
+      falsifier was written to detect: whether the Blender surface separates at
+      the assumed granularity. It did. 349 code lines against the reference's
+      1834 is an 81% reduction, and nothing was migrated because something else
+      migrated called it — the off-axis and toed-in modes, chart sweeps, appearance
+      ground truth, albedo contrast, multi-config machinery and multi-part EXR
+      walking were all left behind, and load_render's dependency on
+      depth_to_disparity, cross_check_occlusion, StereoStimulus and boxsum all
+      dropped out with them.
+      The 247 documentation lines are the specification's own instruction, not
+      drift: it required the depth-convention guard to be carried WITH its
+      rationale, on the argument that a guard without its reason gets simplified
+      away. bio-026 shows that concern was justified — both files this repository
+      reads need the channel-naming tolerance, and neither would motivate it on
+      its own inspection.
+      HONEST LIMIT ON THIS VERDICT: 50 of the 349 code lines are calibration
+      scenes, which are falsifier apparatus rather than the path from Blender to
+      the loop. A stricter reading of "the minimum path" is 299. A looser one that
+      counts every line of file is 756. The maintainer may take a different
+      reading than the one recorded here, which is why all three numbers are on
+      the record rather than the one that supports the verdict.
+    verified_at_commit: f58aa7d
 
 # ------------------------------------------------------------------------------
 # STANDING CONSTRAINTS

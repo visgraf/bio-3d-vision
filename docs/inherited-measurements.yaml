@@ -73,7 +73,25 @@ schema:
   stimulus_family: rds | rendered_chart | middlebury2014 | middeval3 | synthetic_pair
   matcher: block | sgbm | energy | multiscale_energy | none
   configuration: The settings that make the number reproducible.
-  provenance: {cited_as, source, experiment, run_id, measured_at_sha}
+  provenance: {cited_as, source, experiment, run_id, measured_at_sha, environment}
+  provenance.environment: >-
+    The interpreter and numeric-library versions the run executed under, as
+    {python, numpy, scipy, matplotlib}. `null` where the source records nothing,
+    which is the honest state for every `inherited` entry and, as it turns out,
+    for thirteen `measured` ones.
+    A FIELD RATHER THAN A COMMENT, AND ADDED LATE. It was prose in three places —
+    this file's bio- block header, bio-009's `configuration`, and fv-003-1's
+    `detail` in docs/state.yaml — which meant the one thing several of these
+    numbers actually claim, that they do not depend on their environment, was not
+    queryable. `measured_at_sha` says which code produced a number; `environment`
+    says which interpreter did, and for a reproduction claim the second is the
+    load-bearing half.
+    BACKFILL IS NOT INFERENCE. It was applied only where a source already
+    recorded the environment in prose: bio-001 through bio-009. bio-010 through
+    bio-022 get `null`, because nothing in the tree records what they ran under.
+    The interpreter can be guessed from build artifacts that are git-ignored and
+    from the fact that the three experiments post-date bio-009, and a guess is
+    exactly what this field exists to stop being written down as a fact.
   status: inherited | measured | gap
   notes: Optional. Caveats that travel with the value, from the source.
 
@@ -1018,6 +1036,15 @@ measurements:
   # environment (Python 3.12.3, numpy 2.4.4, scipy 1.17.1, matplotlib 3.10.8) and
   # reproduced to every digit given, here on Python 3.14.6, numpy 2.5.2,
   # scipy 1.18.1, matplotlib 3.11.1.
+  #
+  # THAT SENTENCE IS NOW ALSO A FIELD. It is the origin of `provenance.environment`
+  # — it was the only record of what these numbers ran under, and being prose it
+  # could not be queried, compared or contradicted. Each of bio-001..bio-009 now
+  # carries the same fact per entry. bio-010..bio-022 carry `null`, because no
+  # comparable sentence was ever written for them.
+  # bio-023 re-runs the eight of these that are pinned as tests, on Python 3.13.15
+  # from the CI matrix. Read its `notes` before citing it: the numeric libraries
+  # were unchanged, so it crosses interpreters and not library versions.
   # ==============================================================================
 
   - id: bio-001
@@ -1034,6 +1061,7 @@ measurements:
       experiment: null
       run_id: null
       measured_at_sha: ae11496
+      environment: {python: 3.14.6, numpy: 2.5.2, scipy: 1.18.1, matplotlib: 3.11.1}
     status: measured
     notes: >-
       Half the run buys nothing. The first eight fixations are eight distinct
@@ -1053,6 +1081,7 @@ measurements:
       experiment: null
       run_id: null
       measured_at_sha: ae11496
+      environment: {python: 3.14.6, numpy: 2.5.2, scipy: 1.18.1, matplotlib: 3.11.1}
     status: measured
     notes: >-
       DEFECT 3 in loop.py (no inhibition of return), measured. The mechanism is
@@ -1077,6 +1106,7 @@ measurements:
       experiment: null
       run_id: null
       measured_at_sha: ae11496
+      environment: {python: 3.14.6, numpy: 2.5.2, scipy: 1.18.1, matplotlib: 3.11.1}
     status: measured
     notes: >-
       NOT frozen, though it is nearly so: from step 5 the value stays within
@@ -1110,6 +1140,7 @@ measurements:
       experiment: null
       run_id: null
       measured_at_sha: ae11496
+      environment: {python: 3.14.6, numpy: 2.5.2, scipy: 1.18.1, matplotlib: 3.11.1}
     status: measured
     notes: >-
       The matcher reports 32.92 px where the truth is 10.71 px — a gross
@@ -1133,6 +1164,7 @@ measurements:
       experiment: null
       run_id: null
       measured_at_sha: ae11496
+      environment: {python: 3.14.6, numpy: 2.5.2, scipy: 1.18.1, matplotlib: 3.11.1}
     status: measured
     notes: >-
       The fall itself shrinks with each visit (0.0796 down to 0.0641 by the
@@ -1154,6 +1186,7 @@ measurements:
       experiment: null
       run_id: null
       measured_at_sha: ae11496
+      environment: {python: 3.14.6, numpy: 2.5.2, scipy: 1.18.1, matplotlib: 3.11.1}
     status: measured
     notes: >-
       The median pixel is at 11 mm and the 99th percentile at 2.1 m — a spread of
@@ -1174,6 +1207,7 @@ measurements:
       experiment: null
       run_id: null
       measured_at_sha: ae11496
+      environment: {python: 3.14.6, numpy: 2.5.2, scipy: 1.18.1, matplotlib: 3.11.1}
     status: measured
     notes: >-
       2655 pixels of 53098 carry 80.9% of the squared error. Any RMSE comparison
@@ -1194,6 +1228,7 @@ measurements:
       experiment: null
       run_id: null
       measured_at_sha: ae11496
+      environment: {python: 3.14.6, numpy: 2.5.2, scipy: 1.18.1, matplotlib: 3.11.1}
     status: measured
     notes: >-
       POSITIVE, so on this fixture the posterior is not anti-calibrated: more
@@ -1223,8 +1258,19 @@ measurements:
       experiment: null
       run_id: null
       measured_at_sha: ae11496
+      environment: {python: 3.14.6, numpy: 2.5.2, scipy: 1.18.1, matplotlib: 3.11.1}
     status: measured
     notes: >-
+      NOT COVERED BY bio-023, AND IT IS THE ONE MOST WORTH RE-RUNNING. No test
+      pins this entry, because the comparison needs the reference checkout and
+      committed code may not read it. So the suite passing on a new interpreter
+      re-derives bio-001..bio-008 and leaves this untouched.
+      It is re-runnable, though, and cheaply: Python 3.14.6 is still installable
+      and was still present on the machine that ran bio-023 — what had gone was
+      the numeric stack around it, not the interpreter. Re-running would need an
+      out-of-tree script and a 3.14.6 environment with numpy 2.5.2 and scipy
+      1.18.1, and it has NOT been done. Recorded so the absence is a decision
+      rather than an oversight.
       This is the entry that licenses every other bio- entry as a measurement of
       the PREDECESSOR'S loop rather than of a lookalike. The comparison is run
       out-of-tree deliberately: committed code may not read .reference/, enforced
@@ -1254,6 +1300,7 @@ measurements:
       experiment: exp001_gaze_objective
       run_id: null
       measured_at_sha: ed0683a
+      environment: null   # not recorded by the source; see provenance.environment
     status: measured
     notes: >-
       A' and C are INDISTINGUISHABLE on both pre-registered primary metrics
@@ -1282,6 +1329,7 @@ measurements:
       experiment: exp001_gaze_objective
       run_id: null
       measured_at_sha: ed0683a
+      environment: null   # not recorded by the source; see provenance.environment
     status: measured
     notes: >-
       ZERO agreement across all 144 comparisons, while the fields are moderately
@@ -1311,6 +1359,7 @@ measurements:
       experiment: exp001_gaze_objective
       run_id: null
       measured_at_sha: ed0683a
+      environment: null   # not recorded by the source; see provenance.environment
     status: measured
     notes: >-
       The evidence for constraint cn-001. Zero agreement, and the picks are a
@@ -1339,6 +1388,7 @@ measurements:
       experiment: exp001_gaze_objective
       run_id: null
       measured_at_sha: ed0683a
+      environment: null   # not recorded by the source; see provenance.environment
     status: measured
     notes: >-
       The pre-registered stride of 8 FAILED its declared halving check, so the
@@ -1374,6 +1424,7 @@ measurements:
       experiment: exp002_saliency_value
       run_id: null
       measured_at_sha: c0b54a4
+      environment: null   # not recorded by the source; see provenance.environment
     status: measured
     notes: >-
       Harness verified against exp001 before use: seeds 0-7 at step 18 reproduce
@@ -1401,6 +1452,7 @@ measurements:
       experiment: exp002_saliency_value
       run_id: null
       measured_at_sha: c0b54a4
+      environment: null   # not recorded by the source; see provenance.environment
     status: measured
     notes: >-
       exp002's falsifier 2. D does NOT tie with E: the gap is 47x the declared bar
@@ -1426,6 +1478,7 @@ measurements:
       experiment: exp002_saliency_value
       run_id: null
       measured_at_sha: c0b54a4
+      environment: null   # not recorded by the source; see provenance.environment
     status: measured
     notes: >-
       exp002's falsifier 1, which does NOT fire: E is distinguishably worse than A'
@@ -1453,6 +1506,7 @@ measurements:
       experiment: exp002_saliency_value
       run_id: null
       measured_at_sha: c0b54a4
+      environment: null   # not recorded by the source; see provenance.environment
     status: measured
     notes: >-
       On the median, knowing where the data is is worth 65x more than knowing how
@@ -1479,6 +1533,7 @@ measurements:
       experiment: exp002_saliency_value
       run_id: null
       measured_at_sha: c0b54a4
+      environment: null   # not recorded by the source; see provenance.environment
     status: measured
     notes: >-
       THE VERDICT FLIPS. exp001 recorded this as indistinguishable at 0.97 of its
@@ -1510,6 +1565,7 @@ measurements:
       experiment: exp003_vergence_acquisition
       run_id: null
       measured_at_sha: b77b24e
+      environment: null   # not recorded by the source; see provenance.environment
     status: measured
     notes: >-
       Both narrow arms are ~7.5x worse than the wide baseline on the pixels all
@@ -1544,6 +1600,7 @@ measurements:
       experiment: exp003_vergence_acquisition
       run_id: null
       measured_at_sha: b77b24e
+      environment: null   # not recorded by the source; see provenance.environment
     status: measured
     notes: >-
       V buys 21.7% more coverage and it is BAD COVERAGE: the median error on
@@ -1574,6 +1631,7 @@ measurements:
       experiment: exp003_vergence_acquisition
       run_id: null
       measured_at_sha: b77b24e
+      environment: null   # not recorded by the source; see provenance.environment
     status: measured
     notes: >-
       The pre-registration predicted V = 142 and said it would be confirmed by
@@ -1603,6 +1661,7 @@ measurements:
       experiment: exp003_vergence_acquisition
       run_id: null
       measured_at_sha: b77b24e
+      environment: null   # not recorded by the source; see provenance.environment
     status: measured
     notes: >-
       THE MECHANISM UNDER bio-019 AND bio-020. ActiveStereo.vergence takes the
@@ -1616,6 +1675,166 @@ measurements:
       validity mask removes.
       A RESULT ABOUT THE PORTED CONTROLLER, NOT ABOUT VERGENCE. An estimator with
       a signed out-of-range error signal is untested; recorded as od-003.
+
+  - id: bio-023
+    statement: >-
+      The 8 measurements this repository pins as tests reproduce in a freshly
+      built environment on a CI-supported interpreter.
+    value: {tests_collected: 69, passed: 69, failed: 0, bio_ids_repinned: 8}
+    units: count
+    n: {runs: 1, suite: full}
+    stimulus_family: analytic_fixture
+    matcher: block
+    configuration: >-
+      pytest over tests/, in a .venv built from `pip install -e ".[dev]"` against
+      a Python 3.13 installed for this run. Also green in the same environment:
+      ruff check, ruff format --check, mypy — the whole CI gate, not just the
+      suite.
+    provenance:
+      cited_as: visgraf/bio-3d-vision
+      source: tests/, full suite; the run is the measurement
+      experiment: null
+      run_id: null
+      measured_at_sha: f58aa7d
+      environment: {python: 3.13.15, numpy: 2.5.2, scipy: 1.18.1, matplotlib: 3.11.1}
+    status: measured
+    notes: >-
+      WHAT THIS COVERS: bio-001 through bio-008, and those only. Each names a
+      pinning assertion in tests/test_loop_port.py, so the suite passing re-derives
+      them — the RMSE trajectory (0.7824 / 0.4790 / 0.4793), the (170, 94) lockup,
+      the per-pixel mechanism at that pixel, the error summary, the 80.9% squared-
+      error share, and the two rank correlations.
+      WHAT IT DOES NOT COVER, and the list is longer than the covered one.
+      bio-009, the bit-identity against visgraf/bioeye@e908170, has NO test: it was
+      a one-off out-of-tree comparison, and committed code may not read
+      .reference/ (tests/test_scaffold.py enforces that). bio-010 through bio-022
+      live in experiments/ and pytest does not run them. So the port's baseline is
+      re-verified and every experimental result is not.
+      THE LIMIT THAT MATTERS MOST, and it makes this weaker than it sounds: the
+      numeric libraries are IDENTICAL to the original run — numpy 2.5.2, scipy
+      1.18.1, matplotlib 3.11.1, the same three versions bio-001..bio-009 were
+      measured under. Only the interpreter moved, 3.14.6 -> 3.13.15. This is a
+      cross-INTERPRETER reproduction and not a cross-library-version one.
+      fv-003-1 already crossed library versions (supplied 3.12.3 / 2.4.4 / 1.17.1 /
+      3.10.8 against 3.14.6 / 2.5.2 / 1.18.1 / 3.11.1) and in that respect it
+      remains the stronger claim. What is new here is narrower and worth having on
+      its own terms: these numbers had never been checked on an interpreter CI
+      tests, and now they have.
+      WHY IT WAS RUN AT ALL: the environment the previous seven iterations used was
+      gone, and rebuilding it was unavoidable. Rebuilding on 3.14 would have
+      compounded an untested interpreter rather than testing anything, so 3.13 was
+      chosen from the CI matrix and the rebuild was treated as a measurement
+      instead of as setup. It was free and it was not repeatable.
+      measured_at_sha is f58aa7d, the state the suite was run against, which is
+      before the docs commits that record this. src/ and tests/ are byte-identical
+      across those commits and that is checkable with `git diff f58aa7d..HEAD --
+      src tests`, which is empty.
+
+  - id: bio-024
+    statement: >-
+      imageio with no EXR backend does not fail on a Blender depth pass; it
+      dispatches to an unrelated plugin and returns a wrongly shaped array.
+    value: {returned_shape: [2, 13379, 1], true_shape: [240, 320], raised: false}
+    units: count
+    n: {files: 1}
+    stimulus_family: rendered_chart
+    matcher: none
+    configuration: >-
+      imageio 2.37 `imageio.v3.imread` on tests/data/bioeye-e908170/depth_left.exr,
+      with no OpenEXR/freeimage plugin installed. It matched the file to its SPE
+      reader and emitted only a UserWarning about a frame count.
+    provenance:
+      cited_as: visgraf/bio-3d-vision
+      source: probe during the step 11 dependency choice; not committed as a test
+      experiment: null
+      run_id: null
+      measured_at_sha: f58aa7d
+      environment: {python: 3.13.15, numpy: 2.5.2, scipy: 1.18.1, matplotlib: 3.11.1}
+    status: measured
+    notes: >-
+      THE REASON THE `blender` EXTRA PINS `OpenEXR` AND NOT imageio. A reader that
+      raises on a format it cannot handle is a nuisance; one that returns an array
+      of the wrong shape with a warning is a corruption, and 13379 x 2 floats
+      would have flowed into a depth map and been reshaped or broadcast somewhere
+      downstream. The failure is silent in exactly the way ADR-0010 in the
+      reference was written about.
+      Not committed as a test: pinning it would require depending on the broken
+      configuration. Recorded so the choice is not revisited on the assumption
+      that any image library will do.
+
+  - id: bio-025
+    statement: >-
+      Depth loaded from a fresh Blender 5.2 render equals the analytic distance of
+      each fronto-parallel plane exactly.
+    value: {max_abs_error_m: 0.0, planes: 3, pixels_compared: 64320}
+    units: m
+    n: {runs: 1, planes: 3, seed: null}
+    stimulus_family: rendered_chart
+    matcher: none
+    configuration: >-
+      bio3dvision.blender_render --cards 2.0 3.0 4.5 --res 320 240 --samples 8,
+      Cycles, denoising off, rectified parallel rig at baseline 0.065 m, lens 50 mm
+      on a 36 mm sensor giving f_px 444.4444; loaded with
+      bio3dvision.blender_load.load_render and compared against the plane
+      distances the scene was built from.
+    provenance:
+      cited_as: visgraf/bio-3d-vision
+      source: tests/test_blender_load.py::test_falsifier_1b_loaded_depth_matches_analytic_z
+      experiment: null
+      run_id: null
+      measured_at_sha: f58aa7d
+      environment: {python: 3.13.15, numpy: 2.5.2, scipy: 1.18.1, matplotlib: 3.11.1, blender: 5.2.0 LTS (fbe6228777e7)}
+    status: measured
+    notes: >-
+      Falsifier 1b, and the test gap-009 records the reference does not have.
+      EXACT, not merely within tolerance, and the exactness is a property of the
+      apparatus rather than a surprise: the planes sit at exactly representable
+      distances and the Z pass is 32-bit float, so there is no arithmetic between
+      the geometry and the file for error to enter.
+      WHAT IT WOULD HAVE CAUGHT, which is the reason to run it: a unit error
+      (millimetres for metres), a scale error in f_px, a radial-versus-planar
+      convention error, and colour management applied to the depth pass. The
+      convention case is worth spelling out — a radial pass compared against
+      planar truth disagrees by zero at the centre of frame and by several percent
+      at the edge, and the maximum is taken over the whole plane including its
+      edges. Zero there is a positive result about the convention, not an
+      insensitive test.
+      One caveat it does NOT settle: it says nothing about a rendered scene with
+      occlusion, curvature or texture, because it deliberately has none.
+      od-002 stays open.
+
+  - id: bio-026
+    statement: >-
+      The depth channel name in a Blender EXR differs between the two versions
+      this repository can read, and is 'Z' in neither.
+    value: {blender_4_bioeye: [B, G, R], blender_5_2: [V]}
+    units: count
+    n: {files: 2}
+    stimulus_family: rendered_chart
+    matcher: none
+    configuration: >-
+      Channel names read from the EXR headers of tests/data/bioeye-e908170/
+      depth_left.exr (written by bioeye@e908170 under Blender 3.x/4.x) and of a
+      fresh render by bio3dvision.blender_render under Blender 5.2.0 LTS with
+      color_mode BW.
+    provenance:
+      cited_as: visgraf/bio-3d-vision
+      source: tests/test_blender_load.py::test_falsifier_1a_depth_channel_is_not_named_z
+      experiment: null
+      run_id: null
+      measured_at_sha: f58aa7d
+      environment: {python: 3.13.15, numpy: 2.5.2, scipy: 1.18.1, matplotlib: 3.11.1, blender: 5.2.0 LTS (fbe6228777e7)}
+    status: measured
+    notes: >-
+      THE CHANNEL-NAMING TOLERANCE IS NOT DEFENSIVE PROGRAMMING; BOTH FILES NEED
+      IT. The reference documents the depth channel as having been both 'Z' and
+      'V'. Measured here, neither file this repository actually reads is named
+      'Z': the Blender 4 artifact has no depth-named channel at all — the metres
+      sit identically in R, G and B because the compositor routed the pass
+      through RGB — and the Blender 5.2 render names it 'V'.
+      A reader written against the documented 'Z' would have found nothing in
+      either. Recorded because the natural simplification, once both files
+      happen to load, is to drop the fallbacks.
 
   # ==============================================================================
   # GAPS — measurements that were NOT made, and whose absence is load-bearing.
@@ -1865,6 +2084,16 @@ measurements:
       equivalent from an RDS". Load-bearing here because this repository commits to one
       rendered source, so every exp003 entry above inherits an unverified generator and
       the commitment does not by itself change that.
+      NARROWED, NOT CLOSED, at step 11. The gap has two halves and only one moved.
+      The LOADER is now covered: bio-025 checks depth from a live render against
+      analytic truth, and bio-024 and bio-026 pin the reader's two silent-failure
+      modes. What is still uncovered is everything that executes INSIDE Blender —
+      src/bio3dvision/blender_render.py, on which no test in this repository runs
+      a line and none can, because bpy does not exist in CI. That module states so
+      at the top of its own docstring.
+      So the honest position is that the boundary is now DRAWN and STATED rather
+      than diffuse, and is 191 code lines wide. The reference's position was that
+      the whole surface was unverified and nothing said where it ended.
 
   - id: gap-010
     statement: The analytic fixture has no true half-occlusions, so no occlusion claim can be measured on it.

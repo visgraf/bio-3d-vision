@@ -22,6 +22,15 @@ dev = [
     "mypy>=1.11",
     "ruff>=0.6",
 ]
+# Reading Blender's float depth pass. OPTIONAL, and the core loop must never
+# need it: bio3dvision.blender_load imports it inside the one function that
+# reads EXR, so `import bio3dvision` works without it and the tests that would
+# need it skip. Pinned to the `OpenEXR` package rather than imageio, which
+# dispatches EXR to the wrong plugin and returns a WRONGLY SHAPED array instead
+# of raising - measured, see bio-024.
+blender = [
+    "OpenEXR>=3.2",
+]
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/bio3dvision"]
@@ -53,7 +62,18 @@ warn_unreachable = true
 module = "spikes.*"
 ignore_errors = true
 
-# scipy and matplotlib ship no type stubs.
+# scipy and matplotlib ship no type stubs. Neither does OpenEXR, and `bpy` and
+# `mathutils` do not exist outside Blender at all.
 [[tool.mypy.overrides]]
-module = ["scipy.*", "matplotlib.*"]
+module = ["scipy.*", "matplotlib.*", "OpenEXR.*", "Imath.*", "bpy.*", "mathutils.*"]
 ignore_missing_imports = true
+
+# bio3dvision.blender_render runs inside Blender's interpreter, against an API
+# that ships no stubs, so every `bpy` expression is Any and strict mode can say
+# nothing useful about it. Exempted rather than annotated with fictions: this is
+# the module the suite already cannot reach (gap-009), and pretending the type
+# checker covers it would misplace the boundary this repository is trying to
+# draw. bio3dvision.blender_load, which is the tested half, stays fully strict.
+[[tool.mypy.overrides]]
+module = "bio3dvision.blender_render"
+ignore_errors = true
