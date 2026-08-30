@@ -118,7 +118,15 @@ def run_arm(
     history: list[dict[str, Any]] = []
     for i in range(STEPS):
         choice = fixations[i] if fixations is not None else policy(engine, engine.scanpath)
-        history.append(engine.step(choice))
+        info = engine.step(choice)
+        # MEASUREMENT ONLY, exactly as ActiveStereo.run does it: read after step
+        # has returned and never fed back in. Recorded here because stepping the
+        # engine directly skips run()'s bookkeeping, and without it the fourth
+        # figure panel is blank — which reads as a broken artifact rather than as
+        # a missing key.
+        mask = np.isfinite(gt) & engine.valid
+        info["rmse"] = float(np.sqrt(np.mean((engine.mean[mask] - gt[mask]) ** 2)))
+        history.append(info)
     return ArmResult(
         depth_est=np.asarray(engine.mean, dtype=float),
         depth_gt=np.asarray(gt, dtype=float),
