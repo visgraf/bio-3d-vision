@@ -15,6 +15,13 @@ something needs it. Recorded as ``fc-002`` in ``docs/state.yaml``.
 """
 
 from bio3dvision.baseline import BaselineRun, error_summary, run_baseline
+from bio3dvision.blender_load import (
+    infer_depth_convention,
+    load_render,
+    radial_to_planar,
+    read_exr_depth,
+    render_provenance,
+)
 from bio3dvision.figure import PanelArrays, panel_arrays, save_result_fig
 from bio3dvision.fixture import CameraParams, make_synthetic_scene, true_disparity
 from bio3dvision.loop import ActiveStereo, scale_to_depth
@@ -43,9 +50,14 @@ __all__ = [
     "decode_disparity",
     "error_summary",
     "front_end_block",
+    "infer_depth_convention",
+    "load_render",
     "lr_consistency",
     "make_synthetic_scene",
     "panel_arrays",
+    "radial_to_planar",
+    "read_exr_depth",
+    "render_provenance",
     "route_through_sampling",
     "run_baseline",
     "save_result_fig",

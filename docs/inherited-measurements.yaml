@@ -1730,6 +1730,112 @@ measurements:
       across those commits and that is checkable with `git diff f58aa7d..HEAD --
       src tests`, which is empty.
 
+  - id: bio-024
+    statement: >-
+      imageio with no EXR backend does not fail on a Blender depth pass; it
+      dispatches to an unrelated plugin and returns a wrongly shaped array.
+    value: {returned_shape: [2, 13379, 1], true_shape: [240, 320], raised: false}
+    units: count
+    n: {files: 1}
+    stimulus_family: rendered_chart
+    matcher: none
+    configuration: >-
+      imageio 2.37 `imageio.v3.imread` on tests/data/bioeye-e908170/depth_left.exr,
+      with no OpenEXR/freeimage plugin installed. It matched the file to its SPE
+      reader and emitted only a UserWarning about a frame count.
+    provenance:
+      cited_as: visgraf/bio-3d-vision
+      source: probe during the step 11 dependency choice; not committed as a test
+      experiment: null
+      run_id: null
+      measured_at_sha: f58aa7d
+      environment: {python: 3.13.15, numpy: 2.5.2, scipy: 1.18.1, matplotlib: 3.11.1}
+    status: measured
+    notes: >-
+      THE REASON THE `blender` EXTRA PINS `OpenEXR` AND NOT imageio. A reader that
+      raises on a format it cannot handle is a nuisance; one that returns an array
+      of the wrong shape with a warning is a corruption, and 13379 x 2 floats
+      would have flowed into a depth map and been reshaped or broadcast somewhere
+      downstream. The failure is silent in exactly the way ADR-0010 in the
+      reference was written about.
+      Not committed as a test: pinning it would require depending on the broken
+      configuration. Recorded so the choice is not revisited on the assumption
+      that any image library will do.
+
+  - id: bio-025
+    statement: >-
+      Depth loaded from a fresh Blender 5.2 render equals the analytic distance of
+      each fronto-parallel plane exactly.
+    value: {max_abs_error_m: 0.0, planes: 3, pixels_compared: 64320}
+    units: m
+    n: {runs: 1, planes: 3, seed: null}
+    stimulus_family: rendered_chart
+    matcher: none
+    configuration: >-
+      bio3dvision.blender_render --cards 2.0 3.0 4.5 --res 320 240 --samples 8,
+      Cycles, denoising off, rectified parallel rig at baseline 0.065 m, lens 50 mm
+      on a 36 mm sensor giving f_px 444.4444; loaded with
+      bio3dvision.blender_load.load_render and compared against the plane
+      distances the scene was built from.
+    provenance:
+      cited_as: visgraf/bio-3d-vision
+      source: tests/test_blender_load.py::test_falsifier_1b_loaded_depth_matches_analytic_z
+      experiment: null
+      run_id: null
+      measured_at_sha: f58aa7d
+      environment: {python: 3.13.15, numpy: 2.5.2, scipy: 1.18.1, matplotlib: 3.11.1, blender: 5.2.0 LTS (fbe6228777e7)}
+    status: measured
+    notes: >-
+      Falsifier 1b, and the test gap-009 records the reference does not have.
+      EXACT, not merely within tolerance, and the exactness is a property of the
+      apparatus rather than a surprise: the planes sit at exactly representable
+      distances and the Z pass is 32-bit float, so there is no arithmetic between
+      the geometry and the file for error to enter.
+      WHAT IT WOULD HAVE CAUGHT, which is the reason to run it: a unit error
+      (millimetres for metres), a scale error in f_px, a radial-versus-planar
+      convention error, and colour management applied to the depth pass. The
+      convention case is worth spelling out — a radial pass compared against
+      planar truth disagrees by zero at the centre of frame and by several percent
+      at the edge, and the maximum is taken over the whole plane including its
+      edges. Zero there is a positive result about the convention, not an
+      insensitive test.
+      One caveat it does NOT settle: it says nothing about a rendered scene with
+      occlusion, curvature or texture, because it deliberately has none.
+      od-002 stays open.
+
+  - id: bio-026
+    statement: >-
+      The depth channel name in a Blender EXR differs between the two versions
+      this repository can read, and is 'Z' in neither.
+    value: {blender_4_bioeye: [B, G, R], blender_5_2: [V]}
+    units: count
+    n: {files: 2}
+    stimulus_family: rendered_chart
+    matcher: none
+    configuration: >-
+      Channel names read from the EXR headers of tests/data/bioeye-e908170/
+      depth_left.exr (written by bioeye@e908170 under Blender 3.x/4.x) and of a
+      fresh render by bio3dvision.blender_render under Blender 5.2.0 LTS with
+      color_mode BW.
+    provenance:
+      cited_as: visgraf/bio-3d-vision
+      source: tests/test_blender_load.py::test_falsifier_1a_depth_channel_is_not_named_z
+      experiment: null
+      run_id: null
+      measured_at_sha: f58aa7d
+      environment: {python: 3.13.15, numpy: 2.5.2, scipy: 1.18.1, matplotlib: 3.11.1, blender: 5.2.0 LTS (fbe6228777e7)}
+    status: measured
+    notes: >-
+      THE CHANNEL-NAMING TOLERANCE IS NOT DEFENSIVE PROGRAMMING; BOTH FILES NEED
+      IT. The reference documents the depth channel as having been both 'Z' and
+      'V'. Measured here, neither file this repository actually reads is named
+      'Z': the Blender 4 artifact has no depth-named channel at all — the metres
+      sit identically in R, G and B because the compositor routed the pass
+      through RGB — and the Blender 5.2 render names it 'V'.
+      A reader written against the documented 'Z' would have found nothing in
+      either. Recorded because the natural simplification, once both files
+      happen to load, is to drop the fallbacks.
+
   # ==============================================================================
   # GAPS — measurements that were NOT made, and whose absence is load-bearing.
   # ==============================================================================
@@ -1978,6 +2084,16 @@ measurements:
       equivalent from an RDS". Load-bearing here because this repository commits to one
       rendered source, so every exp003 entry above inherits an unverified generator and
       the commitment does not by itself change that.
+      NARROWED, NOT CLOSED, at step 11. The gap has two halves and only one moved.
+      The LOADER is now covered: bio-025 checks depth from a live render against
+      analytic truth, and bio-024 and bio-026 pin the reader's two silent-failure
+      modes. What is still uncovered is everything that executes INSIDE Blender —
+      src/bio3dvision/blender_render.py, on which no test in this repository runs
+      a line and none can, because bpy does not exist in CI. That module states so
+      at the top of its own docstring.
+      So the honest position is that the boundary is now DRAWN and STATED rather
+      than diffuse, and is 191 code lines wide. The reference's position was that
+      the whole surface was unverified and nothing said where it ended.
 
   - id: gap-010
     statement: The analytic fixture has no true half-occlusions, so no occlusion claim can be measured on it.

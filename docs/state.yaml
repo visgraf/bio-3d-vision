@@ -115,13 +115,13 @@ sequence:
       silently swapped, in the style of `sequence.staleness.amended` and for the
       same reason: the defect is worth more than the fix. A check that passes on a
       false claim is the same shape as a claim that cannot fail.
-    complete: [1, 2, 3, 4, 7, 8, 9, 10]
+    complete: [1, 2, 3, 4, 7, 8, 9, 10, 11]
     deferred:
       - step: 5
         until: the end of Stage 0
       - step: 6
         until: the loop runs
-    next: 11
+    next: 12
     evidence:
       1: docs/migration-inventory.md — 114 items classified across both references
       2: docs/inherited-measurements.yaml — the carried-results record, 73 entries
@@ -134,6 +134,7 @@ sequence:
       # evidence; od-003 records what would reopen it". fc-010 does not decide
       # the plant; see `checking_amended` above and am-002-c.
       10: fc-011, taken by the maintainer on the evidence of fc-008 and fc-010 — a decision, not a run
+      11: src/bio3dvision/blender_{render,load}.py, fv-011-1a and fv-011-1b, bio-024..bio-026
     out_of_sequence:
       - what: >-
           The sample-index to unit-ray boundary. Was od-001; CLOSED, and now
@@ -243,7 +244,13 @@ sequence:
           - n: 11
             title: Migrate the Blender rendering code
             altitude: infra
-            status: next
+            status: complete
+            outcome: >-
+              A rendered stereo pair reaches the loop. 349 code lines in two
+              modules split at the testability boundary; fv-011-1a and
+              fv-011-1b both pass, the second against a real Blender 5.2.
+              Labelled infrastructure: it moved no measurement about vision and
+              closed no open decision. od-002 is untouched.
             why_it_sits_here: >-
               ITS ALTITUDE IS infra, BUT IT IS NOT INFRASTRUCTURE MIGRATED ON
               FAITH. Three foreclosures — fc-007, fc-008 and fc-010 — are each
@@ -255,7 +262,7 @@ sequence:
               That is why Blender moved from step 7 to step 11: it is not being
               migrated because a plan says so, but because three standing
               foreclosures cannot be tested past their limit without it.
-          - {n: 12, title: Test rendering against the loop, altitude: geom, status: planned}
+          - {n: 12, title: Test rendering against the loop, altitude: geom, status: next}
           - {n: 13, title: Adapt the static pipeline to Blender rendering, altitude: geom, status: planned}
           - {n: 14, title: Reproduce the static-scene result on Blender data, altitude: geom, status: planned}
 
@@ -352,8 +359,9 @@ runs:
       does: Renders the four panels to results/fig_result.png and returns their data.
   library:
     package: bio3dvision
-    modules: [fixture, matching, loop, figure, baseline, policy, sampling, acquisition]
-    lines: 1332
+    modules: [fixture, matching, loop, figure, baseline, policy, sampling, acquisition,
+              blender_render, blender_load]
+    lines: 2098
     policies: [A, A_prime, B, C, D, E]
     sampling: >-
       SamplingModel Protocol with PinholeSampling; sits in front of ActiveStereo,
@@ -365,7 +373,7 @@ runs:
     note: Still flat. Zero subpackages. See fc-002 and falsifier fv-003-2.
   test_suite:
     exists: true
-    count: 69
+    count: 78   # 70 + 8 that skip without the optional `blender` extra
     count_corrected: >-
       Read 27 until this commit, and had been wrong for some time — 27 is neither
       the collected node count (69) nor the number of test functions (60). The
@@ -426,7 +434,17 @@ runs:
       that CONSUMES one: no oculomotor state, no rotations, no projection. The
       rays are produced and immediately turned back into indices, because
       ActiveStereo still takes a pixel.
-    - Any rendered stimulus. Blender still has no experiment attached (od-002).
+    - >-
+      Any rendered STIMULUS, though no longer any rendered pair. Step 11 built the
+      path — bio3dvision.blender_render writes a rectified pair with a depth pass,
+      and load_render returns the same four-tuple make_synthetic_scene does, so
+      the loop consumes either without knowing which. What does not exist is a
+      rendered scene anyone has ASKED A QUESTION OF. The only scenes this
+      repository can build are ground-truth apparatus: tiled fronto-parallel
+      planes and a flat wall, both emission-shaded, neither a stimulus. Blender
+      still has no experiment attached (od-002), and the two limits that matter —
+      gap-010's missing half-occlusions and gap-001's contrast axis — are exactly
+      as open as before.
     - Any measurement of anything this repository has not inherited.
 
 # ------------------------------------------------------------------------------
@@ -522,6 +540,29 @@ measurements:
       untested 3.14 made the rebuild a measurement. Free, and not repeatable —
       the numbers can only be checked against a genuinely unfamiliar environment
       once.
+
+  - ids: [bio-024, bio-025, bio-026]
+    commit: f58aa7d
+    what: >-
+      The Blender path, at step 11: the EXR reader's silent-failure mode in the
+      library that was not chosen, the loaded depth of a live Blender 5.2 render
+      against analytic truth, and the depth channel's name across the two Blender
+      versions this repository reads.
+    where: docs/inherited-measurements.yaml, status "measured"
+    headline: >-
+      Rendered depth matches the analytic plane distances EXACTLY over 64320
+      pixels on three planes, so the pass is planar and in metres with no scale
+      error. The depth channel is named 'Z' in NEITHER file — R/G/B in bioeye's
+      Blender 4 artifact, 'V' in a Blender 5.2 render — so the carried
+      channel-naming tolerance is load-bearing rather than defensive. imageio
+      with no EXR backend returns a (2, 13379, 1) array for a (240, 320) depth
+      map and does not raise.
+    caveat: >-
+      bio-025 is apparatus, not a stimulus: fronto-parallel emission-shaded
+      planes with no occlusion, curvature or texture. It establishes that the
+      depth path is correct and nothing about what a render is worth as a
+      stimulus. THE RENDERER ITSELF REMAINS UNTESTED — gap-009 is narrowed to the
+      191 code lines that execute inside Blender, not closed.
 
 measurements_note: >-
   No longer empty. Values enter this list only when a run in THIS repository
@@ -1515,6 +1556,138 @@ falsifier_verdicts:
       fraction of the budget can report degeneracy that the full budget does not
       show.
     verified_at_commit: b77b24e
+
+  - iteration: 8
+    id: fv-011-1a
+    falsifier: >-
+      The loader reads bioeye@e908170's shipped depth_left.exr correctly, and
+      infer_depth_convention returns "planar" on it. If the depth path is wrong,
+      every ground-truth comparison built on it would be silently corrupt.
+    verdict: SPLIT — first clause did_not_fire, second clause REFUTED AS WRITTEN
+    numbers:
+      shape: [240, 320]
+      channels_present: [B, G, R]
+      channels_identical: true
+      depth_range_m: [1.7018, 5.0000]
+      finite_fraction: 1.0
+      whole_image_median_m: 3.4225
+      f_px: 311.1111111111111
+      baseline_m: 0.065
+      infer_depth_convention: unknown
+    detail: >-
+      THE LOADER CLAUSE PASSES. The shipped Blender 4.x artifact loads into the
+      same four-tuple make_synthetic_scene returns, with the same CameraParams
+      keys, at 240x320 and 1.702-5.000 m.
+      THE SECOND CLAUSE IS WRONG AS SPECIFIED, and reporting it as passed would
+      have required weakening the guard. infer_depth_convention returns "unknown"
+      on this file, not "planar", and "unknown" is the correct answer. The pass
+      IS planar — bioeye's render_stereo_blender.py:10 documents it as linear
+      camera-space Z in metres — but the inference is only meaningful on a
+      FRONTO-PARALLEL CALIBRATION RENDER and this is an ordinary scene of blocks.
+      That refusal is the entire guard. The reference's docstring records that an
+      earlier version answered "radial" here with complete confidence, because
+      any scene with nearer objects mid-frame has depth growing toward the
+      corners, and would have applied a spurious several-percent correction at
+      the field edge — indistinguishable from a modelling result. Making this
+      file answer "planar" means removing the radial-symmetry check that produces
+      the refusal, which is the near-miss restored.
+      So the specification asked for the one assertion that could only be
+      satisfied by breaking the thing it asked to carry. The known-answer test it
+      wanted exists and passes; it needs a flat-wall render and is fv-011-1b.
+      Recorded as split rather than as either verdict alone.
+    verified_at_commit: f58aa7d
+
+  - iteration: 8
+    id: fv-011-1b
+    falsifier: >-
+      The loader reads a fresh render from the installed Blender and the loaded
+      depth matches the analytic Z = f*I/d on fronto-parallel surfaces at known
+      distances, within a stated tolerance. This is the test gap-009 says the
+      reference does not have, and the reason Blender moved from step 7 to step
+      11: a renderer migrated before its consumer can only be self-tested.
+    verdict: did_not_fire
+    ran_against_a_real_blender: true
+    numbers:
+      blender: 5.2.0 LTS (fbe6228777e7)
+      planes_m: [2.0, 3.0, 4.5]
+      pixels_compared: 64320
+      max_abs_error_m: 0.0
+      tolerance_stated_m: 0.001
+      finite_fraction: 0.8375
+      disparity_range_px: [6.4198, 14.4444]
+      wall_render_convention: planar
+      tiled_render_convention: unknown
+    detail: >-
+      EXACT, over every pixel of all three planes, against a stated tolerance of
+      1 mm. The exactness is a property of the apparatus and not a surprise: the
+      planes sit at exactly representable distances and the Z pass is 32-bit
+      float, so no arithmetic sits between the geometry and the file.
+      It is not an insensitive test. A units error, an f_px scale error, or
+      colour management reaching the depth pass would all move it, and so would a
+      RADIAL pass compared against planar truth — that disagreement is zero at
+      the centre of frame and several percent at the edge, and the maximum here
+      is taken over whole planes including their edges. Zero is therefore a
+      positive result about the convention.
+      The convention guard was exercised in the same session on both scenes: it
+      answers "planar" on the flat wall and "unknown" on the three-plane scene.
+      Both are asserted together, because "planar" alone could come from an
+      inference that always says planar and "unknown" alone from one that never
+      decides.
+      A DEFECT THIS FOUND, worth recording because it would have made the
+      falsifier pass vacuously: the first version of the calibration scene stacked
+      full-frame planes concentrically, so the nearest occluded the rest and the
+      depth map contained exactly ONE distance. The render succeeded and reported
+      nothing. A falsifier written to check three distances would have checked
+      one. The planes are now tiled across the frame and the test asserts that
+      each distance is present, that nothing else is, and that the gaps between
+      them load as nan.
+    verified_at_commit: f58aa7d
+
+  - iteration: 8
+    id: fv-011-2
+    falsifier: >-
+      If the minimum Blender path exceeds roughly 400 lines, the "migrate the
+      minimum" reading was wrong, the Blender surface is not separable at the
+      granularity assumed, and step 11's scope needs revisiting before more is
+      built on it.
+    verdict: did_not_fire ON CODE, FIRED ON TOTAL LINES
+    numbers:
+      reference_total: 1834
+      migrated_total_lines: 756
+      migrated_code_lines: 349
+      migrated_doc_and_comment_lines: 247
+      migrated_blank_lines: 139
+      breakdown_code:
+        render_path: 191
+        calibration_scenes: 50
+        loader: 108
+      largest_function_code_lines: {setup_depth_output: 45, render_stereo: 45, load_render: 31}
+    detail: >-
+      BOTH NUMBERS ARE REPORTED BECAUSE THE VERDICT DEPENDS ON WHICH IS MEANT, and
+      the specification did not say. 349 code lines is under the threshold; 756
+      lines of file is over it, nearly twice.
+      The reading taken here is that it did not fire, and the reason is what the
+      falsifier was written to detect: whether the Blender surface separates at
+      the assumed granularity. It did. 349 code lines against the reference's
+      1834 is an 81% reduction, and nothing was migrated because something else
+      migrated called it — the off-axis and toed-in modes, chart sweeps, appearance
+      ground truth, albedo contrast, multi-config machinery and multi-part EXR
+      walking were all left behind, and load_render's dependency on
+      depth_to_disparity, cross_check_occlusion, StereoStimulus and boxsum all
+      dropped out with them.
+      The 247 documentation lines are the specification's own instruction, not
+      drift: it required the depth-convention guard to be carried WITH its
+      rationale, on the argument that a guard without its reason gets simplified
+      away. bio-026 shows that concern was justified — both files this repository
+      reads need the channel-naming tolerance, and neither would motivate it on
+      its own inspection.
+      HONEST LIMIT ON THIS VERDICT: 50 of the 349 code lines are calibration
+      scenes, which are falsifier apparatus rather than the path from Blender to
+      the loop. A stricter reading of "the minimum path" is 299. A looser one that
+      counts every line of file is 756. The maintainer may take a different
+      reading than the one recorded here, which is why all three numbers are on
+      the record rather than the one that supports the verdict.
+    verified_at_commit: f58aa7d
 
 # ------------------------------------------------------------------------------
 # STANDING CONSTRAINTS
