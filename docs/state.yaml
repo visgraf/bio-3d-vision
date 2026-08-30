@@ -22,7 +22,7 @@ updated_at: 2026-08-29
 # a current one", which invited exactly that comparison and would have failed
 # after every merge. Staleness is tested per half, in `sequence`, and each half
 # gets the test it can actually pass.
-updated_by_commit: dde3b47   # the repository state this file describes
+updated_by_commit: f58aa7d   # the repository state this file describes
 
 # ------------------------------------------------------------------------------
 # SEQUENCE — where this project is, and what it plans next
@@ -365,7 +365,16 @@ runs:
     note: Still flat. Zero subpackages. See fc-002 and falsifier fv-003-2.
   test_suite:
     exists: true
-    count: 27
+    count: 69
+    count_corrected: >-
+      Read 27 until this commit, and had been wrong for some time — 27 is neither
+      the collected node count (69) nor the number of test functions (60). The
+      difference between those two is parametrisation, not missing tests.
+      Measured rather than counted by hand: `pytest --collect-only -q`. A stale
+      number in the file that describes what runs is a small defect with a large
+      shape — this is the channel a cold session trusts without checking.
+    test_functions: 60
+    environment_last_run: {python: 3.13.15, numpy: 2.5.2, scipy: 1.18.1, matplotlib: 3.11.1}
     what_it_covers: >-
       The scaffold guards; the fixture's determinism and its lack of true
       half-occlusions (gap-010); the ported trajectory, the lockup and its
@@ -489,6 +498,30 @@ measurements:
       One fixture with no true half-occlusions (gap-010), one window width, and a
       failure localised to the ported vergence estimator rather than to vergence
       (od-003).
+
+  - ids: [bio-023]
+    commit: f58aa7d
+    what: >-
+      The full suite, re-run in a freshly built environment on Python 3.13.15 —
+      an interpreter from the CI matrix, which nothing here had ever run on.
+    where: docs/inherited-measurements.yaml, status "measured"
+    headline: >-
+      69 of 69 pass, and so do ruff, ruff format --check and mypy. bio-001
+      through bio-008 are re-derived, because each is pinned by an assertion in
+      tests/test_loop_port.py.
+    caveat: >-
+      NARROWER THAN "REPRODUCED IN A FRESH ENVIRONMENT" SOUNDS. The numeric
+      libraries are identical to the original run — only the interpreter changed,
+      3.14.6 -> 3.13.15 — so this crosses interpreters, not library versions, and
+      fv-003-1 remains the wider claim. bio-009 is not covered (no test pins it)
+      and neither is bio-010..bio-022 (experiments/ is not run by pytest). The
+      port's baseline is re-verified; no experimental result is.
+    why_it_was_run: >-
+      Not planned. The environment the first seven iterations used was gone and
+      had to be rebuilt; rebuilding it on a CI-tested interpreter instead of the
+      untested 3.14 made the rebuild a measurement. Free, and not repeatable —
+      the numbers can only be checked against a genuinely unfamiliar environment
+      once.
 
 measurements_note: >-
   No longer empty. Values enter this list only when a run in THIS repository
@@ -1085,6 +1118,17 @@ falsifier_verdicts:
       diverged: 0
       arrays_compared_against_the_original: 11
       arrays_identical: 11
+    environment:
+      run_in: {python: 3.14.6, numpy: 2.5.2, scipy: 1.18.1, matplotlib: 3.11.1}
+      supplied_from: {python: 3.12.3, numpy: 2.4.4, scipy: 1.17.1, matplotlib: 3.10.8}
+      note: >-
+        Lifted out of `detail` below, where it was prose, and mirrored by
+        `provenance.environment` in docs/inherited-measurements.yaml. This
+        verdict's whole claim is that the numbers do not depend on their
+        environment, so the two environments it compares are the load-bearing
+        part of it and belong in a field. Still the widest reproduction on
+        record: it crosses BOTH the interpreter and all three numeric libraries.
+        bio-023 crosses only the interpreter.
     detail: >-
       Neither disjunct holds. The port is bit-identical to
       visgraf/bioeye@e908170 — both implementations executed in one interpreter and
