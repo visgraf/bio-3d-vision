@@ -22,7 +22,7 @@ updated_at: 2026-08-29
 # a current one", which invited exactly that comparison and would have failed
 # after every merge. Staleness is tested per half, in `sequence`, and each half
 # gets the test it can actually pass.
-updated_by_commit: 9f40198   # the repository state this file describes
+updated_by_commit: aa87d14   # the repository state this file describes
 
 # ------------------------------------------------------------------------------
 # SEQUENCE — where this project is, and what it plans next
@@ -385,6 +385,53 @@ sequence:
           fc-008 is qualified as to where its evidence comes from; fc-010 is
           untouched. No foreclosure was reversed. Step 13 is unblocked.
 
+      - id: am-004
+        moved: exp006, the stratified re-analysis of exp003
+        from: specified
+        to: deliberately not run
+        reason: >-
+          exp007 answers the same question on a stimulus WITHOUT the artefact,
+          which is strictly better evidence than re-scoring the artefact-ridden
+          one — and it did: V is distinguishably worse than W on rendered data on
+          both metrics (bio-039).
+          And fc-010's MECHANISM does not depend on the outcome. The ported
+          vergence estimator takes the median of d_sub over VALID pixels in a
+          foveal window, so a target outside the window is excluded from its own
+          error signal: the pixels carrying it are exactly the pixels validity
+          deletes. That is geometric, and no re-scoring of which pixels are
+          counted changes it.
+        consequence: >-
+          fc-010 AND fc-011 ARE NOT BAND-CHECKED, while fc-007 and fc-008 are.
+          Recorded on both entries so the asymmetry is visible to a cold session
+          rather than inferred from the absence of an exp006.
+      - id: am-005
+        moved: steps 13 and 14
+        from: planned, next after step 12
+        to: substantially satisfied by exp004, with a remainder stated
+        reason: >-
+          Step 13 is "adapt the static pipeline to Blender rendering" and step 14
+          is "reproduce the static-scene result on Blender data". exp004 built the
+          scene model, rendered through it, and ran the ported loop on both
+          sources; exp007 then ran six arms on both. Between them the pipeline is
+          adapted and the static result is reproduced.
+        what_remains: >-
+          NOT MARKED COMPLETE BY ASSERTION, because two things in their titles have
+          not been done.
+          Step 13: nothing consumes a render except an experiment runner. There is
+          no scene registry, no configuration path, and run_baseline still calls
+          make_synthetic_scene directly — bio3dvision.run_baseline cannot be
+          pointed at a render. Whether that plumbing is wanted at all is now a
+          question rather than a plan, since two experiments have run without it.
+          Step 14: exp007 reproduced the POLICY COMPARISONS on rendered data, not
+          the ported baseline's own trajectory numbers (bio-001..bio-008). Those
+          are pinned as tests against the fixture and have no rendered counterpart.
+          Reproducing them on a render would be a different measurement — the
+          scene is the same but the stimulus is not — and no one has asked for it.
+        status_left_as: >-
+          Both remain `next`/`planned` in the plan half rather than being marked
+          complete. The plan is intent and this amendment is a record of what the
+          intent now looks like against what exists.
+
 # ------------------------------------------------------------------------------
 # WHAT RUNS
 # ------------------------------------------------------------------------------
@@ -525,6 +572,33 @@ runs:
         fc-007 annotated (stands, strengthened), fc-008 annotated (qualified as to
         where its evidence comes from), fc-010 untouched. gap-010 not lifted,
         od-002 not touched.
+
+    - id: exp007_rendered_policy_sweep
+      question: >-
+        Do the policy comparisons behave the same way on a rendered stimulus
+        without the fixture's discontinuity artefact?
+      answer: >-
+        YES, AND THEY MATCH THE ORIGINALS' POOLED FIGURES RATHER THAN exp005'S
+        BANDED ONES. Of eight comparison-metrics, four came out (a), three (a=b),
+        one (c); outcome (b) never occurred and NO COMPARISON REVERSED DIRECTION.
+        In all three cases where the pooled and AWAY references disagreed, the
+        rendered stimulus went with pooled.
+        The reason is bio-037: the policy differences live at depth discontinuities
+        on the RENDERED stimulus too, so exp005's AWAY band removed the artefact
+        and the signal together. The artefact inflated the magnitude of the error
+        there; it did not manufacture the difference.
+      pre_registered: c744f69, committed alone before the runner existed
+      predictions_were_wrong: >-
+        Four of eight. The pre-registration followed exp005's reading and predicted
+        outcome (b) for E-vs-A' on both metrics and A-vs-A' on median, and (d) for
+        E-vs-A' on p90. All four came out (a) or (c). Recorded because a
+        pre-registration whose predictions are never checked is decoration.
+      changed_no_foreclosure: >-
+        fc-008 annotated (confirmed on rendered data; exp005's qualification does
+        not survive), fc-007 annotated (supported indirectly, its own null still
+        untested on rendered data), fc-010 annotated (survives its first
+        independent test), fc-011 annotated (unaffected — V-vs-W did not reverse).
+        gap-010 not lifted, od-002 and od-003 not touched.
 
   not_present:
     - >-
@@ -914,6 +988,16 @@ foreclosures:
       is pathological on this fixture. The concern that motivated exp005 does not
       apply to fc-007. Its gap-010 limit is unchanged: it still holds for a
       stimulus without half-occlusions and no further.
+    rendered_support_exp007: >-
+      SUPPORTED, INDIRECTLY. exp007 did not re-run B or C — dropped as a decision,
+      because this null is the most robust result in the ledger and re-running the
+      field-integral arms would have cost about 17.4 of the experiment's 18
+      minutes. What it did run is A against A', which shows inhibition of return
+      doing MORE work on rendered data than on the fixture: distinguishable on
+      both metrics (1.25x median, 1.21x p90) where the fixture's pooled figure was
+      distinguishable on median only.
+      That is supporting evidence about the remedy, not a test of the objectives
+      null itself. The null remains untested on rendered data.
     decided_in: experiments/exp001_gaze_objective/findings.md
 
   - id: fc-008
@@ -991,6 +1075,27 @@ foreclosures:
       not bear on it. A pre-registered re-test would need the E-versus-A'
       comparison on a RENDERED stimulus whose discontinuity regions are not
       pathological — od-002's instrument, and od-002 is open.
+    rendered_recheck_exp007: >-
+      CONFIRMED ON A STIMULUS WITHOUT THE ARTEFACT, and exp005's qualification
+      above does not survive it. exp007 ran E and A' on a Blender render of the
+      fixture's own geometry, at exp002's budget of 40 and with the fixture arms
+      re-run at matched seeds and budget as the reference. E is distinguishably
+      WORSE than A' on BOTH primary metrics — median 1.18x, p90 9.04x — matching
+      the fixture's POOLED verdict, not its AWAY-band one. On p90 the rendered
+      effect is five times the fixture's pooled figure and points opposite to the
+      AWAY band.
+      So the evidence for this foreclosure is not an artefact of the pathological
+      bands. bio-037 explains why both can be true: the policy differences live at
+      depth discontinuities on the RENDERED stimulus too, so exp005's AWAY band
+      removed the artefact and the signal together. The artefact inflated the
+      magnitude of the error there; it did not manufacture the difference.
+      The stratified_recheck_exp005 note above is left standing rather than
+      edited: it recorded what was measured, and this records what a better
+      stimulus measured. The disagreement is the information.
+      LIMIT, and it is why this does not close gap-001: the rendered scene copies
+      the fixture's geometry, which produces only 5.09% half-occlusion and no
+      contrast axis (bio-038). A pre-registered re-test on a stimulus with a
+      controlled contrast axis at occlusion boundaries is still what od-002 names.
     decided_in: experiments/exp002_saliency_value/findings.md
 
   - id: fc-009
@@ -1139,6 +1244,23 @@ foreclosures:
     cost_to_reopen: >-
       A retest with a controller that has a signed out-of-range error signal
       (od-003), or a stimulus with half-occlusions (od-002).
+    not_band_checked: >-
+      THIS FORECLOSURE HAS NEVER BEEN BAND-CHECKED, and the asymmetry with fc-007
+      and fc-008 is deliberate and recorded so a cold session can see it. exp005
+      stratified exp001 and exp002; the equivalent for exp003 was specified as
+      exp006 and deliberately not run. See am-004 for why.
+    rendered_recheck_exp007: >-
+      SURVIVES ITS FIRST INDEPENDENT TEST. Until exp007 this foreclosure rested
+      entirely on one pooled figure on one stimulus. exp007 re-ran W and V on a
+      Blender render of the fixture's geometry — the arms verified identical to
+      exp003's by hypothesis count, W 57 and V 147, matching fv-007-1 — and V is
+      distinguishably worse than W on both primary metrics, 1.58x on median and
+      1.90x on p90.
+      V's coverage cost is WORSE on rendered data than on the fixture: it reaches
+      6996 fewer pixels than W against 2980, and its exclusive pixels are 11x
+      worse than W's. See bio-039.
+      Seeds 0-7 rather than exp003's 0-15, which widens the bar rather than
+      narrowing it.
     decided_in: experiments/exp003_vergence_acquisition/findings.md
 
   - id: fc-011
@@ -1233,6 +1355,16 @@ foreclosures:
       not a result. fc-007, fc-008 and fc-010 were each decided in an
       experiment's findings; this one is not, and the difference is visible here
       rather than inferred.
+    unaffected_by_exp007: >-
+      exp007 re-ran V against W on a rendered stimulus and V did NOT reverse — it
+      is distinguishably worse there too (bio-039). So nothing in exp007 bears on
+      whether a mechanical plant is testable, and this entry's framing — the plant
+      UNTESTED, NOT REFUTED — stands exactly as written.
+      Recorded because the exp007 specification anticipated the other outcome: had
+      V-vs-W reversed, this framing would have become more clearly right. It did
+      not, and the framing is unchanged rather than strengthened. od-003 untouched.
+    not_band_checked: >-
+      Like fc-010, and for the same reason: see am-004.
     vocabulary_note: >-
       "L5" IS CHAT-SURFACE VOCABULARY AND IS NOT DEFINED IN THIS REPOSITORY. The
       layer numbering belongs to the framework document the maintainer holds; the
@@ -2082,6 +2214,74 @@ falsifier_verdicts:
       enough room at 40 fixations, taking 40.0 distinct fixations in the AWAY
       band against the ~41 sites the preregistration measured.
     verified_at_commit: 9f40198
+
+  - iteration: 11
+    id: fv-014
+    falsifier: >-
+      Four outcomes enumerated in advance for each of four comparisons, because
+      Chat has twice written falsifier sets that named a null and a confirmation
+      and missed what occurred:
+        (a) the rendered verdict MATCHES the fixture's POOLED verdict — the
+            fixture's pooled figure was right and the artefact did not distort it;
+        (b) MATCHES the fixture's AWAY-band verdict — exp005's reading was correct
+            and the clean-band re-score anticipated the clean stimulus;
+        (c) DIFFERS FROM BOTH, same direction, different magnitude;
+        (d) REVERSES DIRECTION — the fixture's verdict was wrong in sign.
+    verdict: (a) FOUR TIMES, (a=b) THREE TIMES, (c) ONCE. (b) NEVER. (d) NEVER.
+    numbers:
+      tally: {a: 4, a_equals_b: 3, b: 0, c: 1, d: 0}
+      E_vs_A_prime_budget40:
+        median: {rendered: 1.18, fixture_pooled: 1.36, fixture_away: 0.33, outcome: a}
+        p90: {rendered: 9.04, fixture_pooled: 1.85, fixture_away: 1.60, outcome: a}
+      D_vs_E_budget40:
+        median: {rendered: 41.96, fixture_pooled: 48.38, fixture_away: 26.02, outcome: a_equals_b}
+        p90: {rendered: 9.31, fixture_pooled: 6.79, fixture_away: 35.92, outcome: a_equals_b}
+      A_vs_A_prime_budget18:
+        median: {rendered: 1.25, fixture_pooled: 1.10, fixture_away: 0.58, outcome: a}
+        p90: {rendered: 1.21, fixture_pooled: 0.72, fixture_away: 0.60, outcome: c}
+      V_vs_W_budget18:
+        median: {rendered: 1.58, fixture_pooled: 2.76, fixture_away: 5.12, outcome: a_equals_b}
+        p90: {rendered: 1.90, fixture_pooled: 1.26, fixture_away: 0.96, outcome: a}
+      band_gradient_median_x_bar:
+        E_vs_A_prime: {fixture: {AT: 3.97, MIDDLE: 1.55, AWAY: 0.33}, rendered: {AT: 4.31, MIDDLE: 0.71, AWAY: 0.14}}
+        A_vs_A_prime: {fixture: {AT: 1.17, MIDDLE: 1.17, AWAY: 0.58}, rendered: {AT: 1.16, MIDDLE: 1.12, AWAY: 0.18}}
+      lateral_overlap: {right_fraction: 0.0509, left_fraction: 0.0197, max_run_px: 10}
+    detail: >-
+      NO COMPARISON REVERSED DIRECTION, and outcome (b) never occurred. In all
+      three comparison-metrics where the fixture's pooled and AWAY references
+      disagreed, the rendered stimulus went with POOLED.
+      So the fixture's published figures were right, and exp005's AWAY-band
+      re-score did not anticipate the clean stimulus in a single case where the
+      two disagreed. THE PRE-REGISTERED PREDICTIONS WERE WRONG ON FOUR OF EIGHT:
+      they followed exp005's reading and predicted (b) three times and (d) once,
+      and all four came out (a) or (c). Recorded because a pre-registration whose
+      predictions are never checked is decoration.
+      WHY BOTH CAN BE TRUE, and this is what the specification asked to be made
+      visible rather than inferred: THE BAND GRADIENT SURVIVES ON RENDERED DATA.
+      E-vs-A' on median reads 4.31x at discontinuities and 0.14x away from them on
+      the RENDERED stimulus, against 3.97x and 0.33x on the fixture. The policy
+      differences live at depth discontinuities on both sources. The fixture's
+      artefact inflated the MAGNITUDE OF THE ERROR there; it did not manufacture
+      the POLICY DIFFERENCE. exp005's AWAY band removed the artefact and the
+      signal together.
+      exp005's fv-013-2 claim that the band was carrying the result is confirmed.
+      Its implication that the pooled figures were therefore suspect is refuted.
+      A DEVIATION FROM THE SPECIFICATION, taken because following it literally
+      defeated its own purpose: it said 18 steps for A/A'/D/E, but D and E are
+      lattice scans whose 70-site pitch exp002 derived for a 40-fixation budget.
+      At 18 steps E has visited 26% of its lattice and reads a median of 0.0447
+      against A''s 0.0117 — a four-fold gap about BUDGET, not about variance
+      versus the mask, and one that cannot bear on fc-008. E-vs-A' and D-vs-E are
+      therefore decided at 40, matching exp002, and the matched fixture run
+      reproduces it: 1.36x here at 8 seeds against exp002's published 1.38x at 16.
+      The 18-step figures are kept under lattice_at_budget18_STARVED.
+      THE LIMIT ON ALL OF IT: the rendered scene copies the FIXTURE'S geometry,
+      which produces 5.09% half-occlusion, incidental rather than designed, with
+      no contrast axis (bio-038). These are verdicts on a stimulus HONEST about
+      its occlusion, not one RICH in it. gap-010 is not lifted.
+      NO FORECLOSURE REVERSED. fc-007, fc-008, fc-010 and fc-011 are each
+      annotated; every closure stands.
+    verified_at_commit: aa87d14
 
 # ------------------------------------------------------------------------------
 # STANDING CONSTRAINTS
