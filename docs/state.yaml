@@ -81,9 +81,13 @@ sequence:
         (2) is `next` the lowest-numbered step that is neither complete nor
             deferred;
         (3) does every id referenced anywhere in this block resolve — in
-            `foreclosures`, `open_decisions`, or docs/inherited-measurements.yaml
-            — counting an id this block names as CLOSED and redirects
-            (od-001 -> fc-009) as resolving through its redirect, not as dangling.
+            `foreclosures`, `open_decisions`, `falsifier_verdicts`, or
+            docs/inherited-measurements.yaml — counting an id this block names as
+            CLOSED and redirects (od-001 -> fc-009) as resolving through its
+            redirect, not as dangling. `falsifier_verdicts` was added to this
+            list at step 11, when `evidence` first cited an fv- id; it was always
+            an id space in this file and the omission was an oversight, not a
+            decision that verdicts do not count as evidence.
       If all three hold, this half is current, whatever the date says. If one
       fails, the ledger and this block disagree and THE LEDGER IS RIGHT.
     checking_run: >-
