@@ -38,6 +38,12 @@ packages = ["src/bio3dvision"]
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 addopts = "-q --strict-markers"
+# The repository root, so tests can import `experiments`. Needed because exp005's
+# masked-selection policies stand in for four arms of policy.py and their
+# identity to those arms is load-bearing for its control -- a claim that has to
+# be pinned by a test, which means the test has to be able to import them. The
+# library itself is installed from src/ and does not rely on this.
+pythonpath = ["."]
 markers = [
     "infrastructure: pins the scaffold, not any result about vision",
 ]

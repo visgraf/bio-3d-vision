@@ -1990,6 +1990,149 @@ measurements:
       falsifier 2. It does NOT close gap-010: gap-010 is about the FIXTURE, and
       this says only that the rendered scene is not subject to the same limit.
 
+  - id: bio-032
+    statement: >-
+      At depth discontinuities on the analytic fixture, p90 depth error is the same
+      for every gaze policy, from a field-integral objective to a blind raster.
+    value:
+      at_p90_m: {A: 1.5038, A_prime: 1.4944, B: 1.5100, C: 1.4968, D: 1.4891, E: 1.4906}
+      spread_fraction: 0.0140
+      materiality_floor_m: 0.0299
+      largest_inter_arm_difference_m: 0.0209
+    units: m
+    n: {arms: 6, seeds: 8 and 16}
+    stimulus_family: analytic_fixture
+    matcher: block
+    configuration: >-
+      exp005, a re-analysis of exp001 (A/A'/B/C, seeds 0-7, 18 steps) and exp002 (A'/C/D/E, seeds 0-15, 40 steps) with the originals' arms, seeds, budgets and two-clause bar unchanged; the only change is the pixel set scored. Bands inherited from exp004: AT <=10 px, MIDDLE 10-24 px, AWAY >=24 px from a ground-truth disparity step of more than 1 px.
+    provenance:
+      cited_as: visgraf/bio-3d-vision
+      source: experiments/exp005_stratified_reanalysis/verdicts.json _arm_means
+      experiment: exp005
+      run_id: null
+      measured_at_sha: 9f40198
+      environment: {python: 3.13.15, numpy: 2.5.2, scipy: 1.18.1, matplotlib: 3.11.1}
+    status: measured
+    notes: >-
+      THE FLOOR, MEASURED DIRECTLY. Six policies spanning four orders of magnitude
+      in cost agree to 1.40%, and the largest difference between any two of them is
+      SMALLER THAN THE 2% MATERIALITY FLOOR. Every AT-band p90 comparison is
+      therefore indistinguishable because the arms are pinned to the artefact, not
+      because the policies are alike.
+      Independently corroborates exp004: that experiment measured the fixture's p90
+      at discontinuities as 1.49626 m (bio-025's neighbourhood, fv-012-2), and every
+      arm here lands inside a 1.4% band around it.
+      WHAT IT DOES NOT SHOW is that this floor attenuated anything. See bio-033.
+
+  - id: bio-033
+    statement: >-
+      Effect sizes between variance-driven gaze policies SHRINK away from depth
+      discontinuities; they do not grow.
+    value:
+      E_vs_A_prime_median_x_bar: {AT: 2.53, MIDDLE: 1.41, AWAY: 0.38, POOLED: 1.38}
+      C_vs_A_prime_median_x_bar_exp002: {AT: 1.39, MIDDLE: 0.85, AWAY: 0.19, POOLED: 1.05}
+      C_vs_A_prime_median_x_bar_exp001: {AT: 0.46, MIDDLE: 1.06, AWAY: 0.32, POOLED: 0.72}
+      D_vs_E_median_x_bar: {AT: 13.60, MIDDLE: 24.80, AWAY: 32.20, POOLED: 47.04}
+    units: ratio
+    n: {seeds: 8 and 16}
+    stimulus_family: analytic_fixture
+    matcher: block
+    configuration: >-
+      exp005, a re-analysis of exp001 (A/A'/B/C, seeds 0-7, 18 steps) and exp002 (A'/C/D/E, seeds 0-15, 40 steps) with the originals' arms, seeds, budgets and two-clause bar unchanged; the only change is the pixel set scored. Bands inherited from exp004: AT <=10 px, MIDDLE 10-24 px, AWAY >=24 px from a ground-truth disparity step of more than 1 px. x_bar is the paired mean difference over the two-clause bar.
+    provenance:
+      cited_as: visgraf/bio-3d-vision
+      source: experiments/exp005_stratified_reanalysis/verdicts.json
+      experiment: exp005
+      run_id: null
+      measured_at_sha: 9f40198
+      environment: {python: 3.13.15, numpy: 2.5.2, scipy: 1.18.1, matplotlib: 3.11.1}
+    status: measured
+    notes: >-
+      THE RESULT THAT REFUTES THE FLOOR HYPOTHESIS, AND NOT BY THE ROUTE ITS
+      FALSIFIER NAMED. The hypothesis was that the discontinuity band ATTENUATED
+      exp001's and exp002's effect sizes. It did not: it CARRIED them. The two
+      comparisons behind fc-008 fall monotonically to nothing with distance from
+      the discontinuities.
+      D vs E — the validity mask's value — goes the other way and is LARGEST in the
+      AWAY band. So the mask's value is real everywhere and the variance's value is
+      not, which sharpens fc-008's own 65:1 ratio rather than contradicting it.
+      Read with bio-034: an AWAY-band verdict concerns differences of 1e-4 m on
+      errors of 7e-3 m.
+
+  - id: bio-034
+    statement: >-
+      The three bands' shares of pixels and of squared error on the analytic fixture.
+    value:
+      pixels: {AT: 20302, MIDDLE: 17566, AWAY: 15230, total: 53098}
+      pixel_fraction: {AT: 0.3823, MIDDLE: 0.3308, AWAY: 0.2868}
+      squared_error_fraction: {AT: 0.8227, MIDDLE: 0.1755, AWAY: 0.0018}
+      A_prime_error_m: {AT_median: 0.0212, MIDDLE_median: 0.0109, AWAY_median: 0.0070, AT_p90: 1.4944, AWAY_p90: 0.0234}
+    units: fraction
+    n: {runs: 1, seed: 0, policy: A, steps: 18}
+    stimulus_family: analytic_fixture
+    matcher: block
+    configuration: >-
+      Valid known pixels, seed 0, policy A, 18 steps, at 9f40198; bands as above.
+      Arm means over exp001's 8 seeds.
+    provenance:
+      cited_as: visgraf/bio-3d-vision
+      source: experiments/exp005_stratified_reanalysis/preregistration.md, verified before the runner existed
+      experiment: exp005
+      run_id: null
+      measured_at_sha: 9f40198
+      environment: {python: 3.13.15, numpy: 2.5.2, scipy: 1.18.1, matplotlib: 3.11.1}
+    status: measured
+    notes: >-
+      38.23% of pixels carry 82.27% of the squared error, and THE AWAY BAND CARRIES
+      0.18%. That last figure is why exp005's AWAY verdicts must be read with their
+      absolute magnitudes beside them: they concern differences of order 1e-4 m.
+      Supplied from the Chat surface as 38.7% and 82.4%; re-measured here as 38.23%
+      and 82.27%, with the pixel count 53098 agreeing exactly. The small deltas are
+      recorded rather than reconciled — most likely a different discontinuity
+      construction — and the measured values are the ones used.
+
+  - id: bio-035
+    statement: >-
+      Restricting where a policy may fixate changes its scanpath completely and its
+      outcome not at all.
+    value:
+      scanpath_agreement_masked_vs_unmasked: {exp001_A: 0.0000, exp001_A_prime: 0.0000, exp001_B: 0.0903, exp001_C: 0.0000, exp002_A_prime: 0.0016, exp002_C: 0.0000}
+      fixations_compared: {exp001: 144, exp002: 640}
+      away_verdict_unchanged: true
+      exception: {comparison: B_vs_C, free_x_bar: 0.31, masked_x_bar: 1.13}
+    units: fraction
+    n: {seeds: 8 and 16}
+    stimulus_family: analytic_fixture
+    matcher: block
+    configuration: >-
+      exp005, a re-analysis of exp001 (A/A'/B/C, seeds 0-7, 18 steps) and exp002 (A'/C/D/E, seeds 0-15, 40 steps) with the originals' arms, seeds, budgets and two-clause bar unchanged; the only change is the pixel set scored. Bands inherited from exp004: AT <=10 px, MIDDLE 10-24 px, AWAY >=24 px from a ground-truth disparity step of more than 1 px. POST-HOC control: selection restricted to the AWAY band — the argmax
+      domain for A and A', the candidate grid for B and C — and scored on the AWAY
+      band. The objective is NOT restricted: delta_single and delta_total still
+      integrate over the whole field.
+    provenance:
+      cited_as: visgraf/bio-3d-vision
+      source: experiments/exp005_stratified_reanalysis/verdicts.json control_masked_steering_POST_HOC
+      experiment: exp005
+      run_id: null
+      measured_at_sha: 9f40198
+      environment: {python: 3.13.15, numpy: 2.5.2, scipy: 1.18.1, matplotlib: 3.11.1}
+    status: measured
+    notes: >-
+      POST-HOC, and it separates SCORING contamination from STEERING contamination:
+      restricted scoring moved the verdicts, restricted steering added nothing. The
+      artefact was in the metric.
+      EXP001'S RESULT AGAIN IN A NEW PLACE. Three arms select completely different
+      fixations under masking — 0.0000 agreement over 144 and 640 comparisons — and
+      produce the same verdicts. Where the loop looks continues not to matter on
+      this stimulus, which is what fc-007 already recorded from a different
+      direction.
+      One exception, at a knife-edge and unexplained: B vs C becomes distinguishable
+      under masked steering at 1.13x on median and 1.03x on p90. cn-001 rests on the
+      argmax evidence rather than the trajectory comparison, so it is not disturbed.
+      No arm terminated early. The ~41-site packing limit declared in the
+      preregistration was not reached: only A' carries inhibition of return, and it
+      had exactly enough room at 40 fixations (40.0 distinct, 0 seeds terminated).
+
   # ==============================================================================
   # GAPS — measurements that were NOT made, and whose absence is load-bearing.
   # ==============================================================================
