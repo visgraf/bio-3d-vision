@@ -22,7 +22,7 @@ updated_at: 2026-08-29
 # a current one", which invited exactly that comparison and would have failed
 # after every merge. Staleness is tested per half, in `sequence`, and each half
 # gets the test it can actually pass.
-updated_by_commit: cc307c1   # the repository state this file describes
+updated_by_commit: 9f40198   # the repository state this file describes
 
 # ------------------------------------------------------------------------------
 # SEQUENCE — where this project is, and what it plans next
@@ -141,6 +141,16 @@ sequence:
       11: src/bio3dvision/blender_{render,load}.py, fv-011-1a and fv-011-1b, bio-024..bio-026
       12: src/bio3dvision/scene_model.py, exp004, fv-012-1..3, bio-027..bio-031
     out_of_sequence:
+      - what: >-
+          exp005, the stratified re-analysis of exp001 and exp002. Not a numbered
+          step and not in the plan; run because exp004 raised a question about
+          whether the earlier effect sizes were floor-limited. Recorded here
+          because a cold session finding fv-013-1, fv-013-2, fv-013-control or
+          bio-032..bio-035 would otherwise have no step to attach them to.
+        note: >-
+          Step 13 was deferred for it and is now unblocked; see am-003. It
+          completed no step and closed no decision — it annotated fc-007 and
+          fc-008 and reversed neither.
       - what: >-
           The sample-index to unit-ray boundary. Was od-001; CLOSED, and now
           recorded as fc-009 — it will not be found in `open_decisions`.
@@ -355,6 +365,26 @@ sequence:
           A claim that crosses from the first into the second loses its warning
           without losing its origin, and nothing in the file marked the crossing.
 
+      - id: am-003
+        moved: step 13, Adapt the static pipeline to Blender rendering
+        from: next, immediately after step 12
+        to: after exp005, an unplanned stratified re-analysis
+        reason: >-
+          NOT IN THE SEQUENCE WHEN IT WAS RUN, and recorded here because a step
+          was deferred for it. exp004 measured that the fixture's error at depth
+          discontinuities is 22.7x worse than a render of the same geometry, which
+          raised the question of whether exp001's and exp002's effect sizes had
+          been measured through an artefact floor. Step 13 builds the static
+          pipeline on Blender and would have inherited those results; better to
+          know whether they were load-bearing or floor-limited before building on
+          them.
+        outcome: >-
+          Answered, and not in the direction that motivated the deferral. The floor
+          is real and policy-invariant (bio-032) but it did not attenuate the
+          effects — it carried them (bio-033). fc-007 stands and is strengthened;
+          fc-008 is qualified as to where its evidence comes from; fc-010 is
+          untouched. No foreclosure was reversed. Step 13 is unblocked.
+
 # ------------------------------------------------------------------------------
 # WHAT RUNS
 # ------------------------------------------------------------------------------
@@ -388,9 +418,9 @@ runs:
     note: Still flat. Zero subpackages. See fc-002 and falsifier fv-003-2.
   test_suite:
     exists: true
-    count: 91
+    count: 102
     count_note: >-
-      80 run everywhere; 11 need the optional `blender` extra and skip without it.
+      91 run everywhere; 11 need the optional `blender` extra and skip without it.
       CI installs the extra so those 8 run there — falsifier 1a is the only check
       of the render path that needs no Blender binary, and skipping it in CI would
       have left the path unverified in the one place it is always checked. THREE
@@ -472,6 +502,29 @@ runs:
         A result about vision, and not a measurement of gap-010. One scene, one
         texture family, 8 seeds, no contrast control. It closes nothing and
         annotates no foreclosure.
+
+    - id: exp005_stratified_reanalysis
+      question: >-
+        Were exp001's and exp002's effect sizes measured through the artefact
+        floor exp004 found at depth discontinuities?
+      answer: >-
+        NO, AND THE OPPOSITE. The floor is real and policy-invariant — six arms
+        agree on p90 at discontinuities to 1.40%, and their largest mutual
+        difference is smaller than the materiality floor (bio-032). But it did not
+        attenuate the effects; it carried them. Effect sizes SHRINK away from
+        discontinuities, monotonically for the two comparisons behind fc-008, and
+        four verdicts flip from distinguishable to indistinguishable. Neither
+        declared falsifier fired: one required the verdicts to match, the other
+        required them to grow.
+      pre_registered: 0fe1d03, committed alone before the runner existed
+      is_not: >-
+        A new experiment. Same arms, seeds, budgets and bar as the originals; the
+        only change is the pixel set scored. POOLED reproduces exp001's stored
+        metrics exactly, which is what licenses the rest.
+      changed_no_foreclosure: >-
+        fc-007 annotated (stands, strengthened), fc-008 annotated (qualified as to
+        where its evidence comes from), fc-010 untouched. gap-010 not lifted,
+        od-002 not touched.
 
   not_present:
     - >-
@@ -604,6 +657,27 @@ measurements:
       depth path is correct and nothing about what a render is worth as a
       stimulus. THE RENDERER ITSELF REMAINS UNTESTED — gap-009 is narrowed to the
       191 code lines that execute inside Blender, not closed.
+
+  - ids: [bio-032, bio-033, bio-034, bio-035]
+    commit: 9f40198
+    what: >-
+      exp005's stratified re-analysis of exp001 and exp002: the artefact floor
+      measured directly across six policies, the gradient of effect sizes across
+      three bands, the bands' shares of pixels and squared error, and a post-hoc
+      control that restricts where a policy may fixate.
+    where: docs/inherited-measurements.yaml, status "measured"
+    headline: >-
+      At depth discontinuities p90 is 1.489-1.510 m for EVERY arm from a field
+      integral to a blind raster — a 1.40% spread, smaller than the 2% materiality
+      floor. Away from them, effect sizes SHRINK: E-versus-A' falls 2.53x, 1.41x,
+      0.38x across the three bands and reverses sign on p90. Masking WHERE a policy
+      may look changes its scanpath completely (0.0000 agreement) and its verdicts
+      not at all.
+    caveat: >-
+      The AWAY band carries 0.18% of the total squared error, so its verdicts
+      concern differences of order 1e-4 m on errors of 7e-3 m. One stimulus, and
+      the AWAY band is the clean part of a stimulus whose other 71% is pathological.
+      Bands inherited from exp004 and chosen for a different question.
 
 measurements_note: >-
   No longer empty. Values enter this list only when a run in THIS repository
@@ -830,6 +904,16 @@ foreclosures:
       longer budget, and the only figure that exists there is the post-hoc row
       above. NOT SCHEDULED, and recorded here so the absence is visible rather
       than inferred from a row that was never declared.
+    stratified_recheck_exp005: >-
+      STANDS, AND IS STRENGTHENED. exp005 re-ran exp001's four arms with the only
+      change being the pixel set scored, and C-versus-A' is MORE indistinguishable
+      away from depth discontinuities than pooled: median 0.72x pooled against
+      0.32x in the AWAY band, p90 0.14x against 0.69x, both nulls. It is unchanged
+      under a control that restricts where the policy may fixate.
+      So this null is not an artefact of the discontinuity band that exp004 showed
+      is pathological on this fixture. The concern that motivated exp005 does not
+      apply to fc-007. Its gap-010 limit is unchanged: it still holds for a
+      stimulus without half-occlusions and no further.
     decided_in: experiments/exp001_gaze_objective/findings.md
 
   - id: fc-008
@@ -880,6 +964,33 @@ foreclosures:
       boundaries — gap-001, and od-002 which names Blender as the only instrument
       here able to produce one. NOT by growing the fixture: that is fc-004.
     cost_to_reopen: An experiment on a stimulus with true half-occlusions.
+    stratified_recheck_exp005: >-
+      QUALIFIED, NOT REVERSED, AND THE QUALIFICATION IS WHERE THE EVIDENCE COMES
+      FROM. This foreclosure rests on E being distinguishably worse than A' on both
+      primary metrics. exp005 re-ran exp002's arms scoring three bands separately,
+      changing nothing else, and that comparison does not survive restriction to
+      pixels away from depth discontinuities: median falls from 1.38x pooled
+      (distinguishable) to 0.38x (INDISTINGUISHABLE), and p90 REVERSES SIGN — 1.96x
+      with E worse pooled, against 1.75x with E BETTER in the AWAY band.
+      The gradient is monotone: E-vs-A' on median reads 2.53x at discontinuities,
+      1.41x in the middle band, 0.38x away. The evidence for this foreclosure comes
+      from the AT and MIDDLE bands, which are exactly the regions exp004 showed are
+      pathological on this fixture (fv-012-2, bio-029).
+      READ THE MAGNITUDE WITH THE RATIO. The AWAY band carries 0.18% of the total
+      squared error (bio-034), so the p90 reversal is 0.00078 m clearing a
+      0.000446 m materiality floor. Material by the declared rule, sub-millimetre
+      in metres. Both facts are the result.
+      WHAT SURVIVES UNTOUCHED is the other half: D-versus-E, the validity mask's
+      value, is LARGEST in the AWAY band at 32.20x against 47.04x pooled and is
+      distinguishable in every band. The mask's value is real everywhere; the
+      variance's is not. That sharpens this entry's own 65:1 ratio rather than
+      contradicting it.
+      NOT REVERSED HERE, deliberately. exp005 is a re-analysis and did not
+      pre-register a reversal; reversing a foreclosure on evidence it did not
+      declare in advance is the same defect as closing one on evidence that does
+      not bear on it. A pre-registered re-test would need the E-versus-A'
+      comparison on a RENDERED stimulus whose discontinuity regions are not
+      pathological — od-002's instrument, and od-002 is open.
     decided_in: experiments/exp002_saliency_value/findings.md
 
   - id: fc-009
@@ -1860,6 +1971,117 @@ falsifier_verdicts:
       verdict is not an artefact of the convention — but AT numbers carry a few
       percent of it and should not be quoted to three digits.
     verified_at_commit: cc307c1
+
+  - iteration: 10
+    id: fv-013-1
+    falsifier: >-
+      If the AWAY-band verdicts MATCH the pooled ones — same distinguishability,
+      comparable x_bar — the floor hypothesis is WRONG, exp004's finding does not
+      propagate to the foreclosures, and fc-007, fc-008 and fc-010 stand as
+      measured.
+    verdict: did_not_fire ON ITS STATED TRIGGER
+    outcome: >-
+      The verdicts do not match — four flip — but its CONCLUSION is supported by
+      the opposite route. See fv-013-2.
+    numbers:
+      flipped:
+        exp001_A_vs_A_prime_median: {pooled: 1.10, away: 0.58, pooled_verdict: distinguishable, away_verdict: indistinguishable}
+        exp002_E_vs_A_prime_median: {pooled: 1.38, away: 0.38, pooled_verdict: distinguishable, away_verdict: indistinguishable}
+        exp002_E_vs_A_prime_p90: {pooled: 1.96, away: 1.75, pooled_direction: E_worse, away_direction: E_better}
+        exp002_C_vs_A_prime_median: {pooled: 1.05, away: 0.19, pooled_verdict: distinguishable, away_verdict: indistinguishable}
+      unchanged:
+        exp001_C_vs_A_prime_median: {pooled: 0.72, away: 0.32}
+        exp001_C_vs_A_prime_p90: {pooled: 0.14, away: 0.69}
+    detail: >-
+      Its trigger required the AWAY verdicts to match pooled and they do not, so
+      it does not fire as written. Reported that way rather than read as a pass.
+      The conclusion it was written to license — that exp004's finding does not
+      propagate to the foreclosures — is nonetheless supported, by the route
+      fv-013-2 describes: the effects were not attenuated by the artefact band,
+      they were produced by it. That is a different fact from the one this
+      falsifier tested and is recorded under its own id.
+    verified_at_commit: 9f40198
+
+  - iteration: 10
+    id: fv-013-2
+    falsifier: >-
+      If effect sizes GROW in the AWAY band — particularly if exp002's saliency
+      value rises materially above its measured ~2%, or exp001's null on
+      objectives becomes distinguishable — then three foreclosures were measured
+      through a fog.
+    verdict: did_not_fire
+    outcome: EFFECT SIZES SHRANK, which is the opposite of the hypothesis
+    numbers:
+      E_vs_A_prime_median_x_bar: {AT: 2.53, MIDDLE: 1.41, AWAY: 0.38, POOLED: 1.38}
+      C_vs_A_prime_median_x_bar_exp002: {AT: 1.39, MIDDLE: 0.85, AWAY: 0.19, POOLED: 1.05}
+      C_vs_A_prime_x_bar_exp001: {median: {pooled: 0.72, away: 0.32}, p90: {pooled: 0.14, away: 0.69}}
+      D_vs_E_median_x_bar: {AT: 13.60, MIDDLE: 24.80, AWAY: 32.20, POOLED: 47.04}
+      E_vs_A_prime_p90_away: {mean_diff_m: -0.00078, materiality_floor_m: 0.000446, x_bar: 1.75, direction: E_better}
+      away_share_of_squared_error: 0.0018
+    detail: >-
+      exp002's saliency value did not rise. On median in the AWAY band it is
+      INDISTINGUISHABLE at 0.38x, and the gradient across the three bands is
+      monotone downward — 2.53x, 1.41x, 0.38x. exp001's null on objectives did not
+      become distinguishable; it became MORE null.
+      THE FLOOR IS REAL AND IT DID NOT DO WHAT THE HYPOTHESIS SAID. bio-032
+      measures it directly: six policies agree on AT-band p90 to 1.40%, and their
+      largest mutual difference is smaller than the materiality floor, so every
+      AT p90 comparison is indistinguishable because the arms are PINNED to the
+      artefact. But removing that band makes the effects smaller, not larger. The
+      discontinuity band was not fog over the result; it was carrying the result.
+      ONE SIGN REVERSAL, and it needs its magnitude to read correctly: E-versus-A'
+      on p90 in the AWAY band is distinguishable with E BETTER, by 0.00078 m
+      clearing a 0.000446 m floor. Material by the declared rule and
+      sub-millimetre in metres. The AWAY band carries 0.18% of the total squared
+      error, so every verdict there concerns differences of order 1e-4 m.
+      D-versus-E goes the other way and is largest in the AWAY band: the validity
+      mask's value is real everywhere, the variance's is not.
+      NO FORECLOSURE REVERSED, as pre-registered. fc-007 stands and is
+      strengthened; fc-008 is annotated with where its evidence comes from and
+      what a pre-registered re-test would need; fc-010 is untouched.
+    verified_at_commit: 9f40198
+
+  - iteration: 10
+    id: fv-013-control
+    falsifier: >-
+      Declared control: restricting the metric changes what is SCORED, not what
+      HAPPENED. Re-run the variance-driven arms with selection masked to the AWAY
+      band. If restricted scoring changes the verdicts but restricted steering
+      does not add to it, the artefact was in the metric; if restricted steering
+      changes them further, the original scanpaths were partly artefact-driven.
+    verdict: THE ARTEFACT WAS IN THE METRIC
+    numbers:
+      scanpath_agreement: {exp001_A: 0.0, exp001_A_prime: 0.0, exp001_B: 0.0903, exp001_C: 0.0, exp002_A_prime: 0.0016, exp002_C: 0.0}
+      fixations_compared: {exp001: 144, exp002: 640}
+      away_x_bar_free_vs_masked:
+        exp001_C_vs_A_prime_median: {free: 0.32, masked: 0.74}
+        exp001_C_vs_A_prime_p90: {free: 0.69, masked: 0.73}
+        exp001_A_vs_A_prime_median: {free: 0.58, masked: 0.20}
+        exp002_C_vs_A_prime_median: {free: 0.19, masked: 0.87}
+        exp002_C_vs_A_prime_p90: {free: 0.29, masked: 0.50}
+        exp001_B_vs_C_median: {free: 0.31, masked: 1.13}
+        exp001_B_vs_C_p90: {free: 0.46, masked: 1.03}
+      terminated_early: 0
+    detail: >-
+      Restricted scoring moved the verdicts; restricted steering added nothing to
+      it, on every comparison but one. So exp001's and exp002's scanpaths were not
+      meaningfully artefact-driven, and the contamination was in what was measured
+      rather than in what the loop did.
+      EXP001'S RESULT AGAIN IN A NEW PLACE, and it is the strongest thing here.
+      Three arms select COMPLETELY DIFFERENT fixations under masking — 0.0000
+      agreement over 144 and 640 comparisons — and produce the same verdicts.
+      Where the loop looks continues not to matter on this stimulus, which fc-007
+      already recorded from a different direction.
+      ONE EXCEPTION, at a knife-edge and unexplained: B-versus-C becomes
+      distinguishable under masked steering at 1.13x on median and 1.03x on p90,
+      having been 0.31x and 0.46x free. cn-001 rests on the argmax evidence — 0 of
+      144 agreement — and not on the trajectory comparison, so it is not
+      disturbed. Recorded rather than resolved.
+      The packing limit declared in the preregistration was NOT reached. No arm
+      terminated early: only A' carries inhibition of return and it had exactly
+      enough room at 40 fixations, taking 40.0 distinct fixations in the AWAY
+      band against the ~41 sites the preregistration measured.
+    verified_at_commit: 9f40198
 
 # ------------------------------------------------------------------------------
 # STANDING CONSTRAINTS
