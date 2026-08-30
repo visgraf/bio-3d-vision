@@ -382,9 +382,14 @@ runs:
       70 run everywhere; 8 need the optional `blender` extra and skip without it.
       CI installs the extra so those 8 run there — falsifier 1a is the only check
       of the render path that needs no Blender binary, and skipping it in CI would
-      have left the path unverified in the one place it is always checked. Two
-      further tests need a Blender BINARY (falsifier 1b) and skip on the runner,
-      with a reason naming what is unverified.
+      have left the path unverified in the one place it is always checked. THREE
+      of the 8 additionally need a Blender BINARY (the falsifier 1b tests) and
+      skip on the runner, with a reason naming what is unverified.
+    measured_in_ci: >-
+      75 passed, 3 skipped, on both 3.12 and 3.13 at 35d5f50. The 3 are falsifier
+      1b. Recorded because it is the number that says how much of the render path
+      CI actually covers, and because the count was first written here as two —
+      corrected against the run rather than against the guess.
     count_corrected: >-
       Read 27 until this commit, and had been wrong for some time — 27 is neither
       the collected node count (69) nor the number of test functions (60). The

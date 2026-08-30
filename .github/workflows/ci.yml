@@ -52,7 +52,7 @@ jobs:
       # intended. Note the reference clones are git-ignored and absent here, so
       # any code that reached into one would fail at this step.
       # falsifier 1b needs a Blender binary and there is none on the runner, so
-      # its two tests skip here. That is a stated gap, not a silent one: they
+      # its three tests skip here. That is a stated gap, not a silent one: they
       # skip with a reason naming what is unverified, and the renderer is
       # exercised by hand against a real Blender before a render lands.
       - name: Tests
