@@ -2133,6 +2133,150 @@ measurements:
       preregistration was not reached: only A' carries inhibition of return, and it
       had exactly enough room at 40 fixations (40.0 distinct, 0 seeds terminated).
 
+  - id: bio-036
+    statement: >-
+      On a rendered stimulus without the fixture's artefact, every policy
+      comparison matches the fixture's POOLED verdict; none matches the AWAY-band
+      verdict alone, and none reverses direction.
+    value:
+      outcomes: {a: 4, a_equals_b: 3, b: 0, c: 1, d: 0}
+      E_vs_A_prime: {median: {rendered: 1.18, fixture_pooled: 1.36, fixture_away: 0.33}, p90: {rendered: 9.04, fixture_pooled: 1.85, fixture_away: 1.60}}
+      A_vs_A_prime: {median: {rendered: 1.25, fixture_pooled: 1.10, fixture_away: 0.58}, p90: {rendered: 1.21, fixture_pooled: 0.72, fixture_away: 0.60}}
+      V_vs_W: {median: {rendered: 1.58, fixture_pooled: 2.76, fixture_away: 5.12}, p90: {rendered: 1.90, fixture_pooled: 1.26, fixture_away: 0.96}}
+      D_vs_E: {median: {rendered: 41.96, fixture_pooled: 48.38, fixture_away: 26.02}, p90: {rendered: 9.31, fixture_pooled: 6.79, fixture_away: 35.92}}
+    units: ratio
+    n: {seeds: 8, arms: 6, sources: 2}
+    stimulus_family: rendered_chart
+    matcher: block
+    configuration: >-
+      exp007, six arms on the analytic fixture and on a Blender render of the same geometry, seeds 0-7; A/A'/W/V at 18 fixations, A'/D/E additionally at 40 to match exp002's lattice budget; exp001's two-clause bar; exp003's coverage rule on the V/W intersection; bands inherited from exp004. Values are x_bar, the paired mean difference over the bar. Fixture
+      references are re-run at MATCHED seeds and budget, not taken from exp001-003,
+      because three of the four comparisons had no fixture verdict at these settings.
+    provenance:
+      cited_as: visgraf/bio-3d-vision
+      source: experiments/exp007_rendered_policy_sweep/verdicts.json classification
+      experiment: exp007
+      run_id: null
+      measured_at_sha: aa87d14
+      environment: {python: 3.13.15, numpy: 2.5.2, scipy: 1.18.1, matplotlib: 3.11.1, blender: 5.2.0 LTS (fbe6228777e7)}
+    status: measured
+    notes: >-
+      THE RESULT THAT SETTLES WHAT exp005 LEFT OPEN. Outcome (b) never occurred and
+      outcome (d) never occurred. In the three comparison-metrics where the
+      fixture's pooled and AWAY references disagreed, the rendered stimulus went
+      with POOLED every time.
+      So the fixture's published figures were right and exp005's AWAY-band
+      re-score did not anticipate the clean stimulus in a single case. The
+      pre-registered predictions, which followed exp005's reading, were wrong on
+      four of the eight.
+      The matched fixture run reproduces exp002: E-vs-A' median reads 1.36x here at
+      8 seeds against exp002's published 1.38x at 16.
+
+  - id: bio-037
+    statement: >-
+      Policy differences are concentrated at depth discontinuities on a RENDERED
+      stimulus just as they are on the fixture.
+    value:
+      E_vs_A_prime_median_x_bar: {fixture: {AT: 3.97, MIDDLE: 1.55, AWAY: 0.33}, rendered: {AT: 4.31, MIDDLE: 0.71, AWAY: 0.14}}
+      A_vs_A_prime_median_x_bar: {fixture: {AT: 1.17, MIDDLE: 1.17, AWAY: 0.58}, rendered: {AT: 1.16, MIDDLE: 1.12, AWAY: 0.18}}
+    units: ratio
+    n: {seeds: 8}
+    stimulus_family: rendered_chart
+    matcher: block
+    configuration: >-
+      exp007, six arms on the analytic fixture and on a Blender render of the same geometry, seeds 0-7; A/A'/W/V at 18 fixations, A'/D/E additionally at 40 to match exp002's lattice budget; exp001's two-clause bar; exp003's coverage rule on the V/W intersection; bands inherited from exp004.
+    provenance:
+      cited_as: visgraf/bio-3d-vision
+      source: experiments/exp007_rendered_policy_sweep/verdicts.json comparisons
+      experiment: exp007
+      run_id: null
+      measured_at_sha: aa87d14
+      environment: {python: 3.13.15, numpy: 2.5.2, scipy: 1.18.1, matplotlib: 3.11.1, blender: 5.2.0 LTS (fbe6228777e7)}
+    status: measured
+    notes: >-
+      THE MEASUREMENT THAT RECONCILES exp005 WITH exp007, and the one the exp007
+      specification asked to be made visible rather than inferred. The band
+      gradient survives on rendered data: the effect is largest at discontinuities
+      and near zero away from them on BOTH sources.
+      The reading neither exp005 nor exp007's specification stated: the fixture's
+      artefact inflated the MAGNITUDE OF THE ERROR at discontinuities but did not
+      manufacture the POLICY DIFFERENCES there. exp005's AWAY band removed the
+      artefact and the signal together.
+      exp005's fv-013-2 claim that the band was carrying the result is confirmed;
+      its implication that the pooled figures were therefore suspect is refuted by
+      bio-036.
+
+  - id: bio-038
+    statement: >-
+      The fixture's geometry produces only a small amount of half-occlusion, and it
+      is incidental rather than designed.
+    value:
+      right_pixels_unmatched: 3910
+      right_fraction: 0.0509
+      left_pixels_occluded: 1510
+      left_fraction: 0.0197
+      max_run_px: 10
+    units: fraction
+    n: {runs: 1, seed: 0}
+    stimulus_family: rendered_chart
+    matcher: none
+    configuration: >-
+      Every left pixel reprojected through the true disparity on the scene model's
+      step-edge depth map, nearer surfaces winning; counted in both directions.
+    provenance:
+      cited_as: visgraf/bio-3d-vision
+      source: experiments/exp007_rendered_policy_sweep/run.py::lateral_overlap
+      experiment: exp007
+      run_id: null
+      measured_at_sha: aa87d14
+      environment: {python: 3.13.15, numpy: 2.5.2, scipy: 1.18.1, matplotlib: 3.11.1, blender: 5.2.0 LTS (fbe6228777e7)}
+    status: measured
+    notes: >-
+      THE LIMIT ON EVERY exp007 CLAIM, and it is recorded next to them for that
+      reason. The rendered scene copies the FIXTURE'S geometry — three
+      fronto-parallel cards on a background — so its half-occlusions are whatever
+      that arrangement happens to produce. 5.09% is small, there is no contrast
+      axis, and nothing here is a designed occlusion stimulus.
+      exp007's verdicts are verdicts on a stimulus that is HONEST about its 5% of
+      occlusion, not one that is RICH in it. gap-010 is not lifted and od-002 is
+      not touched.
+      Consistent with bio-031, which measured the same 5.09% from exp004.
+
+  - id: bio-039
+    statement: >-
+      Verging to acquire is distinguishably worse than the wide search on a
+      rendered stimulus, and its coverage cost is worse than on the fixture.
+    value:
+      V_vs_W_x_bar: {median: 1.58, p90: 1.90, direction: V_worse}
+      valid_pixels: {fixture: {V: 50202, W: 53182}, rendered: {V: 46410, W: 53406}}
+      exclusive_median_m: {fixture: {V: 0.0608, W: 0.0064}, rendered: {V: 0.0748, W: 0.0066}}
+      hypotheses: {V: 147, W: 57}
+    units: mixed
+    n: {seeds: 8, budget: 18}
+    stimulus_family: rendered_chart
+    matcher: block
+    configuration: >-
+      exp007, six arms on the analytic fixture and on a Blender render of the same geometry, seeds 0-7; A/A'/W/V at 18 fixations, A'/D/E additionally at 40 to match exp002's lattice budget; exp001's two-clause bar; exp003's coverage rule on the V/W intersection; bands inherited from exp004. W and V reproduce exp003's arms exactly: verified by hypothesis count,
+      W 57 and V 147 at seed 0, matching fv-007-1's recorded values.
+    provenance:
+      cited_as: visgraf/bio-3d-vision
+      source: experiments/exp007_rendered_policy_sweep/verdicts.json coverage
+      experiment: exp007
+      run_id: null
+      measured_at_sha: aa87d14
+      environment: {python: 3.13.15, numpy: 2.5.2, scipy: 1.18.1, matplotlib: 3.11.1, blender: 5.2.0 LTS (fbe6228777e7)}
+    status: measured
+    notes: >-
+      THE FIRST INDEPENDENT EVIDENCE ABOUT fc-010, which until now rested entirely
+      on one pooled figure on one stimulus. It survives: V is distinguishably worse
+      on both primary metrics on a stimulus without the fixture's artefact.
+      V's coverage cost is WORSE on rendered data — it reaches 6996 fewer pixels
+      than W against 2980 on the fixture, and the pixels it exclusively reaches are
+      11x worse than W's exclusive pixels.
+      NOTHING HERE BEARS ON fc-011. V-vs-W did not reverse, so the question of
+      whether a mechanical plant is testable is untouched; fc-011's framing —
+      untested, not refuted — stands as written, and od-003 is not touched.
+
   # ==============================================================================
   # GAPS — measurements that were NOT made, and whose absence is load-bearing.
   # ==============================================================================
