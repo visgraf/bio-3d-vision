@@ -28,7 +28,14 @@ jobs:
       - name: Install
         run: |
           python -m pip install --upgrade pip
-          pip install -e ".[dev]"
+          # The `blender` extra is installed here on purpose. It is OPTIONAL for
+          # users - the package imports and the loop runs without it, pinned by
+          # tests/test_blender_load.py::test_the_package_imports_without_the_blender_extra
+          # - but falsifier 1a reads a real Blender render out of
+          # tests/data/bioeye-e908170, and that is the one check of the render
+          # path that can run with no Blender binary present. Without the extra
+          # it would skip here and the path would be unverified in CI.
+          pip install -e ".[dev,blender]"
 
       - name: Lint
         run: ruff check src tests
@@ -44,5 +51,9 @@ jobs:
       # guard, which is why those rules can be stated as enforced rather than
       # intended. Note the reference clones are git-ignored and absent here, so
       # any code that reached into one would fail at this step.
+      # falsifier 1b needs a Blender binary and there is none on the runner, so
+      # its two tests skip here. That is a stated gap, not a silent one: they
+      # skip with a reason naming what is unverified, and the renderer is
+      # exercised by hand against a real Blender before a render lands.
       - name: Tests
-        run: pytest
+        run: pytest -rs
