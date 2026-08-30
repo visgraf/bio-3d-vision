@@ -142,6 +142,16 @@ sequence:
       12: src/bio3dvision/scene_model.py, exp004, fv-012-1..3, bio-027..bio-031
     out_of_sequence:
       - what: >-
+          exp005, the stratified re-analysis of exp001 and exp002. Not a numbered
+          step and not in the plan; run because exp004 raised a question about
+          whether the earlier effect sizes were floor-limited. Recorded here
+          because a cold session finding fv-013-1, fv-013-2, fv-013-control or
+          bio-032..bio-035 would otherwise have no step to attach them to.
+        note: >-
+          Step 13 was deferred for it and is now unblocked; see am-003. It
+          completed no step and closed no decision — it annotated fc-007 and
+          fc-008 and reversed neither.
+      - what: >-
           The sample-index to unit-ray boundary. Was od-001; CLOSED, and now
           recorded as fc-009 — it will not be found in `open_decisions`.
         note: >-
