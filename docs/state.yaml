@@ -465,9 +465,9 @@ runs:
     note: Still flat. Zero subpackages. See fc-002 and falsifier fv-003-2.
   test_suite:
     exists: true
-    count: 102
+    count: 105
     count_note: >-
-      91 run everywhere; 11 need the optional `blender` extra and skip without it.
+      94 run everywhere; 11 need the optional `blender` extra and skip without it.
       CI installs the extra so those 8 run there — falsifier 1a is the only check
       of the render path that needs no Blender binary, and skipping it in CI would
       have left the path unverified in the one place it is always checked. THREE
