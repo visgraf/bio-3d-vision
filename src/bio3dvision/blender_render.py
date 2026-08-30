@@ -64,6 +64,11 @@ import sys
 import bpy  # type: ignore[import-not-found]  # provided by Blender, absent in CI
 
 DEPTH_STEM = "depth_left"
+IMAGE_STEM = "image"
+
+# Blender's default camera sensor width. focal_px() reads it back off the camera;
+# this constant only turns a wanted f_px into the lens length that produces it.
+SENSOR_WIDTH_MM = 36.0
 
 
 def parse_args(argv: list[str]) -> argparse.Namespace:
@@ -89,6 +94,11 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
         type=float,
         default=None,
         help="build a single flat wall at this distance: the convention calibration render",
+    )
+    parser.add_argument(
+        "--scene",
+        default=None,
+        help="build the scene written by bio3dvision.scene_model.write_scene, from this directory",
     )
     return parser.parse_args(argv)
 
@@ -169,6 +179,74 @@ def build_calibration_scene(distances: list[float], res: tuple[int, int]) -> Non
         # A default plane lies in XY, facing +Z, which is already facing the
         # camera at the origin looking down -Z. No rotation is wanted.
         _emission_material(plane, 0.2 + 0.6 * (i + 1) / (len(ordered) + 1), i)
+
+
+def build_scene_from_model(scene_dir: str) -> dict:
+    """Build the scene described by bio3dvision.scene_model.write_scene.
+
+    Reads ``scene.json`` and ``texture.exr`` and makes one textured plane per
+    surface. Every number it needs — world extent, UV window, camera position —
+    was computed on the tested side and is read, not recomputed here. That is the
+    point of the split: the arithmetic that decides where a surface goes is
+    checkable, and this function only places what it is told to.
+
+    Returns the spec, so the caller can take the camera from it.
+
+    THE MATERIAL IS AN EMITTER AND THE TEXTURE IS SAMPLED WITH 'Closest'. Both are
+    required for a rendered pixel to equal a texture value: any shading model
+    would apply a cosine falloff the fixture does not have, and any interpolation
+    would blend neighbouring texels. The image is tagged ``Non-Color`` so Blender
+    does not apply an sRGB decode to values that are not colours.
+    """
+    with open(os.path.join(scene_dir, "scene.json")) as handle:
+        spec = json.load(handle)
+
+    _reset_to_camera_only()
+    image = bpy.data.images.load(os.path.join(scene_dir, spec["texture"]))
+    image.colorspace_settings.name = "Non-Color"
+
+    for i, surface in enumerate(spec["surfaces"]):
+        x_min, x_max, y_min, y_max = surface["extent_world"]
+        u_min, u_max, v_min, v_max = surface["uv_window"]
+
+        bpy.ops.mesh.primitive_plane_add(size=2.0)
+        plane = bpy.context.active_object
+        plane.name = f"surface_{i}_{surface['depth_m']:.3f}m"
+        plane.location = ((x_min + x_max) / 2.0, (y_min + y_max) / 2.0, -surface["depth_m"])
+        plane.scale = ((x_max - x_min) / 2.0, (y_max - y_min) / 2.0, 1.0)
+        plane.rotation_euler = (0.0, 0.0, 0.0)
+
+        mesh = plane.data
+        if not mesh.uv_layers:
+            mesh.uv_layers.new()
+        uv = mesh.uv_layers.active.data
+        for loop in mesh.loops:
+            # Local vertex coords are +/-1 on a size=2 plane, so this maps each
+            # corner onto the surface's own window of the shared texture
+            # regardless of the order Blender emits the vertices in.
+            vx, vy, _ = mesh.vertices[loop.vertex_index].co
+            uv[loop.index].uv = (
+                u_min + (vx + 1.0) / 2.0 * (u_max - u_min),
+                v_min + (vy + 1.0) / 2.0 * (v_max - v_min),
+            )
+
+        material = bpy.data.materials.new(f"surface_mat_{i}")
+        material.use_nodes = True
+        nodes = material.node_tree.nodes
+        nodes.clear()
+        tex = nodes.new("ShaderNodeTexImage")
+        tex.image = image
+        tex.interpolation = "Linear"
+        tex.extension = "EXTEND"
+        emission = nodes.new("ShaderNodeEmission")
+        emission.inputs["Strength"].default_value = 1.0
+        output = nodes.new("ShaderNodeOutputMaterial")
+        links = material.node_tree.links
+        links.new(tex.outputs["Color"], emission.inputs["Color"])
+        links.new(emission.outputs["Emission"], output.inputs["Surface"])
+        plane.data.materials.append(material)
+
+    return spec
 
 
 def build_wall_scene(distance: float, res: tuple[int, int]) -> None:
@@ -266,6 +344,26 @@ def configure_render(scene: object, res: tuple[int, int], samples: int) -> None:
     except (TypeError, AttributeError):  # pragma: no cover - build-dependent
         print("[render] CYCLES unavailable; using the scene's engine", file=sys.stderr)
 
+    # POINT SAMPLING, and it is load-bearing for the scene-model comparison.
+    # Cycles jitters sample positions inside each pixel and averages, so with a
+    # 'Closest'-sampled texture a pixel near a texel boundary would average two
+    # neighbouring texels and the rendered image would be a slightly blurred copy
+    # of the texture rather than the texture. A box filter of near-zero width
+    # collapses every sample onto the pixel centre.
+    if hasattr(scene, "cycles"):
+        if hasattr(scene.cycles, "pixel_filter_type"):
+            scene.cycles.pixel_filter_type = "BOX"
+        if hasattr(scene.cycles, "filter_width"):
+            scene.cycles.filter_width = 1e-4
+
+    # No view transform on anything written as data. AgX would tone-map the
+    # emission values into something that still looks like an image.
+    if hasattr(scene, "view_settings"):
+        try:
+            scene.view_settings.view_transform = "Standard"
+        except TypeError:  # pragma: no cover - build-dependent enum
+            print("[render] WARNING: could not set view_transform=Standard", file=sys.stderr)
+
     for view_layer in scene.view_layers:
         view_layer.use_pass_z = True
 
@@ -310,16 +408,24 @@ def set_individual_files(node: object) -> bool:
     return not hasattr(node, "directory")  # 4.x has no such mode to leave
 
 
-def setup_depth_output(scene: object, out_dir: str) -> tuple[object, object]:
-    """A File Output node writing the left Z pass to 32-bit EXR in metres.
+def setup_outputs(scene: object, out_dir: str) -> tuple[object, object, object]:
+    """File Output nodes for the Z pass and for the beauty pass, both float EXR.
 
-    Returns ``(tree, node)``; the node is muted for the right eye by the caller,
-    because a single depth pass is all the loop consumes and rendering the second
-    one would be machinery for a question this iteration does not ask.
+    Returns ``(tree, depth_node, image_node)``. The depth node is muted for the
+    right eye by the caller: a single depth pass is all the loop consumes.
 
-    **Colour management must not touch the depth pass.** With ``save_as_render``
-    on, Blender applies the scene view transform on write, which would turn
-    metres into tone-mapped nonsense that still looks like a plausible depth map.
+    **Colour management must not touch either.** With ``save_as_render`` on,
+    Blender applies the scene view transform on write, which would turn metres
+    into tone-mapped nonsense that still looks like a plausible depth map — and
+    would do the same to an emission value that is supposed to equal a texture
+    value.
+
+    THE BEAUTY PASS GOES OUT AS FLOAT EXR AS WELL AS PNG, and the EXR is the one
+    the loader reads. 8-bit PNG cannot carry the claim this scene model rests on:
+    it quantises to 256 levels and, through the display transform, is sRGB-encoded
+    rather than linear. Either alone is enough to stop a rendered pixel equalling
+    a texture value. The PNG is kept because it is what a person opens to look at
+    the render.
     """
     tree, api = compositor_tree(scene)
     for node in list(tree.nodes):
@@ -333,6 +439,22 @@ def setup_depth_output(scene: object, out_dir: str) -> tuple[object, object]:
             f"Sockets present: {[o.name for o in render_layers.outputs]}"
         )
 
+    depth_node = _exr_output(tree, render_layers, out_dir, DEPTH_STEM, "Depth")
+    image_node = _exr_output(tree, render_layers, out_dir, IMAGE_STEM, "Image")
+
+    if api >= 5:
+        # 5.0 removed the Composite node; a Group Output terminates the tree now.
+        group_out = tree.nodes.new("NodeGroupOutput")
+        tree.interface.new_socket(name="Image", in_out="OUTPUT", socket_type="NodeSocketColor")
+        tree.links.new(group_out.inputs["Image"], render_layers.outputs["Image"])
+
+    return tree, depth_node, image_node
+
+
+def _exr_output(
+    tree: object, render_layers: object, out_dir: str, stem: str, socket: str
+) -> object:
+    """One File Output node writing ``socket`` to 32-bit float EXR, raw."""
     node = tree.nodes.new("CompositorNodeOutputFile")
 
     # Must precede everything else on the 5.x path: in multi-layer mode the
@@ -354,12 +476,12 @@ def setup_depth_output(scene: object, out_dir: str) -> tuple[object, object]:
         # then completes, reports success, and writes no depth at all. The item
         # has to be added explicitly.
         if not len(node.file_output_items):
-            node.file_output_items.new("FLOAT", DEPTH_STEM)
+            node.file_output_items.new("FLOAT", stem)
         else:
-            node.file_output_items[0].name = DEPTH_STEM
+            node.file_output_items[0].name = stem
     else:  # Blender <= 4.x
         node.base_path = out_dir
-        node.file_slots[0].path = f"{DEPTH_STEM}_"
+        node.file_slots[0].path = f"{stem}_"
 
     try:
         node.format.file_format = "OPEN_EXR"
@@ -367,8 +489,8 @@ def setup_depth_output(scene: object, out_dir: str) -> tuple[object, object]:
         node.format.color_mode = "BW"
     except TypeError as exc:
         raise RuntimeError(
-            f"could not set the depth output format: {exc}. The File Output node "
-            "is probably still in multi-layer mode."
+            f"could not set the {stem!r} output format: {exc}. The File Output "
+            "node is probably still in multi-layer mode."
         ) from exc
 
     if hasattr(node, "save_as_render"):
@@ -376,32 +498,27 @@ def setup_depth_output(scene: object, out_dir: str) -> tuple[object, object]:
     if hasattr(node.format, "color_management"):
         node.format.color_management = "OVERRIDE"
 
-    tree.links.new(render_layers.outputs["Depth"], node.inputs[0])
-
-    if api >= 5:
-        # 5.0 removed the Composite node; a Group Output terminates the tree now.
-        group_out = tree.nodes.new("NodeGroupOutput")
-        tree.interface.new_socket(name="Image", in_out="OUTPUT", socket_type="NodeSocketColor")
-        tree.links.new(group_out.inputs["Image"], render_layers.outputs["Image"])
-
-    return tree, node
+    tree.links.new(render_layers.outputs[socket], node.inputs[0])
+    return node
 
 
-def _settle_depth_filename(out_dir: str) -> None:
-    """Rename Blender's frame-numbered depth output to ``depth_left.exr``.
+def _settle_filename(out_dir: str, stem: str, target_name: str) -> None:
+    """Rename Blender's decorated File Output result to ``target_name``.
 
-    The File Output node appends a frame number, and where it appends it has
-    moved between versions. Globbing rather than reconstructing the name is
-    deliberate: the reconstruction is what breaks on an API change, and it breaks
-    by silently leaving the file under a name the loader does not look for.
+    The written name is the node's ``file_name`` concatenated with the output
+    item's name, and older versions appended a frame number too. Globbing rather
+    than reconstructing it is deliberate: the reconstruction is what breaks on an
+    API change, and it breaks by silently leaving the file under a name the
+    loader does not look for.
     """
-    target = os.path.join(out_dir, f"{DEPTH_STEM}.exr")
-    if os.path.exists(target):
-        return
-    written = sorted(glob.glob(os.path.join(out_dir, f"{DEPTH_STEM}*.exr")))
+    target = os.path.join(out_dir, target_name)
+    written = sorted(glob.glob(os.path.join(out_dir, f"{stem}*.exr")))
+    written = [w for w in written if os.path.basename(w) != target_name]
     if not written:
+        if os.path.exists(target):
+            return
         raise RuntimeError(
-            f"the depth pass wrote no EXR into {out_dir}. Files present: "
+            f"the {stem!r} pass wrote no EXR into {out_dir}. Files present: "
             f"{sorted(os.listdir(out_dir))}"
         )
     os.replace(written[0], target)
@@ -425,15 +542,18 @@ def render_stereo(
 
     configure_render(scene, res, samples)
     cams = make_stereo_cameras(base, baseline)
-    _, depth_node = setup_depth_output(scene, out)
+    _, depth_node, _image_node = setup_outputs(scene, out)
 
     for name in ("left", "right"):
         scene.camera = cams[name]
         scene.render.filepath = os.path.join(out, f"{name}.png")
         depth_node.mute = name != "left"
         bpy.ops.render.render(write_still=True)
-
-    _settle_depth_filename(out)
+        # Settle immediately: both eyes write under the same stem, so the second
+        # render would otherwise overwrite or sit beside the first ambiguously.
+        _settle_filename(out, IMAGE_STEM, f"{name}.exr")
+        if name == "left":
+            _settle_filename(out, DEPTH_STEM, f"{DEPTH_STEM}.exr")
 
     params: dict[str, object] = {
         "f_px": focal_px(base, res[0]),
@@ -460,7 +580,7 @@ def render_stereo(
     with open(os.path.join(out, "params.json"), "w") as handle:
         json.dump(params, handle, indent=2)
 
-    print(f"[render] {out}: left.png right.png {DEPTH_STEM}.exr params.json")
+    print(f"[render] {out}: left/right .png and .exr, {DEPTH_STEM}.exr, params.json")
     print(f"[render] f_px={params['f_px']:.3f} baseline={baseline} on {params['blender_version']}")
     return params
 
@@ -468,13 +588,30 @@ def render_stereo(
 def main() -> None:
     args = parse_args(sys.argv)
     res = (int(args.res[0]), int(args.res[1]))
-    if args.cards and args.wall is not None:
-        raise SystemExit("--cards and --wall build different scenes; pass one")
-    if args.cards:
+    chosen = [
+        n
+        for n, v in (("--cards", args.cards), ("--wall", args.wall), ("--scene", args.scene))
+        if v is not None and v != []
+    ]
+    if len(chosen) > 1:
+        raise SystemExit(f"{', '.join(chosen)} build different scenes; pass one")
+
+    baseline, lens = args.baseline, args.lens
+    if args.scene:
+        spec = build_scene_from_model(args.scene)
+        params = spec["params"]
+        res = (int(params["W"]), int(params["H"]))
+        baseline = float(params["baseline"])
+        # The camera is derived from the model, not passed in: f_px is a property
+        # of the scene being reproduced, and letting a CLI flag override it is how
+        # the two scenes would silently stop being the same scene.
+        lens = float(params["f_px"]) * SENSOR_WIDTH_MM / res[0]
+    elif args.cards:
         build_calibration_scene(list(args.cards), res)
     elif args.wall is not None:
         build_wall_scene(float(args.wall), res)
-    render_stereo(args.out, args.baseline, res, args.samples, args.lens)
+
+    render_stereo(args.out, baseline, res, args.samples, lens)
 
 
 if __name__ == "__main__":

@@ -33,11 +33,44 @@ __all__ = [
     "load_render",
     "radial_to_planar",
     "read_exr_depth",
+    "read_exr_image",
     "render_provenance",
 ]
 
 # Blender writes non-hits as a very large sentinel rather than as nan.
 _NON_HIT = 1e6
+
+
+def _read_exr_plane(path: str | Path) -> FloatArray:
+    """One channel of a single-layer float EXR, decoded and nothing more.
+
+    Channel preference is ``Z``, then ``V``, then a lone channel, then ``R`` —
+    see :func:`read_exr_depth` for why that tolerance is load-bearing rather than
+    defensive.
+    """
+    import Imath
+    import OpenEXR
+
+    path = Path(path)
+    src = OpenEXR.InputFile(str(path))
+    try:
+        header = src.header()
+        window = header["dataWindow"]
+        width = window.max.x - window.min.x + 1
+        height = window.max.y - window.min.y + 1
+        names = list(header["channels"].keys())
+
+        channel = _depth_channel(names)
+        if channel is None:
+            raise KeyError(
+                f"no readable channel in {path.name}. Channels present: {names}. "
+                "For a depth pass, enable the Z pass before rendering "
+                "(view_layer.use_pass_z)."
+            )
+        raw = src.channel(channel, Imath.PixelType(Imath.PixelType.FLOAT))
+    finally:
+        src.close()
+    return np.frombuffer(raw, dtype=np.float32).reshape(height, width).astype(float)
 
 
 def read_exr_depth(path: str | Path) -> FloatArray:
@@ -64,32 +97,23 @@ def read_exr_depth(path: str | Path) -> FloatArray:
     for a layout this repository does not produce. If a live render ever needs
     it, the ``KeyError`` below names the parts it actually found.
     """
-    import Imath
-    import OpenEXR
-
-    path = Path(path)
-    src = OpenEXR.InputFile(str(path))
-    try:
-        header = src.header()
-        window = header["dataWindow"]
-        width = window.max.x - window.min.x + 1
-        height = window.max.y - window.min.y + 1
-        names = list(header["channels"].keys())
-
-        channel = _depth_channel(names)
-        if channel is None:
-            raise KeyError(
-                f"no depth channel in {path.name}. Channels present: {names}. "
-                "Enable the Z pass before rendering (view_layer.use_pass_z)."
-            )
-        raw = src.channel(channel, Imath.PixelType(Imath.PixelType.FLOAT))
-    finally:
-        src.close()
-
-    depth = np.frombuffer(raw, dtype=np.float32).reshape(height, width).astype(float)
+    depth = _read_exr_plane(path)
     depth = np.array(depth, copy=True)
     depth[~np.isfinite(depth) | (depth > _NON_HIT) | (depth <= 0)] = np.nan
     return depth
+
+
+def read_exr_image(path: str | Path) -> FloatArray:
+    """A rendered beauty pass from a single-layer float EXR, **no sentinel applied**.
+
+    Same decoding as :func:`read_exr_depth` and deliberately NOT the same
+    post-processing. The depth reader maps non-positive values to ``nan``, because
+    a depth of zero is Blender's way of saying the ray hit nothing. Zero is a
+    perfectly good *intensity*, and running an image through the depth reader
+    turns every black pixel into ``nan`` — which is how this function came to
+    exist rather than being anticipated.
+    """
+    return _read_exr_plane(path)
 
 
 def _depth_channel(names: list[str]) -> str | None:
@@ -227,8 +251,16 @@ def load_render(
     with open(directory / "params.json") as handle:
         raw = json.load(handle)
 
-    left = _read_gray(directory / "left.png")
-    right = _read_gray(directory / "right.png")
+    # Float EXR in preference to PNG. The PNG is 8-bit and carries the display
+    # transform; where a comparison needs a rendered pixel to EQUAL a modelled
+    # value, neither is survivable. The PNGs stay because they are what a person
+    # opens, and older renders that have only PNGs still load.
+    if (directory / "left.exr").exists():
+        left = read_exr_image(directory / "left.exr")
+        right = read_exr_image(directory / "right.exr")
+    else:
+        left = _read_gray(directory / "left.png")
+        right = _read_gray(directory / "right.png")
 
     depth_path = directory / "depth_left.exr"
     if not depth_path.exists():
