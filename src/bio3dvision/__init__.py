@@ -20,6 +20,7 @@ from bio3dvision.blender_load import (
     load_render,
     radial_to_planar,
     read_exr_depth,
+    read_exr_image,
     render_provenance,
 )
 from bio3dvision.figure import PanelArrays, panel_arrays, save_result_fig
@@ -57,6 +58,7 @@ __all__ = [
     "panel_arrays",
     "radial_to_planar",
     "read_exr_depth",
+    "read_exr_image",
     "render_provenance",
     "route_through_sampling",
     "run_baseline",

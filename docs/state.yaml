@@ -22,7 +22,7 @@ updated_at: 2026-08-29
 # a current one", which invited exactly that comparison and would have failed
 # after every merge. Staleness is tested per half, in `sequence`, and each half
 # gets the test it can actually pass.
-updated_by_commit: f58aa7d   # the repository state this file describes
+updated_by_commit: cc307c1   # the repository state this file describes
 
 # ------------------------------------------------------------------------------
 # SEQUENCE — where this project is, and what it plans next
@@ -119,13 +119,13 @@ sequence:
       silently swapped, in the style of `sequence.staleness.amended` and for the
       same reason: the defect is worth more than the fix. A check that passes on a
       false claim is the same shape as a claim that cannot fail.
-    complete: [1, 2, 3, 4, 7, 8, 9, 10, 11]
+    complete: [1, 2, 3, 4, 7, 8, 9, 10, 11, 12]
     deferred:
       - step: 5
         until: the end of Stage 0
       - step: 6
         until: the loop runs
-    next: 12
+    next: 13
     evidence:
       1: docs/migration-inventory.md — 114 items classified across both references
       2: docs/inherited-measurements.yaml — the carried-results record, 73 entries
@@ -139,6 +139,7 @@ sequence:
       # the plant; see `checking_amended` above and am-002-c.
       10: fc-011, taken by the maintainer on the evidence of fc-008 and fc-010 — a decision, not a run
       11: src/bio3dvision/blender_{render,load}.py, fv-011-1a and fv-011-1b, bio-024..bio-026
+      12: src/bio3dvision/scene_model.py, exp004, fv-012-1..3, bio-027..bio-031
     out_of_sequence:
       - what: >-
           The sample-index to unit-ray boundary. Was od-001; CLOSED, and now
@@ -266,8 +267,18 @@ sequence:
               That is why Blender moved from step 7 to step 11: it is not being
               migrated because a plan says so, but because three standing
               foreclosures cannot be tested past their limit without it.
-          - {n: 12, title: Test rendering against the loop, altitude: geom, status: next}
-          - {n: 13, title: Adapt the static pipeline to Blender rendering, altitude: geom, status: planned}
+          - n: 12
+            title: Test rendering against the loop
+            altitude: geom
+            status: complete
+            outcome: >-
+              exp004. The scene model reproduces the fixture's left image to
+              2.5e-4 and its depth map bit-identically. Away from depth
+              discontinuities the sources agree; at them they diverge by 48x the
+              bar, with the RENDER BETTER — the direction the specification did
+              not predict. fv-012-1 fired at a knife-edge and is located in the
+              policy path, not the render path.
+          - {n: 13, title: Adapt the static pipeline to Blender rendering, altitude: geom, status: next}
           - {n: 14, title: Reproduce the static-scene result on Blender data, altitude: geom, status: planned}
 
       - stage: 3
@@ -364,7 +375,7 @@ runs:
   library:
     package: bio3dvision
     modules: [fixture, matching, loop, figure, baseline, policy, sampling, acquisition,
-              blender_render, blender_load]
+              blender_render, blender_load, scene_model]
     lines: 2098
     policies: [A, A_prime, B, C, D, E]
     sampling: >-
@@ -377,19 +388,20 @@ runs:
     note: Still flat. Zero subpackages. See fc-002 and falsifier fv-003-2.
   test_suite:
     exists: true
-    count: 78
+    count: 91
     count_note: >-
-      70 run everywhere; 8 need the optional `blender` extra and skip without it.
+      80 run everywhere; 11 need the optional `blender` extra and skip without it.
       CI installs the extra so those 8 run there — falsifier 1a is the only check
       of the render path that needs no Blender binary, and skipping it in CI would
       have left the path unverified in the one place it is always checked. THREE
       of the 8 additionally need a Blender BINARY (the falsifier 1b tests) and
       skip on the runner, with a reason naming what is unverified.
     measured_in_ci: >-
-      75 passed, 3 skipped, on both 3.12 and 3.13 at 35d5f50. The 3 are falsifier
-      1b. Recorded because it is the number that says how much of the render path
+      75 passed, 3 skipped on both 3.12 and 3.13 at 35d5f50, when the suite was
+      78. Recorded because it is the number that says how much of the render path
       CI actually covers, and because the count was first written here as two —
-      corrected against the run rather than against the guess.
+      corrected against the run rather than against the guess. The step-12 figure
+      is pending this branch's first CI run.
     count_corrected: >-
       Read 27 until this commit, and had been wrong for some time — 27 is neither
       the collected node count (69) nor the number of test functions (60). The
@@ -444,6 +456,23 @@ runs:
       first_closed_loop: >-
         Arm V re-runs the front end every fixation — the first arm in either
         repository in which an action changes what data exists.
+    - id: exp004_scene_model_check
+      question: >-
+        Does a Blender render of the analytic fixture's geometry behave like the
+        fixture where the model says it must, and differ where it says it must?
+      answer: >-
+        Yes away from depth discontinuities — the matcher's output there is
+        IDENTICAL on the two sources. At discontinuities they diverge by 48x the
+        bar on p90, and THE RENDER IS BETTER, which is the direction the
+        specification did not predict. The fixture's reflect-warp produces 5x the
+        rate of confident gross matching errors that a real render of the same
+        geometry does. See fv-012-1, fv-012-2 and bio-029.
+      pre_registered: d048442, committed alone before the runner existed
+      is_not: >-
+        A result about vision, and not a measurement of gap-010. One scene, one
+        texture family, 8 seeds, no contrast control. It closes nothing and
+        annotates no foreclosure.
+
   not_present:
     - >-
       Geometry. There is a sampling model producing rays (fc-009) but nothing
@@ -451,16 +480,12 @@ runs:
       rays are produced and immediately turned back into indices, because
       ActiveStereo still takes a pixel.
     - >-
-      Any rendered STIMULUS, though no longer any rendered pair. Step 11 built the
-      path — bio3dvision.blender_render writes a rectified pair with a depth pass,
-      and load_render returns the same four-tuple make_synthetic_scene does, so
-      the loop consumes either without knowing which. What does not exist is a
-      rendered scene anyone has ASKED A QUESTION OF. The only scenes this
-      repository can build are ground-truth apparatus: tiled fronto-parallel
-      planes and a flat wall, both emission-shaded, neither a stimulus. Blender
-      still has no experiment attached (od-002), and the two limits that matter —
-      gap-010's missing half-occlusions and gap-001's contrast axis — are exactly
-      as open as before.
+      Any rendered stimulus ANYONE HAS ASKED A QUESTION OF. Step 12 added a scene
+      model and used it to check the render path against the fixture, which is a
+      consistency check and not a question about vision. The scenes this
+      repository can build remain ground-truth apparatus: the fixture's own
+      geometry, tiled fronto-parallel planes, and a flat wall. od-002 is untouched,
+      and gap-001's contrast axis does not exist.
     - Any measurement of anything this repository has not inherited.
 
 # ------------------------------------------------------------------------------
@@ -1704,6 +1729,137 @@ falsifier_verdicts:
       reading than the one recorded here, which is why all three numbers are on
       the record rather than the one that supports the verdict.
     verified_at_commit: f58aa7d
+
+  - iteration: 9
+    id: fv-012-1
+    falsifier: >-
+      Away from depth discontinuities the two sources should be INDISTINGUISHABLE
+      at the declared bar. If they are not, the render path or the fixture is
+      wrong, and nothing may rest on either source until the divergence is
+      located.
+    verdict: FIRED
+    outcome: LOCATED — in the policy path, not the render path
+    numbers:
+      median: {F: 0.00696, R: 0.00678, diff: -0.00018, bar: 0.00049, x_bar: 0.38}
+      p90: {F: 0.02340, R: 0.02185, diff: -0.00155, bar: 0.00146, x_bar: 1.06}
+      front_end_away: {F_median_px: 0.0329, R_median_px: 0.0329, F_gross: 0.0, R_gross: 0.0}
+      sweep_p90_x_bar: {16: 2.24, 20: 1.72, 24: 1.06, 28: 0.72, 32: 0.17}
+      scanpath_agreement_of_18: 1.12
+      common_scanpath_control_p90: {diff: 0.00324, bar: 0.00354, x_bar: 0.92, verdict: indistinguishable}
+    detail: >-
+      Fired on p90 at 1.06x the bar and did not fire on median at 0.38x. Reported
+      as the knife-edge it is rather than rounded to a verdict, as fv-004-2 was.
+      THE THRESHOLD WAS NOT MOVED. Three independent lines locate the divergence
+      and they agree.
+      (1) The matcher does not differ at all away from discontinuities: the front
+      end reads valid 0.580, median 0.0329 px and a 0.000 gross-error rate on
+      BOTH sources, to every digit.
+      (2) The effect decays monotonically with distance — 2.24x at 16 px falling
+      to 0.17x at 32 px. A uniform render-path defect would be flat in distance;
+      this is spill out of the discontinuity band.
+      (3) The two loops agree on only 1.12 of 18 fixations and diverge at step 0,
+      because A' takes an argmax over the whole image and the variance field
+      differs at discontinuities. The fovea-weighted posterior then differs
+      everywhere, including at pixels whose measurements are identical.
+      THE CONTROL THAT SETTLES IT, post-hoc and labelled: re-running the rendered
+      arm on the fixture arm's scanpath makes the AWAY p90 difference
+      INDISTINGUISHABLE at 0.92x, with the sign reversed. A stable render-path
+      error does not change sign when the scanpath is held still.
+      HONEST LIMIT: the control sits at 0.92x, on the other side of the same
+      knife edge the verdict sits on. This locates the divergence; it does not
+      prove the render path is exact.
+    verified_at_commit: cc307c1
+
+  - iteration: 9
+    id: fv-012-2
+    falsifier: >-
+      At depth discontinuities the two sources should DIVERGE, with the rendered
+      source worse. If they do not diverge, either the rendered scene has no true
+      half-occlusions or the fixture's reflect-warp produces occlusion-like
+      artefacts after all.
+    verdict: FIRED, IN THE OPPOSITE DIRECTION
+    outcome: they diverge enormously and THE RENDER IS BETTER
+    numbers:
+      median: {F: 0.02050, R: 0.01248, diff: -0.00802, bar: 0.00183, x_bar: 4.38}
+      p90: {F: 1.49626, R: 0.06580, diff: -1.43046, bar: 0.02993, x_bar: 47.80}
+      front_end_at_gross_gt2px: {F: 0.217, R: 0.043}
+      front_end_at_valid_fraction: {F: 0.785, R: 0.770}
+      half_occlusion_fraction_of_right_image: 0.0509
+      half_occlusion_max_run_px: 10
+      common_scanpath_control_p90_x_bar: 12.28
+      excluded_median: {F_only: 0.0372, R_only: 0.0096}
+    detail: >-
+      The specification named two readings of a NON-divergence. The sources did
+      diverge; the direction is what it did not anticipate, so both branches are
+      addressed.
+      THE FIRST BRANCH IS RULED OUT BY DIRECT GEOMETRIC CHECK, asserted as a test
+      rather than inferred from the result: 5.09% of right-image pixels have no
+      left correspondent, in runs up to 10 px. The rendered scene has real
+      half-occlusions (bio-031).
+      THE SECOND BRANCH HOLDS, and more strongly than it was phrased. At a depth
+      step the fixture's forward map is non-monotonic, and bilinear interpolation
+      of a non-monotonic map yields a stretched copy of the OCCLUDING surface's
+      texture — highly matchable and geometrically wrong. Measured at the front
+      end on pixels the matcher marks VALID, the fixture is wrong by more than
+      2 px on 21.7% of them against the render's 4.3%, at a slightly HIGHER
+      validity rate. It does not hide the hard pixels; it fills them with
+      plausible wrong texture and the matcher believes it. F's p90 depth error at
+      discontinuities is 1.50 m on a scene 2.4-4.5 m deep.
+      Survives the common-scanpath control at 12.28x, so it is a property of the
+      stimulus and not of where the loop looked. The excluded sets point the same
+      way: F's exclusive pixels are 3.9x worse than R's.
+      WHAT THIS IS NOT, declared in the preregistration and held to: an
+      OBSERVATION IN gap-010's REGIME, NOT A MEASUREMENT OF IT. One scene, one
+      texture family, 8 seeds, no contrast control. It does not close gap-010 and
+      does not annotate fc-007, fc-008 or fc-010. It does suggest gap-010
+      understates the problem — the fixture may be actively misleading at depth
+      steps rather than merely silent — and establishing that needs its own
+      pre-registered experiment with a contrast axis. That is od-002, still open.
+    verified_at_commit: cc307c1
+
+  - iteration: 9
+    id: fv-012-3
+    falsifier: >-
+      Scene model adequacy. State every parameter the model needs that the fixture
+      does not have. If there are others beyond lighting and material, the two
+      scenes are not the same scene and the comparison is weaker than claimed; say
+      by how much.
+    verdict: NINE PARAMETERS, seven of them properties of the rendering
+    numbers:
+      parameters_added: 9
+      sanctioned_in_advance: 2
+      left_image_max_abs_diff: 2.5e-4
+      depth_max_abs_diff: 0.0
+      right_image_away_mean_abs_diff: 4.2e-5
+      at_median_ground_truth_convention_shift: 0.06
+    detail: >-
+      Emission material and the fixture's own texture were sanctioned in advance.
+      The other seven: Linear texture interpolation (to match the fixture's own
+      order=1 resampler — see bio-030), a BOX pixel filter of width 1e-4 (point
+      sampling, or Cycles averages sub-pixel samples and the render is a blurred
+      copy of the texture), Standard view transform with raw float EXR output
+      (8-bit sRGB PNG cannot carry "rendered pixel equals texture value"), the
+      frustum edge extension, a derived lens length, Cycles at 1 sample with
+      denoising off, and step depth edges against the fixture's sigma 0.6
+      smoothing.
+      THE ONE THAT WOULD HAVE BEEN READ AS A BROKEN RENDER PATH is the frustum
+      edge extension. The right camera looks a baseline further than the left, so
+      a surface clipped to the left frustum leaves a ~10 px strip falling on
+      nothing while the fixture fills it by reflecting texture. Before the
+      extension existed it accounted for essentially all of the AWAY right-image
+      disagreement — the exact quantity falsifier 1 turns on.
+      HOW MUCH THIS WEAKENS THE CLAIM. Items 1-8 are properties of the rendering
+      or the modelling and none changes the scene's geometry; the check that they
+      are collectively harmless is that the rendered left image equals the
+      fixture's to 2.5e-4 and the rendered depth equals the model's EXACTLY. A
+      single error in geometry, camera, texture mapping or material would shift or
+      reshade the left image and none does.
+      The depth-edge asymmetry is the real weakening and it bears ONLY on AT.
+      Scoring the fixture against the step ground truth instead of its own
+      smoothed one moves its AT median by 6% against a 4.38x effect, so the AT
+      verdict is not an artefact of the convention — but AT numbers carry a few
+      percent of it and should not be quoted to three digits.
+    verified_at_commit: cc307c1
 
 # ------------------------------------------------------------------------------
 # STANDING CONSTRAINTS

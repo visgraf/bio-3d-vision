@@ -1836,6 +1836,160 @@ measurements:
       either. Recorded because the natural simplification, once both files
       happen to load, is to drop the fallbacks.
 
+  - id: bio-027
+    statement: >-
+      A Blender render of the scene model reproduces the analytic fixture's left
+      image, and its depth map exactly.
+    value: {left_max_abs_diff: 2.5e-4, depth_max_abs_diff: 0.0, right_away_mean_abs_diff: 4.2e-5}
+    units: fraction
+    n: {runs: 1, seed: 0}
+    stimulus_family: rendered_chart
+    matcher: none
+    configuration: >-
+      exp004, 8 seeds, policy A_prime, 18 fixations, block matcher; scene_from_fixture rendered by bio3dvision.blender_render at 1 Cycles sample, emission material, Linear texture interpolation, BOX pixel filter width 1e-4. Left and right compared against make_synthetic_scene(seed=0) as float
+      arrays in [0, 1]; depth against rasterise_depth(smooth=False). The right-image
+      figure excludes a 12 px image border, where the fixture's mode="reflect"
+      artefact lives, and pixels within 24 px of a depth discontinuity.
+    provenance:
+      cited_as: visgraf/bio-3d-vision
+      source: tests/test_scene_model.py::test_a_render_of_the_model_reproduces_the_fixture_left_image
+      experiment: exp004
+      run_id: null
+      measured_at_sha: cc307c1
+      environment: {python: 3.13.15, numpy: 2.5.2, scipy: 1.18.1, matplotlib: 3.11.1, blender: 5.2.0 LTS (fbe6228777e7)}
+    status: measured
+    notes: >-
+      THE ENTRY THAT LICENSES exp004. If the left images agree, the geometry, the
+      camera, the texture mapping and the material are all right, because an error
+      in any one of them shifts or reshades the image. That is what leaves the
+      RIGHT image free to differ and makes the difference interpretable.
+      The 2.5e-4 residual is Blender's bilinear texture filter not landing exactly
+      on texel centres. 'Closest' sampling removes it entirely but costs a
+      confound 100x larger on the right image; see bio-030.
+
+  - id: bio-028
+    statement: >-
+      Away from depth discontinuities the fixture and a render of the same scene
+      are indistinguishable on median depth error and differ on p90 at 1.06x the
+      declared bar.
+    value: {median: {F: 0.00696, R: 0.00678, x_bar: 0.38}, p90: {F: 0.02340, R: 0.02185, x_bar: 1.06}}
+    units: m
+    n: {seeds: 8, steps: 18}
+    stimulus_family: rendered_chart
+    matcher: block
+    configuration: >-
+      exp004, 8 seeds, policy A_prime, 18 fixations, block matcher; scene_from_fixture rendered by bio3dvision.blender_render at 1 Cycles sample, emission material, Linear texture interpolation, BOX pixel filter width 1e-4. AWAY = at least 24 px from any pixel where the ground-truth disparity
+      steps by more than 1 px; scored on the intersection of both arms' valid sets;
+      exp001's two-clause bar.
+    provenance:
+      cited_as: visgraf/bio-3d-vision
+      source: experiments/exp004_scene_model_check/verdicts.json
+      experiment: exp004
+      run_id: null
+      measured_at_sha: cc307c1
+      environment: {python: 3.13.15, numpy: 2.5.2, scipy: 1.18.1, matplotlib: 3.11.1, blender: 5.2.0 LTS (fbe6228777e7)}
+    status: measured
+    notes: >-
+      Falsifier 1 FIRED, on p90, at a knife-edge. LOCATED, not absorbed: the front
+      end is identical on AWAY (bio-029), the effect decays monotonically with
+      distance (2.24x at 16 px to 0.17x at 32 px), the arms agree on 1.12 of 18
+      fixations, and forcing a common scanpath makes the difference
+      indistinguishable at 0.92x WITH THE SIGN REVERSED. The divergence is in the
+      policy path, not the render path. The control sits on the other side of the
+      same knife edge and that limit is part of the result.
+
+  - id: bio-029
+    statement: >-
+      The block matcher's output is identical on the two sources away from depth
+      discontinuities, and differs fivefold in gross-error rate at them.
+    value:
+      away: {F: {valid: 0.580, median_px: 0.0329, gross_gt2px: 0.000}, R: {valid: 0.580, median_px: 0.0329, gross_gt2px: 0.000}}
+      at: {F: {valid: 0.785, median_px: 0.0557, gross_gt2px: 0.217}, R: {valid: 0.770, median_px: 0.0401, gross_gt2px: 0.043}}
+    units: fraction
+    n: {seeds: 8}
+    stimulus_family: rendered_chart
+    matcher: block
+    configuration: >-
+      exp004, 8 seeds, policy A_prime, 18 fixations, block matcher; scene_from_fixture rendered by bio3dvision.blender_render at 1 Cycles sample, emission material, Linear texture interpolation, BOX pixel filter width 1e-4. Front end only, before any fixation. `gross_gt2px` is the fraction of
+      pixels the matcher marks VALID whose disparity is wrong by more than 2 px.
+    provenance:
+      cited_as: visgraf/bio-3d-vision
+      source: experiments/exp004_scene_model_check/verdicts.json front_end_POST_HOC
+      experiment: exp004
+      run_id: null
+      measured_at_sha: cc307c1
+      environment: {python: 3.13.15, numpy: 2.5.2, scipy: 1.18.1, matplotlib: 3.11.1, blender: 5.2.0 LTS (fbe6228777e7)}
+    status: measured
+    notes: >-
+      POST-HOC. Not pre-registered; added after the declared metrics came out with
+      the rendered source better at discontinuities, which the specification did
+      not anticipate in either direction it named.
+      THE MECHANISM UNDER exp004's HEADLINE. At a depth step the fixture's forward
+      map is non-monotonic, and bilinear interpolation of a non-monotonic map
+      yields a stretched copy of the occluding surface's texture — matchable, and
+      geometrically wrong. The fixture produces 5x the confident gross-error rate
+      of a real render of the same geometry, at a slightly HIGHER validity rate.
+      It does not hide the hard pixels; it fills them with plausible wrong texture.
+
+  - id: bio-030
+    statement: >-
+      Nearest-neighbour texture sampling triples the right-image disagreement
+      between a render and the fixture, relative to bilinear.
+    value: {closest_frac_gt_0p01: 0.381, linear_frac_gt_0p01: 0.159}
+    units: fraction
+    n: {runs: 2, seed: 0}
+    stimulus_family: rendered_chart
+    matcher: none
+    configuration: >-
+      Same scene and renderer, varying only the image-texture interpolation between
+      'Closest' and 'Linear'. Fraction of right-image pixels differing from the
+      fixture's right image by more than 0.01 on a [0, 1] scale.
+    provenance:
+      cited_as: visgraf/bio-3d-vision
+      source: probe during the exp004 modelling choice; not committed as a test
+      experiment: exp004
+      run_id: null
+      measured_at_sha: cc307c1
+      environment: {python: 3.13.15, numpy: 2.5.2, scipy: 1.18.1, matplotlib: 3.11.1, blender: 5.2.0 LTS (fbe6228777e7)}
+    status: measured
+    notes: >-
+      WHY 'Linear' IS USED DESPITE COSTING EXACTNESS ON THE LEFT IMAGE. The fixture
+      builds its right image with map_coordinates(order=1), which is bilinear;
+      matching the two resamplers removes a confound that has nothing to do with
+      the geometry under test. 'Closest' makes the left image exact to 6e-8 rather
+      than 2.5e-4, and that gain is 100x smaller than the confound it introduces.
+      Recorded so the choice is not reversed on the strength of the left-image
+      number alone.
+
+  - id: bio-031
+    statement: >-
+      The rendered scene contains true half-occlusions; the analytic fixture cannot.
+    value: {right_pixels_with_no_left_correspondent: 3910, fraction: 0.0509, max_run_px: 10}
+    units: count
+    n: {runs: 1, seed: 0}
+    stimulus_family: rendered_chart
+    matcher: none
+    configuration: >-
+      Every left pixel reprojected through the true disparity f*I/Z on the model's
+      step-edge depth map, nearer surfaces overwriting farther; right-image pixels
+      no left pixel maps to.
+    provenance:
+      cited_as: visgraf/bio-3d-vision
+      source: tests/test_scene_model.py::test_the_surfaces_laterally_overlap_so_occlusion_is_possible
+      experiment: exp004
+      run_id: null
+      measured_at_sha: cc307c1
+      environment: {python: 3.13.15, numpy: 2.5.2, scipy: 1.18.1, matplotlib: 3.11.1, blender: 5.2.0 LTS (fbe6228777e7)}
+    status: measured
+    notes: >-
+      Asserted as a test rather than inferred from a result, and deliberately so.
+      Without it, a null at depth discontinuities would be ambiguous between "the
+      fixture and the render behave alike there" and "this scene has no
+      half-occlusions", and the two are not separable after the fact.
+      This is the measurement that rules out the first branch of exp004's
+      falsifier 2. It does NOT close gap-010: gap-010 is about the FIXTURE, and
+      this says only that the rendered scene is not subject to the same limit.
+
   # ==============================================================================
   # GAPS — measurements that were NOT made, and whose absence is load-bearing.
   # ==============================================================================
