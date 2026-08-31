@@ -10,7 +10,7 @@
 # ==============================================================================
 
 schema_version: 1
-updated_at: 2026-08-29
+updated_at: 2026-08-31
 
 # PROVENANCE, NOT A STALENESS TEST. This names the repository state the file
 # describes — the same role `measured_at_sha` plays on a measurement. It
@@ -22,7 +22,7 @@ updated_at: 2026-08-29
 # a current one", which invited exactly that comparison and would have failed
 # after every merge. Staleness is tested per half, in `sequence`, and each half
 # gets the test it can actually pass.
-updated_by_commit: a9624f0   # the repository state this file describes
+updated_by_commit: 1508ce0   # the repository state this file describes
 
 # ------------------------------------------------------------------------------
 # SEQUENCE — where this project is, and what it plans next
@@ -142,6 +142,22 @@ sequence:
       12: src/bio3dvision/scene_model.py, exp004, fv-012-1..3, bio-027..bio-031
       15: src/bio3dvision/oculomotor.py, fv-016, bio-043..bio-046; fc-009's falsifier 2 answered
     out_of_sequence:
+      - what: >-
+          exp009, the cost of the epipolar violation. INSERTED BEFORE 17c, and not
+          a numbered step. Run because 17a-fix surfaced bio-056 — the matcher
+          assumes a rectified pair and a gaze-contingent render is toed in — which
+          left 17c with an undecided question it could not answer by building.
+        note: >-
+          MEASURED ONLY. No foreclosure taken, none reversed, no policy change, no
+          default adopted, and no 17c. od-002 and od-003 untouched. The decision it
+          measured for — rectify before matching, or accept the violation and
+          search in 2D — is the maintainer's, on fv-019 and bio-057..bio-062.
+          Recorded here because a cold session finding fv-019 or bio-057..bio-062
+          would otherwise have no step to attach them to.
+          It also produced bio-057, which is about src/ and not about the
+          experiment: the ported matcher cannot search negative disparity, so it
+          assumes a PARALLEL pair. NOT FIXED. Whether src/ should carry a signed
+          matcher belongs with the same decision.
       - what: >-
           Step 17a-fix, the anchored head frame. Corrects 17a's frame choice; see
           am-007.
@@ -736,6 +752,32 @@ runs:
         named had been met. fc-008 annotated via bio-042 as to the range its 65:1
         ratio was measured in. od-003 untouched, no policy changed.
 
+    - id: exp009_epipolar_cost
+      question: >-
+        What does the epipolar violation cost when a toed-in pair is matched in 2-D
+        instead of rectified, and is the vertical disparity measurable at all?
+      answer: >-
+        OUTCOME (b), EVERYWHERE AND SMALL. Matching the toed-in pair costs
+        1.7-10.9 mm of median range error on a 2.4-4.5 m scene — clearing exp001's
+        bar in all fifteen cells because it is extremely reproducible (seed sd
+        0.1-1.6 mm), and at worst 0.4% of range. Concentrated AT discontinuities
+        (ratio to 2.26), modest AWAY (1.14-1.60). Coverage costs 8-9 points once
+        the fixture's finite extent is divided out. Vertical disparity IS
+        recoverable on axis away from edges (corr +0.878) and decays to noise by
+        az 0.20; its residual sits at the integer quantisation floor, so that is a
+        lower bound. The 2-D matcher costs 0.188 s against a 0.57 s render, so the
+        loop STAYS RENDER-BOUND.
+      pre_registered: 8ddd4d4, committed alone before the runner existed
+      is_instrument_calibration: >-
+        Partly. It measures a property of the matcher, not of vision, and it exists
+        to put a number on a decision 17c cannot avoid. It also found a THIRD
+        latent assumption in the ported matcher (bio-057) and corrected its own
+        preregistration's d_v table (bio-058).
+      changed_no_foreclosure: >-
+        NOTHING. No foreclosure taken, none annotated, none reversed. od-002 and
+        od-003 untouched, no policy changed, no default adopted, no 17c. The
+        decision this measured for is the maintainer's.
+
   not_present:
     - >-
       A CLOSED LOOP, still. Step 17b can now render a stereo pair at an arbitrary
@@ -906,6 +948,31 @@ measurements:
       concern differences of order 1e-4 m on errors of 7e-3 m. One stimulus, and
       the AWAY band is the clean part of a stimulus whose other 71% is pathological.
       Bands inherited from exp004 and chosen for a different question.
+
+  - ids: [bio-057, bio-058, bio-059, bio-060, bio-061, bio-062]
+    commit: 1508ce0
+    what: >-
+      exp009: what the epipolar violation costs when a toed-in pair is matched in
+      2-D instead of rectified, whether the vertical disparity is recoverable, what
+      the 2-D search costs in wall-clock — and a third latent assumption in the
+      ported matcher, found while repairing the runner.
+    where: docs/inherited-measurements.yaml, status "measured"
+    headline: >-
+      The violation costs 1.7-10.9 mm of median range error on a 2.4-4.5 m scene —
+      detectable by exp001's bar in all fifteen cells, and at worst 0.4% of range —
+      concentrated AT discontinuities (ratio to 2.26). Vertical disparity correlates
+      +0.88 with its prediction on axis away from edges and decays to noise by
+      az 0.20. The 2-D matcher costs 0.188 s against a 0.57 s render, so the loop
+      stays render-bound. bio-057: matching.cost_volume cannot search negative
+      disparity, so it assumes a PARALLEL pair, not merely a rectified one.
+    caveat: >-
+      ONE STIMULUS, AND IT EXAGGERATES THE COVERAGE COMPARISON. The fixture's cards
+      are fixed in the head frame and do not fill the field, so both arms look past
+      them off axis and the raw valid fractions confound the matcher with the
+      stimulus; the unconfounded figure is validity conditional on a direction both
+      arms see. Vergence is 0.06 throughout, and bio-056's rows were measured at
+      0.03, so the two are not comparable row by row. The d_v residual is at the
+      integer quantisation floor, so those correlations are a lower bound.
 
 measurements_note: >-
   No longer empty. Values enter this list only when a run in THIS repository
@@ -2831,6 +2898,83 @@ falsifier_verdicts:
       a right-eye measurement.
       NO FORECLOSURE TAKEN.
     verified_at_commit: a9624f0
+
+  - iteration: exp009
+    id: fv-019
+    falsifier: >-
+      Measurement 1, four enumerated outcomes: (a) TOED matches RECT within
+      exp001's bar; (b) TOED worse, quantified against the matcher cost; (c) TOED
+      better, to be reported before anything else; (d) both degrade off-axis
+      relative to on-axis.
+      Measurement 2, three: (e) d_v tracks the prediction; (f) d_v is noise, which
+      ARGUES AGAINST CHAT'S POSITION and is to be reported plainly if it happens;
+      (g) a systematic offset, meaning the geometry or the indexing is wrong.
+    verdict: >-
+      (b) at every fixation and in every band. (a) nowhere, (c) nowhere, (d) NOT
+      SUPPORTED. (e) and (f) BOTH, split by band and amplitude. No (g).
+    numbers:
+      m1_ratio_toed_over_rect_AT: [1.16, 1.42, 1.79, 2.26, 2.00]
+      m1_ratio_toed_over_rect_AWAY: [1.18, 1.34, 1.60, 1.46, 1.14]
+      m1_absolute_penalty_m: [0.0006, 0.0109]
+      m1_worst_penalty_as_fraction_of_range: 0.004
+      m1_seed_sd_m: [0.0001, 0.0016]
+      m2_corr_AWAY: [0.878, 0.796, 0.650, 0.344, null]
+      m2_corr_AT: [0.757, 0.416, 0.294, 0.269, 0.435]
+      m2_residual_floor_from_integer_quantisation_px: 0.289
+      coverage_common_fraction: [0.925, 0.663, 0.437, 0.287, 0.118]
+      coverage_conditional_valid_toed: [0.881, 0.919, 0.876, 0.889, 0.970]
+      matcher_seconds: {RECT: 0.020, TOED: 0.188}
+      render_seconds: 0.57
+      apparatus_faults_found_and_fixed: 5
+    detail: >-
+      (b) EVERYWHERE, INCLUDING az 0.00, where the preregistration expected (a).
+      The bar and the magnitude say different things and both are true: the
+      difference clears exp001's bar in all fifteen cells because it is extremely
+      reproducible (seed sd 0.1-1.6 mm), and in absolute terms it is 1.7-10.9 mm on
+      a 2.4-4.5 m scene, at worst 0.4% of range. The penalty concentrates AT
+      discontinuities (ratio to 2.26) and stays modest AWAY from them (1.14-1.60).
+      (d) NOT SUPPORTED, AND THE REASON IS THE ITERATION'S SECOND-BIGGEST TRAP.
+      RECT's absolute error FALLS off axis, 0.0103 -> 0.0058 m. That is not the
+      matcher improving: the surviving pixel set changes from 93% of the frame to
+      44%, because the fixture's cards are fixed in the head frame and both arms
+      look past them as gaze moves. Absolute error is not comparable ACROSS
+      fixations here; only the within-fixation TOED-vs-RECT difference is.
+      The same confound makes TOED's raw valid fraction (0.820 -> 0.136) read as a
+      collapse. Conditional on a direction both arms see it is 0.881 -> 0.970
+      against RECT's 0.960 -> 0.991: TOED gives up 8-9 POINTS, not a factor of six.
+      See bio-060.
+      (e) AND (f) BOTH, WHICH IS WHY THE SPLIT WAS PRE-REGISTERED. (e) holds AWAY
+      from discontinuities at az 0.00 and 0.08 and AT them at az 0.00 only; (f)
+      holds AT from 0.08 onward and AWAY from 0.20 onward. The declared prediction
+      "(f) AT, (e) AWAY" is HALF RIGHT: it did not anticipate AT carrying signal on
+      axis (+0.757) nor AWAY losing it by az 0.20. CHAT'S POSITION IS NEITHER
+      VINDICATED NOR REFUTED - the cue is measurable exactly where the geometry is
+      benign, and this experiment cannot say whether that is where it would matter.
+      THE az 0.30 AWAY CELL IS UNDEFINED, NOT MISSING, AND IT IS A TRAP: est_sd is
+      0.0000 in all four seeds, so the estimate is a constant and its 0.138 px
+      residual - the best in the table - carries no information. Recorded with
+      est_sd so it cannot be read as a success.
+      A CEILING THIS APPARATUS IMPOSES: the d_v estimate is an INTEGER, since the
+      sub-pixel parabola is fitted along d_h only. Uniform 1 px quantisation has sd
+      0.289, and three of four defined AWAY residuals sit at that floor. So the
+      correlations are a LOWER BOUND. An observation, not a claim; the check that
+      settles it is to fit the parabola along d_v too. Not run here.
+      CHAT'S TIMING PREDICTION IS FALSIFIED. A +/-2 band was predicted to make the
+      loop matcher-bound. At +/-4, with a full right-referenced 2-D pass doubling
+      the cost again, the matcher is 0.188 s against a measured 0.57 s render: 33%
+      of it. The loop stays render-bound; 17b's conclusion is not inverted.
+      FIVE APPARATUS FAULTS WERE FOUND AND FIXED BEFORE ANY OF THIS, ALL MINE AND
+      ALL PRODUCING PLAUSIBLE OUTPUT. The first complete run reported TOED valid
+      fractions of 0.019 and range errors of 3.8-17 m, and those were briefly
+      written down as a result. Enumerated in exp009/findings.md. ONE OF THEM IS
+      ABOUT src/ AND IS RECORDED SEPARATELY AS bio-057: matching.cost_volume
+      cannot shift negatively, so it assumes a PARALLEL pair, not merely a
+      rectified one - a THIRD latent assumption beside bio-056's, invisible until
+      something rendered a converged pair and matched it without rectifying.
+      NO FORECLOSURE TAKEN AND NONE REVERSED. No 17c, no policy change, no default
+      adopted. od-002 and od-003 untouched. THIS ITERATION MEASURED; THE DECISION
+      IS THE MAINTAINER'S.
+    verified_at_commit: 1508ce0
 
 # ------------------------------------------------------------------------------
 # STANDING CONSTRAINTS
