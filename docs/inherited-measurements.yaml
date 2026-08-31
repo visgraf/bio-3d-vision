@@ -3705,6 +3705,16 @@ measurements:
       bio-065 IS NOT THE EXPLANATION: the foveal peak misses the target by 3.6-21.0
       px in CLOSED (mean 7.4) against OPEN's fixed 7.6, so the defect is essentially
       equal between arms.
+      ANNOTATED BY bio-070 AT 24 SEEDS: THESE VERDICTS STAND AND THEIR MARGINS DO
+      NOT. Every x_bar here is inflated by an underestimated 8-seed sd. At 24 seeds
+      AT reads 0.91 (not 0.96), MIDDLE 1.12 (not 2.60), AWAY 2.82 (not 4.26) and
+      POOLED 1.11 (not 1.37). Every band still clears the bar except AT, which did
+      not clear it here either — but MIDDLE is barely over rather than comfortably
+      over. Cite the 24-seed figures in preference to these.
+      ALSO ANNOTATED BY bio-071: k=4 is the level at which the AT case is WEAKEST.
+      AT is distinguishable at k1 (1.60) and k8 (1.18), so "not at discontinuities"
+      is not a level-independent statement and this entry should not be cited as
+      one.
 
   - id: bio-067
     statement: >-
@@ -3821,6 +3831,217 @@ measurements:
       THE LOOP REMAINS RENDER-BOUND, as bio-062 measured for a different question:
       the render is 91% of CLOSED's cost, and the whole matcher — front end and
       measurement together — is 9%.
+
+  - id: bio-070
+    statement: >-
+      exp001's bar is a SAMPLE STANDARD DEVIATION, not a standard error. Tripling
+      the seeds does not shrink it, and at 24 seeds every one of exp010's x_bar
+      values FELL.
+    value:
+      bar_definition: np.std(diff, ddof=1)
+      verified_in: [exp001, exp005, exp007, exp008, exp010]
+      k4_common_median:
+        AT: {effect_8: -0.01396, effect_24: -0.01864, sd_8: 0.01459, sd_24: 0.02049, x_bar_8: 0.96, x_bar_24: 0.91}
+        MIDDLE: {effect_8: -0.00996, effect_24: -0.01379, sd_8: 0.00383, sd_24: 0.01228, x_bar_8: 2.60, x_bar_24: 1.12}
+        AWAY: {effect_8: -0.00458, effect_24: -0.00500, sd_8: 0.00108, sd_24: 0.00178, x_bar_8: 4.26, x_bar_24: 2.82}
+        POOLED: {effect_8: -0.01122, effect_24: -0.01410, sd_8: 0.00816, sd_24: 0.01266, x_bar_8: 1.37, x_bar_24: 1.11}
+      sd_ratio_24_over_8: {AT: 1.40, MIDDLE: 3.21, AWAY: 1.64, POOLED: 1.55}
+      x_bar_if_bar_were_standard_error_at_24: {AT: 4.46, MIDDLE: 5.50, AWAY: 13.81, POOLED: 5.46}
+      AT_effect_size_at_24: {d: 0.909, se_d: 0.243, interval_1se: [0.67, 1.15]}
+      seeds_to_know_d: {to_0p1: 141, to_0p05: 565}
+      seeds_favouring_closed_of_24: {AT_k4: 23, range_over_all_cells: [21, 24]}
+    units: dimensionless
+    n: {seeds: 24, comparison_seeds: 8, bands: 4}
+    stimulus_family: rendered_chart
+    matcher: block
+    configuration: >-
+      exp011 at k=4, exp010's level and stimulus, 24 seeds against exp010's 8.
+      Same arms, same policy, same budget 40, same bar. The runner is exp010's,
+      imported rather than copied.
+    provenance:
+      cited_as: visgraf/bio-3d-vision
+      source: exp011 question 1
+      experiment: exp011_consolidation
+      run_id: null
+      measured_at_sha: 16c9356
+      environment: {python: 3.13.15, numpy: 2.5.2, scipy: 1.18.1, matplotlib: 3.11.1}
+    status: measured
+    notes: >-
+      CORRECTS exp010's CONFIDENCE, NOT ITS VERDICTS. All four bands' x_bar fell at
+      24 seeds because the 8-seed sds were UNDERESTIMATES — MIDDLE's by a factor of
+      3.21, which took it from 2.60 to 1.12, barely over the bar rather than
+      comfortably over it. bio-066's verdicts all still stand; their margins do not.
+      OUTCOME (b) ON AT, AND THE SD MOVED THE WRONG WAY. The effect grew 1.34x and
+      the sd grew 1.40x, so tripling the seeds made the case slightly weaker. This
+      was pre-registered as the expected outcome and the reason was structural: the
+      bar has no 1/sqrt(n), so seeds refine the estimate rather than shrinking the
+      threshold.
+      THE SIGN IS NEARLY UNANIMOUS AND THE VERDICT IS STILL "INDISTINGUISHABLE".
+      23 of 24 seeds favour CLOSED in the AT band at k4, and the count runs 21-24
+      across every band and level. The bar is not a sign test — it asks whether the
+      effect exceeds one standard deviation of the per-seed differences. An effect
+      can be almost perfectly consistent in direction and still not clear it. THAT
+      IS THE WHOLE OF WHAT "AT INDISTINGUISHABLE" MEANS and it must not be read as
+      "no effect".
+      NO SEED COUNT RESOLVES IT UNDER THIS BAR. The bar is a threshold at d = 1;
+      seeds refine d, they do not move the threshold. d is 0.909 with s.e. 0.243, so
+      141 seeds would pin it to +/-0.1 and 565 to +/-0.05 — and if the true d is
+      below 1 the bar is never crossed, because that is a property of the stimulus.
+      Under a standard-error reading AT would read 4.46 and the question would be
+      settled the other way. THE GAP BETWEEN THE TWO READINGS IS THE ANSWER, and it
+      is a fact about exp001's bar rather than about active vision.
+
+  - id: bio-071
+    statement: >-
+      The closed-loop accuracy gain PEAKS at 8.84% occlusion and falls at 17.16% —
+      the same level at which exp008 found allocation sharpest.
+    value:
+      pooled_common_median:
+        k1: {occlusion: 0.0197, open: 0.0117, closed: 0.0074, mean_diff: -0.00428, bar: 0.00164, x_bar: 2.61, relative: 0.366}
+        k2: {occlusion: 0.0426, open: 0.0172, closed: 0.0115, mean_diff: -0.00569, bar: 0.00509, x_bar: 1.12, relative: 0.330}
+        k4: {occlusion: 0.0884, open: 0.0289, closed: 0.0148, mean_diff: -0.01410, bar: 0.01266, x_bar: 1.11, relative: 0.488}
+        k8: {occlusion: 0.1716, open: 0.0364, closed: 0.0252, mean_diff: -0.01117, bar: 0.00902, x_bar: 1.24, relative: 0.307}
+      x_bar_by_band:
+        AT: {k1: 1.60, k2: 0.80, k4: 0.91, k8: 1.18}
+        MIDDLE: {k1: 2.31, k2: 1.09, k4: 1.12, k8: 1.32}
+        AWAY: {k1: 3.52, k2: 1.51, k4: 2.82, k8: 0.97}
+        POOLED: {k1: 2.61, k2: 1.12, k4: 1.11, k8: 1.24}
+      cells_with_closed_better_by_sign: 16
+      cells_total: 16
+      bar_binds_on: sd_at_every_level_and_band
+    units: m
+    n: {seeds: 24, levels: 4, bands: 4}
+    stimulus_family: rendered_chart
+    matcher: block
+    configuration: >-
+      Arms compared WITHIN a level; effect sizes compared across levels. No cell
+      set crosses a level — exp008's rule — because coverage moves violently
+      between them. Levels are exp008's k1/k2/k4/k8 at measured left-occluded
+      fractions 0.0197/0.0426/0.0884/0.1716.
+    provenance:
+      cited_as: visgraf/bio-3d-vision
+      source: exp011 question 2
+      experiment: exp011_consolidation
+      run_id: null
+      measured_at_sha: 16c9356
+      environment: {python: 3.13.15, numpy: 2.5.2, scipy: 1.18.1, matplotlib: 3.11.1}
+    status: measured
+    notes: >-
+      OUTCOME (c), A PEAK. The raw effect rises 0.00428 -> 0.00569 -> 0.01410 and
+      falls to 0.01117, and the relative gain does the same: 36.6%, 33.0%, 48.8%,
+      30.7%.
+      THE PEAK IS AT THE SAME LEVEL exp008 FOUND FOR ALLOCATION. exp008 measured the
+      allocation question sharpest at 8.84% and collapsing by 17.16%; acquisition
+      peaks at 8.84% too. Two different questions with different arms agree on where
+      this stimulus family is most informative — which is as consistent with a fact
+      about the STIMULUS as with a fact about loops, and is not claimed as the
+      latter.
+      REPORTING x_bar ALONE WOULD HAVE INVERTED k1 -> k2. x_bar falls 2.61 -> 1.12
+      there while the effect GROWS by 33%. That is exp008's warning reproduced
+      exactly, on a different experiment, which is why mean_diff and bar are
+      reported separately at every level.
+      (d) DID NOT FIRE: mean_diff is negative in all 16 band-by-level cells.
+      AT IS DISTINGUISHABLE AT k1 AND k8 AND NOT AT k2 AND k4, so "the closed loop
+      does not help at discontinuities" is NOT a level-independent statement, and
+      exp010 happened to measure the level where the AT case is weakest. AWAY goes
+      the other way and loses distinguishability at k8 (0.97).
+
+  - id: bio-072
+    statement: >-
+      The coverage gain is 33x to 341x the accuracy gain, and unlike the accuracy
+      gain it does not vary with occlusion at all.
+    value:
+      ever_measured: {k1: [0.6954, 0.9791], k2: [0.6736, 0.9614], k4: [0.6218, 0.9275], k8: [0.5427, 0.8800]}
+      all_cells_mean_abs_err_m: {k1: [0.4503, 0.0718], k2: [0.5001, 0.1265], k4: [0.6304, 0.2318], k8: [0.7969, 0.4151]}
+      all_cells_x_bar: {k1: 42.03, k2: 37.36, k4: 23.79, k8: 23.95}
+      accuracy_term_m: {k1: 0.01045, k2: 0.00165, k4: 0.01155, k8: 0.00112}
+      coverage_term_m: {k1: 0.36810, k2: 0.37199, k4: 0.38704, k8: 0.38066}
+      coverage_over_accuracy: {k1: 35.2, k2: 225.4, k4: 33.5, k8: 340.6}
+      closed_only_cells_mean_abs_err_m:
+        k1: {open: 1.3545, closed: 0.0570, n: 21788}
+        k2: {open: 1.3540, closed: 0.0616, n: 22105}
+        k4: {open: 1.3878, closed: 0.1216, n: 23477}
+        k8: {open: 1.3768, closed: 0.2485, n: 25910}
+    units: m
+    n: {seeds: 24, levels: 4, cells: 76800}
+    stimulus_family: rendered_chart
+    matcher: block
+    configuration: >-
+      The yardstick was DECLARED IN THE PREREGISTRATION before these tables
+      existed: mean absolute error over all 76800 cells with unmeasured cells left
+      at the prior of 3.0 m. Decomposition is exact — accuracy term plus coverage
+      term equals the total all-cells gain to five decimals at every level.
+      Accuracy term is the common-set MEAN gain times the common share; coverage
+      term is the CLOSED-only gain times the CLOSED-only share.
+    provenance:
+      cited_as: visgraf/bio-3d-vision
+      source: exp011 question 3
+      experiment: exp011_consolidation
+      run_id: null
+      measured_at_sha: 16c9356
+      environment: {python: 3.13.15, numpy: 2.5.2, scipy: 1.18.1, matplotlib: 3.11.1}
+    status: measured
+    notes: >-
+      THE JUDGEMENT, MADE EXPLICITLY BECAUSE THE SPECIFICATION REQUIRED ONE: THE
+      COVERAGE GAIN IS THE RESULT. The accuracy gain on shared cells is a rounding
+      error beside it at every level.
+      A closed loop's value here is NOT that it measures the same cells better. It
+      is that it measures cells an open loop CANNOT MEASURE AT ALL, and that an open
+      loop leaves 1.35-1.39 m of silent prior error on 28-34% of the belief.
+      ActiveStereo.valid excludes the border and the 64-column disparity-search
+      margin, so from a fixed viewpoint those cells are permanently unmeasurable.
+      AN UNMEASURED CELL IS NOT ABSENT. It holds the 3.0 m prior against a 2.4-4.5 m
+      scene, which is why the yardstick counts it rather than excluding it. exp010's
+      intersection rule scored none of this and was right to for ACCURACY; it is the
+      wrong frame for the question of what the loop is worth.
+      THE COVERAGE TERM IS FLAT ACROSS OCCLUSION — 0.368, 0.372, 0.387, 0.381 m —
+      while the accuracy term bounces between 0.001 and 0.012. So bio-071's peak is
+      a feature of the SMALLER half of the effect, and the dominant half does not
+      scale with occlusion at all.
+
+  - id: bio-073
+    statement: >-
+      fc-010's vergence estimator did not fail at four occlusion levels and 24
+      seeds. 192 of 192 runs reached budget with zero refusals.
+    value:
+      runs_reaching_budget: {OPEN: 96, CLOSED: 96}
+      runs_total: {OPEN: 96, CLOSED: 96}
+      refusals: 0
+      closed_vergence_range: [0.0089, 0.1031]
+      exp010_closed_vergence_range: [0.0103, 0.0599]
+      renders: {OPEN: 1, CLOSED: 41}
+      render_seconds: {OPEN: 0.58, CLOSED: 23.78}
+      front_end_seconds: {OPEN: 0.06, CLOSED: 2.52}
+      cost_ratio: 41.0
+    units: mixed
+    n: {runs: 192, seeds: 24, levels: 4}
+    stimulus_family: rendered_chart
+    matcher: block
+    configuration: >-
+      fc-010's estimator and the pixel-native foveal weight are carried unchanged,
+      as the specification required. Vergence range is over every fixation of every
+      CLOSED run.
+    provenance:
+      cited_as: visgraf/bio-3d-vision
+      source: exp011, completion and cost
+      experiment: exp011_consolidation
+      run_id: null
+      measured_at_sha: 16c9356
+      environment: {python: 3.13.15, numpy: 2.5.2, scipy: 1.18.1, matplotlib: 3.11.1}
+    status: measured
+    notes: >-
+      STRONGER EVIDENCE THAN exp010's FOR THE SAME NEGATIVE. exp010 predicted
+      fc-010's mechanism would arrive in the loop and it did not; exp011 gives the
+      prediction a wider range to fail in — four occlusion levels, 24 seeds, a
+      vergence range of 0.0089-0.1031 against exp010's 0.0103-0.0599 — and it still
+      does not.
+      NOT EVIDENCE THAT THE ESTIMATOR IS SOUND. fc-010's defect is structural: the
+      estimate is confined to its search window by construction and cannot report a
+      sign. This measures only that the closed loop did not drive it out of range on
+      this stimulus family, which is a statement about the stimulus as much as about
+      the estimator.
+      THE 41x COST IS UNCHANGED FROM bio-069 and belongs beside every figure in
+      bio-070..bio-072.
 
   - id: gap-009
     statement: Nothing inside Blender is covered by any test, so rendered stimuli are the least-verified inputs in the record.

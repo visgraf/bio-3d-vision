@@ -22,7 +22,7 @@ updated_at: 2026-08-31
 # a current one", which invited exactly that comparison and would have failed
 # after every merge. Staleness is tested per half, in `sequence`, and each half
 # gets the test it can actually pass.
-updated_by_commit: cdd5a85   # the repository state this file describes
+updated_by_commit: 16c9356   # the repository state this file describes
 
 # ------------------------------------------------------------------------------
 # SEQUENCE — where this project is, and what it plans next
@@ -159,6 +159,9 @@ sequence:
           cost. No foreclosure taken by the experiment itself; od-002 and od-003
           untouched. Recorded here because a cold session finding fv-020 or
           bio-063..bio-069 would otherwise have no step to attach them to.
+          STEP 17 IS SUBSTANTIALLY SATISFIED BY THIS AND IS STILL NOT `complete`.
+          See am-008 for what was done and the three things that remain, one of
+          which — the angular foveal weight — step 15 named as step 17's own work.
       - what: >-
           exp009, the cost of the epipolar violation. INSERTED BEFORE 17c, and not
           a numbered step. Run because 17a-fix surfaced bio-056 — the matcher
@@ -382,7 +385,24 @@ sequence:
       - stage: 4
         name: The loop
         steps:
-          - {n: 17, title: Build and test the active loop, altitude: fw, status: planned}
+          - n: 17
+            title: Build and test the active loop
+            altitude: fw
+            status: planned
+            status_note: >-
+              LEFT `planned` DELIBERATELY, AND IT IS NOT UNSTARTED. Built and
+              tested across 17a (the head-frame belief), 17a-fix (its frame),
+              17b (gaze-contingent rendering) and 17c (rectify in the camera,
+              then close the loop), all merged, with exp010 measuring the closed
+              loop against a matched open arm. See am-008 for what was done and
+              what remains; the remainder is why this is not `complete`.
+            outcome: >-
+              THE LOOP RUNS. exp010 moves the eye, re-renders at each fixation and
+              fuses across saccades into a persistent head-frame belief — the first
+              time in either repository that an action changes the sensory data.
+              Outcome (a): CLOSED beats OPEN in 8/8 seeds on the cells both measure
+              (fv-020, bio-066..bio-069), and NOT at depth discontinuities.
+              Preceded by fc-012, taken alone before anything was built.
           - {n: 18, title: Prototype the omnidirectional rig in Blender, altitude: fw, status: planned}
 
     amendments:
@@ -576,6 +596,58 @@ sequence:
           with its cost, and the cost that surfaced was a wrong answer. Recorded so
           a later session reading 17a's confident docstring finds the correction
           attached to it.
+
+      - id: am-008
+        moved: step 17, Build and test the active loop
+        from: planned, the centrepiece of Stage 4
+        to: substantially satisfied by 17a, 17a-fix, 17b, 17c and exp010, with a remainder stated
+        origin: >-
+          THE CHAT SURFACE. The 17a/17b/17c subdivision is not one of the eighteen
+          steps and is recorded in `position.out_of_sequence`, not here.
+        reason: >-
+          Step 17 is "build and test the active loop". It is built: belief.py holds
+          a head-frame belief with reprojection, scene_model.rectified_camera_poses
+          renders a rectified pair that follows the gaze, and
+          experiments/exp010_closed_loop/run.py runs the loop — choose from the
+          belief, saccade, re-render, re-match, fuse, repeat. It is tested: B0 is
+          bit-identical at Fixation(0, 0, 0), the azimuth falsifier B0 could not
+          catch is carried beside it, and exp010 measures the closed arm against a
+          matched open one over 8 seeds and 40 fixations.
+          RECONCILED BECAUSE THE PLAN'S CENTREPIECE READ `planned` WHILE THE LOOP
+          RAN. A cold session deriving position from the plan half would have taken
+          the thing this project exists to do as unstarted.
+        what_remains: >-
+          NOT MARKED COMPLETE BY ASSERTION, because three things have not been done
+          and one of them was named as step 17's own work.
+          THE ANGULAR FOVEAL WEIGHT, which is the named one. Step 15 recorded that
+          eliminating the sample index "needs a foveal weight defined on ANGLE.
+          That is step 17/18 work." It was not built at 17a — fc-009's note says so
+          — and exp010 confirms it is still pixel-native at 17c:
+          ActiveStereo._fovea_weight is a Gaussian in row and column and
+          ActiveStereo.vergence takes a median over a square pixel window. So a ray
+          still cannot drive the loop without a sensor to land it on, which is the
+          exact property step 15 predicted step 17 would remove.
+          NOTHING IN src/ CLOSES THE LOOP. The only code that fuses across fixations
+          is experiments/exp010_closed_loop/run.py — verified by search: `.fuse(`
+          appears there, in two tests, and nowhere in src/. run_baseline still runs
+          the open loop on the fixture, ActiveStereo.run is the open loop, and
+          HeadFrameBelief is exported but used by no library code. This is the same
+          shape as am-005's step-13 remainder and is recorded the same way.
+          THE FRAME CONVERSION LIVES IN THE RUNNER TOO. ActiveStereo returns planar
+          z in the rectified frame AT THE MEASURING FIXATION, which is
+          fixation-dependent, so fusing it across fixations fuses different
+          quantities. exp010 converts to range from the cyclopean origin before
+          fusing; HeadFrameBelief itself was NOT changed and still fuses whatever it
+          is handed. Any future caller that fuses ActiveStereo's output directly
+          across fixations reintroduces the defect.
+        status_left_as: >-
+          `planned` in the plan half, with a status_note and an outcome attached.
+          position.complete is UNCHANGED and does not gain 17: that half claims to
+          be derivable from the ledger, and 17 is not complete. Position clause (2)
+          is unaffected — `next` is still 13, the lowest step that is neither
+          complete nor deferred.
+          The work itself is recorded in position.out_of_sequence, which is where a
+          cold session finding fv-017..fv-020 or bio-047..bio-069 is told to look.
 
 # ------------------------------------------------------------------------------
 # WHAT RUNS
@@ -817,6 +889,29 @@ runs:
         exp009's evidence, as its own commit. od-002 and od-003 untouched, no policy
         changed. gap-001's contrast axis is still absent.
 
+    - id: exp011_consolidation
+      question: >-
+        Does the AT effect survive more seeds, does the gain scale with occlusion,
+        and is the coverage gain the larger result?
+      answer: >-
+        (b), (c), and COVERAGE. AT stays indistinguishable at 24 seeds and moves the
+        wrong way (0.96 -> 0.91) because the bar is a sample sd with no 1/sqrt(n) —
+        and EVERY band's x_bar fell, correcting exp010's confidence. The accuracy
+        gain PEAKS at 8.84% occlusion, the same level exp008 found allocation
+        sharpest, and falls at 17.16%. The coverage gain is 33x to 341x the accuracy
+        gain and, unlike it, does not vary with occlusion at all.
+      pre_registered: 1c1ab23, committed alone before the runner existed
+      is_instrument_calibration: >-
+        Partly, and usefully so. Its sharpest finding is about exp001's bar rather
+        than about vision: an effect favoured by 23 of 24 seeds can sit below a bar
+        that is one standard deviation of the per-seed differences. That sizes every
+        verdict this repository has taken.
+      changed_no_foreclosure: >-
+        None taken, none reversed. od-002 and od-003 untouched. The pixel-native
+        foveal weight and fc-010's vergence estimator were carried unchanged. It
+        annotates bio-066 rather than overturning it — exp010's verdicts stand with
+        smaller margins.
+
   not_present:
     - >-
       NO LONGER TRUE, AND THIS ENTRY IS KEPT AS A CORRECTED ONE BECAUSE IT WAS THE
@@ -1038,6 +1133,25 @@ measurements:
       correlated, so part of the gap may be OPEN's fusion being more badly violated
       rather than CLOSED's data being better; the check changes the arm definition
       and was not run.
+
+  - ids: [bio-070, bio-071, bio-072, bio-073]
+    commit: 16c9356
+    what: >-
+      exp011: exp010 at 24 seeds and all four of exp008's occlusion levels. What
+      the bar does under more seeds, whether the gain scales with occlusion, and
+      whether the coverage gain is the larger result.
+    where: docs/inherited-measurements.yaml, status "measured"
+    headline: >-
+      THE COVERAGE GAIN IS THE RESULT — 33x to 341x the accuracy gain at every
+      level. The accuracy gain peaks at 8.84% occlusion, the same level exp008
+      found allocation sharpest, and falls at 17.16%. AT stays indistinguishable at
+      24 seeds and every band's x_bar FELL, because exp010's 8-seed sds were
+      underestimates.
+    caveat: >-
+      exp001's bar is a sample sd, not a standard error, so no seed count resolves
+      AT: d is 0.909 +/- 0.243 and the threshold is 1. One stimulus family, one
+      policy, one budget. exp010's unsettled fusion-correlation caveat is untouched
+      by more seeds and more levels.
 
 measurements_note: >-
   No longer empty. Values enter this list only when a run in THIS repository
@@ -3225,6 +3339,78 @@ falsifier_verdicts:
       than by rewriting history: cdd5a85 is the first commit at which the numbers
       reproduce, and re-running there gives them unchanged.
     verified_at_commit: cdd5a85
+
+  - iteration: exp011
+    id: fv-021
+    falsifier: >-
+      (a) AT distinguishable at 24 seeds AND the effect scaling with occlusion —
+      the framework's original motivation confirmed, to be reported with the 41x
+      cost in the same breath; (b) AT still not distinguishable, with the seed
+      count that WOULD resolve it given as a number; (c) the gain does not scale,
+      or peaks and falls as allocation did — report where; (d) the gain reverses at
+      some level, reported first if it happens.
+    verdict: >-
+      (b) ON QUESTION 1 AND (c) ON QUESTION 2. (a) did not occur. (d) DID NOT FIRE
+      ANYWHERE — CLOSED is better by sign in all 16 band-by-level cells. On
+      question 3 the answer is COVERAGE, by 33x to 341x.
+    numbers:
+      q1_x_bar_8_to_24: {AT: [0.96, 0.91], MIDDLE: [2.60, 1.12], AWAY: [4.26, 2.82], POOLED: [1.37, 1.11]}
+      q1_sd_ratio_24_over_8: {AT: 1.40, MIDDLE: 3.21, AWAY: 1.64, POOLED: 1.55}
+      q1_AT_effect_size: {d: 0.909, se: 0.243, seeds_to_pin_to_0p1: 141}
+      q1_seeds_favouring_closed_AT_k4: 23
+      q2_pooled_mean_diff: {k1: -0.00428, k2: -0.00569, k4: -0.01410, k8: -0.01117}
+      q2_pooled_relative: {k1: 0.366, k2: 0.330, k4: 0.488, k8: 0.307}
+      q2_pooled_x_bar: {k1: 2.61, k2: 1.12, k4: 1.11, k8: 1.24}
+      q3_accuracy_term_m: {k1: 0.01045, k2: 0.00165, k4: 0.01155, k8: 0.00112}
+      q3_coverage_term_m: {k1: 0.36810, k2: 0.37199, k4: 0.38704, k8: 0.38066}
+      q3_coverage_over_accuracy: {k1: 35.2, k2: 225.4, k4: 33.5, k8: 340.6}
+      completion: {runs: 192, reached_budget: 192, refusals: 0}
+      cost_ratio: 41.0
+    detail: >-
+      IT CORRECTS exp010's CONFIDENCE AND THAT SHOULD BE READ FIRST. Every band's
+      x_bar FELL at 24 seeds, because exp010's 8-seed standard deviations were
+      underestimates — MIDDLE's by 3.21x, taking it from 2.60 to 1.12. bio-066's
+      verdicts all still stand; their margins do not.
+      (b) ON QUESTION 1, AND THE SD MOVED THE WRONG WAY. AT's effect grew 1.34x and
+      its sd grew 1.40x, so tripling the seeds made the case slightly weaker
+      (0.96 -> 0.91). This was pre-registered with its reason: exp001's bar is
+      np.std(d, ddof=1), a sample standard deviation with no 1/sqrt(n), so seeds
+      refine the estimate rather than shrinking the threshold. Under a
+      standard-error bar AT would read 4.46 and be settled the other way. THE GAP
+      BETWEEN THE TWO READINGS IS QUESTION 1'S ANSWER, and it is a fact about the
+      bar rather than about active vision.
+      THE SIGN IS NEARLY UNANIMOUS AND THE VERDICT IS STILL "INDISTINGUISHABLE" —
+      23 of 24 seeds favour CLOSED in AT at k4, 21-24 across every cell. The bar is
+      not a sign test. "AT indistinguishable" does not mean "no effect", and the
+      number that resolves it does not exist under this bar: d is 0.909 +/- 0.243,
+      141 seeds would pin it to +/-0.1, and if the true d is below 1 the bar is
+      never crossed because that is a property of the stimulus.
+      (c) ON QUESTION 2, A PEAK AT 8.84% — THE SAME LEVEL exp008 FOUND FOR
+      ALLOCATION. Raw effect 0.00428 -> 0.00569 -> 0.01410 -> 0.01117; relative gain
+      36.6%, 33.0%, 48.8%, 30.7%. Two different questions with different arms agree
+      on where this stimulus family is most informative, which is as consistent with
+      a fact about the STIMULUS as about loops and is not claimed as the latter.
+      REPORTING x_bar ALONE WOULD HAVE INVERTED k1 -> k2, where x_bar falls from
+      2.61 to 1.12 while the effect GROWS by 33%. exp008's warning, reproduced on a
+      different experiment.
+      AT IS DISTINGUISHABLE AT k1 AND k8 AND NOT AT k2 AND k4. So "the closed loop
+      does not help at discontinuities" is NOT level-independent, and exp010 happened
+      to measure the level where the AT case is weakest. AWAY loses
+      distinguishability at k8 (0.97), going the other way.
+      QUESTION 3, JUDGED EXPLICITLY BECAUSE THE SPECIFICATION REQUIRED IT: THE
+      COVERAGE GAIN IS THE RESULT. 33x to 341x the accuracy gain at every level, on
+      a yardstick declared before the tables existed. An open loop leaves 1.35-1.39 m
+      of silent prior error on 28-34% of the belief; a closed one measures those
+      cells at 0.06-0.25 m. The coverage term is FLAT across occlusion (0.368-0.387)
+      while the accuracy term bounces between 0.001 and 0.012, so question 2's peak
+      is a feature of the smaller half of the effect.
+      fc-010 DID NOT FIRE at four levels and 24 seeds — 192/192 runs reached budget,
+      zero refusals, vergence 0.0089-0.1031. Stronger than exp010's negative, and
+      still not evidence the estimator is sound: its defect is structural.
+      NO FORECLOSURE TAKEN, none reversed. od-002 and od-003 untouched. The
+      pixel-native foveal weight and the vergence estimator were carried unchanged
+      as specified.
+    verified_at_commit: 16c9356
 
 # ------------------------------------------------------------------------------
 # STANDING CONSTRAINTS
