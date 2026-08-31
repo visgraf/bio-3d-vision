@@ -1,0 +1,217 @@
+{
+  "experiment": "exp010_closed_loop",
+  "materiality": 0.02,
+  "seeds": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7
+  ],
+  "budget": 40,
+  "left_occluded_fraction": 0.08841145833333333,
+  "environment": {
+    "python": "3.13.15",
+    "numpy": "2.5.2"
+  },
+  "rendered_with": {
+    "blender_version": "5.2.0 LTS",
+    "blender_build_hash": "fbe6228777e7",
+    "engine": "CYCLES",
+    "samples": 1,
+    "denoising": false,
+    "geometry": "gaze_contingent",
+    "depth_pass": "Z",
+    "depth_is_radial": null
+  },
+  "verdict": {
+    "AT": {
+      "median_abs_err": {
+        "closed": 0.017082638602369915,
+        "open": 0.031039251336457963,
+        "mean_diff": -0.013956612734088047,
+        "sd": 0.014594039236157213,
+        "materiality": 0.0006207850267291593,
+        "bar": 0.014594039236157213,
+        "distinguishable": false,
+        "direction": "CLOSED better",
+        "x_bar": 0.9563228183949293,
+        "n": 35141
+      },
+      "p90": {
+        "closed": 0.5311392397272643,
+        "open": 0.5002944045109832,
+        "mean_diff": 0.030844835216281175,
+        "sd": 0.21434327730045774,
+        "materiality": 0.010005888090219664,
+        "bar": 0.21434327730045774,
+        "distinguishable": false,
+        "direction": "CLOSED worse",
+        "x_bar": 0.1439039078097333,
+        "n": 35141
+      }
+    },
+    "MIDDLE": {
+      "median_abs_err": {
+        "closed": 0.012076494856601339,
+        "open": 0.022035886169141927,
+        "mean_diff": -0.009959391312540589,
+        "sd": 0.0038282973769469667,
+        "materiality": 0.0004407177233828386,
+        "bar": 0.0038282973769469667,
+        "distinguishable": true,
+        "direction": "CLOSED better",
+        "x_bar": 2.601519770254398,
+        "n": 8776
+      },
+      "p90": {
+        "closed": 0.0378285169435355,
+        "open": 0.15809583895177054,
+        "mean_diff": -0.12026732200823505,
+        "sd": 0.02109703243655435,
+        "materiality": 0.0031619167790354107,
+        "bar": 0.02109703243655435,
+        "distinguishable": true,
+        "direction": "CLOSED better",
+        "x_bar": 5.700674839929174,
+        "n": 8776
+      }
+    },
+    "AWAY": {
+      "median_abs_err": {
+        "closed": 0.010965413027198945,
+        "open": 0.01554162450645541,
+        "mean_diff": -0.0045762114792564645,
+        "sd": 0.0010750057851923213,
+        "materiality": 0.0003108324901291082,
+        "bar": 0.0010750057851923213,
+        "distinguishable": true,
+        "direction": "CLOSED better",
+        "x_bar": 4.256918002015932,
+        "n": 3856
+      },
+      "p90": {
+        "closed": 0.03220747558900616,
+        "open": 0.05445667438016105,
+        "mean_diff": -0.02224919879115489,
+        "sd": 0.012515621964118658,
+        "materiality": 0.001089133487603221,
+        "bar": 0.012515621964118658,
+        "distinguishable": true,
+        "direction": "CLOSED better",
+        "x_bar": 1.7777141923063562,
+        "n": 3856
+      }
+    },
+    "POOLED": {
+      "median_abs_err": {
+        "closed": 0.014591019416907713,
+        "open": 0.025807913487502138,
+        "mean_diff": -0.011216894070594424,
+        "sd": 0.00816097640480196,
+        "materiality": 0.0005161582697500428,
+        "bar": 0.00816097640480196,
+        "distinguishable": true,
+        "direction": "CLOSED better",
+        "x_bar": 1.3744549076253114,
+        "n": 47774
+      },
+      "p90": {
+        "closed": 0.2424414242211266,
+        "open": 0.32427230132968654,
+        "mean_diff": -0.08183087710855992,
+        "sd": 0.16947754996348066,
+        "materiality": 0.006485446026593731,
+        "bar": 0.16947754996348066,
+        "distinguishable": false,
+        "direction": "CLOSED better",
+        "x_bar": 0.4828419877806411,
+        "n": 47774
+      }
+    }
+  },
+  "excluded_sets": {
+    "OPEN": {
+      "ever_measured_fraction": 0.6220572916666667,
+      "excluded_own_only": 0.0,
+      "own_set_POOLED_median": 0.025807913487502138,
+      "own_set_POOLED_p90": 0.32427230132968654
+    },
+    "CLOSED": {
+      "ever_measured_fraction": 0.9275667317708334,
+      "excluded_own_only": 0.30550944010416664,
+      "own_set_POOLED_median": 0.014578020476484543,
+      "own_set_POOLED_p90": 0.24170070483342548
+    },
+    "common_fraction": 0.6220572916666667
+  },
+  "coverage": {
+    "OPEN": {
+      "ever_measured_fraction": 0.6220572916666667,
+      "survived_whole_run_fraction": 1.0,
+      "mean_visible_per_fixation": 1.0,
+      "min_visible_per_fixation": 1.0
+    },
+    "CLOSED": {
+      "ever_measured_fraction": 0.9275667317708334,
+      "survived_whole_run_fraction": 0.0,
+      "mean_visible_per_fixation": 0.6149184163411459,
+      "min_visible_per_fixation": 0.246875
+    }
+  },
+  "cost": {
+    "OPEN": {
+      "renders": 1.0,
+      "measurement_seconds": 0.02162379026412964,
+      "front_end_seconds": 0.05354684591293335,
+      "front_end_calls": 1.0,
+      "render_seconds_at_0p57": 0.57
+    },
+    "CLOSED": {
+      "renders": 41.0,
+      "measurement_seconds": 0.022513359785079956,
+      "front_end_seconds": 2.1951099634170532,
+      "front_end_calls": 41.0,
+      "render_seconds_at_0p57": 23.369999999999997
+    }
+  },
+  "vergence": {
+    "OPEN": {
+      "vergence_min": 0.0216658191183227,
+      "vergence_max": 0.0216658191183227,
+      "vergence_final_mean": 0.0216658191183227,
+      "D_fix_min": 2.4171400969574104,
+      "D_fix_max": 4.553182607624391,
+      "D_fix_at_clip_fraction": 0.0,
+      "abs_azimuth_max": 0.0,
+      "abs_elevation_max": 0.0
+    },
+    "CLOSED": {
+      "vergence_min": 0.010318433359360682,
+      "vergence_max": 0.05992769421111465,
+      "vergence_final_mean": 0.024784569057668362,
+      "D_fix_min": 2.4028323613778477,
+      "D_fix_max": 4.633358042785177,
+      "D_fix_at_clip_fraction": 0.0,
+      "abs_azimuth_max": 0.23083142329647532,
+      "abs_elevation_max": 0.16908429779390657
+    }
+  },
+  "completion": {
+    "OPEN": {
+      "steps_completed": 40.0,
+      "seeds_reaching_budget": 8,
+      "refusals_total": 0,
+      "stopped_early": []
+    },
+    "CLOSED": {
+      "steps_completed": 40.0,
+      "seeds_reaching_budget": 8,
+      "refusals_total": 0,
+      "stopped_early": []
+    }
+  }
+}

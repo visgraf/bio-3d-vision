@@ -22,7 +22,7 @@ updated_at: 2026-08-31
 # a current one", which invited exactly that comparison and would have failed
 # after every merge. Staleness is tested per half, in `sequence`, and each half
 # gets the test it can actually pass.
-updated_by_commit: 1508ce0   # the repository state this file describes
+updated_by_commit: db62692   # the repository state this file describes
 
 # ------------------------------------------------------------------------------
 # SEQUENCE — where this project is, and what it plans next
@@ -142,6 +142,23 @@ sequence:
       12: src/bio3dvision/scene_model.py, exp004, fv-012-1..3, bio-027..bio-031
       15: src/bio3dvision/oculomotor.py, fv-016, bio-043..bio-046; fc-009's falsifier 2 answered
     out_of_sequence:
+      - what: >-
+          Step 17c, the closed loop. THE LOOP RUNS. An action changes the sensory
+          data for the first time in either repository, and exp010 measures it
+          against a matched open arm.
+        note: >-
+          Preceded by fc-012, taken alone as its own commit before anything was
+          built: rectify IN THE CAMERA, with a principal-point shift. The shift is
+          part of the decision — composed without it, rectification makes azimuth
+          AND vergence inert and a closed loop would re-render an identical image
+          after every azimuthal saccade.
+          THE SPECIFICATION AS FIRST WRITTEN WAS REJECTED FOR THAT REASON, and the
+          rejection is why fc-012 has the form it does. Recorded because a cold
+          session reading fc-012 should know it was not the first proposal.
+          Outcome (a): fv-020, bio-066..bio-069. Not at discontinuities, and at 41x
+          cost. No foreclosure taken by the experiment itself; od-002 and od-003
+          untouched. Recorded here because a cold session finding fv-020 or
+          bio-063..bio-069 would otherwise have no step to attach them to.
       - what: >-
           exp009, the cost of the epipolar violation. INSERTED BEFORE 17c, and not
           a numbered step. Run because 17a-fix surfaced bio-056 — the matcher
@@ -778,17 +795,44 @@ runs:
         od-003 untouched, no policy changed, no default adopted, no 17c. The
         decision this measured for is the maintainer's.
 
+    - id: exp010_closed_loop
+      question: >-
+        Does re-acquiring beat re-weighting? Two arms differing in exactly one
+        thing: whether the proposed saccade is executed.
+      answer: >-
+        OUTCOME (a). CLOSED beats OPEN in 8/8 seeds on the cells both measure —
+        POOLED median 0.0146 m against 0.0258, x_bar 1.37 — and NOT at depth
+        discontinuities, where both metrics are indistinguishable and AT p90 is
+        nominally worse. The effect is on the smooth interior: MIDDLE p90 x_bar
+        5.70, AWAY median 4.26. Coverage is a separate and larger effect, 0.928 of
+        the belief measured against 0.622. It costs 41x, and it keeps NO cell on
+        the sensor across a whole run.
+      pre_registered: 9468833, committed alone before the runner existed
+      is_instrument_calibration: >-
+        No. This is the question the repository exists to ask, and it is the first
+        time either repository has asked it. Both predecessors built the components
+        and neither ran the loop.
+      changed_no_foreclosure: >-
+        The experiment took none. fc-012 was taken separately and BEFORE it, on
+        exp009's evidence, as its own commit. od-002 and od-003 untouched, no policy
+        changed. gap-001's contrast axis is still absent.
+
   not_present:
     - >-
-      A CLOSED LOOP, still. Step 17b can now render a stereo pair at an arbitrary
-      fixation with per-eye orientations from the oculomotor geometry, and 17a can
-      hold a belief in the head frame — but nothing connects them. No experiment
-      moves an eye, nothing re-renders across fixations, and no measurement is
-      fused after a saccade. 17c is the loop. Step 17a added a head-frame belief with reprojection
-      (belief.py) and controlled it against the image-frame posterior, but nothing
-      rotates an eye, no experiment uses it, and no measurement is fused across
-      fixations. The representation exists before anything depends on it, which is
-      the point; 17b and 17c are where it becomes control.
+      NO LONGER TRUE, AND THIS ENTRY IS KEPT AS A CORRECTED ONE BECAUSE IT WAS THE
+      PROJECT'S DEFINING ABSENCE. It read: "A CLOSED LOOP, still... nothing
+      connects them. No experiment moves an eye, nothing re-renders across
+      fixations, and no measurement is fused after a saccade."
+      THE LOOP RUNS AS OF STEP 17c. exp010 moves the eye, re-renders at each
+      fixation, and fuses across saccades into a persistent head-frame belief. An
+      action changes the sensory data, which had never happened in either
+      repository. See fv-020 and bio-066..bio-069.
+      WHAT IS STILL ABSENT, so this is not read as more than it is: the loop is one
+      policy (greedy argmax variance, no inhibition of return — loop.py DEFECT 3),
+      on one stimulus at one occlusion level, with a foveal weight defined in pixels
+      (fc-009) whose peak does not sit on the target (bio-065), and a vergence
+      estimator that cannot report a sign (fc-010). It helps on the smooth interior
+      and NOT at depth discontinuities.
     - >-
       Geometry IN THE LOOP, though the geometry itself now exists. Step 15
       migrated the oculomotor surface in ray form — fixation distance and point,
@@ -973,6 +1017,27 @@ measurements:
       arms see. Vergence is 0.06 throughout, and bio-056's rows were measured at
       0.03, so the two are not comparable row by row. The d_v residual is at the
       integer quantisation floor, so those correlations are a lower bound.
+
+  - ids: [bio-063, bio-064, bio-065, bio-066, bio-067, bio-068, bio-069]
+    commit: db62692
+    what: >-
+      Step 17c: the option-2 geometry that made a rectified loop possible, the
+      render that pinned Blender's shift_x, where the foveal weight now lands, and
+      exp010 — the closed loop itself, its coverage, its grid-loss budget and its
+      cost.
+    where: docs/inherited-measurements.yaml, status "measured"
+    headline: >-
+      A CLOSED loop beats an OPEN one in 8/8 seeds on the cells both measure —
+      POOLED median 0.0146 m against 0.0258 — and NOT at depth discontinuities,
+      where it is indistinguishable. It measures 0.928 of the belief against 0.622,
+      keeps no cell across a whole run, and costs 41x.
+    caveat: >-
+      ONE STIMULUS AT ONE OCCLUSION LEVEL (8.84%), one policy (greedy argmax
+      variance, no inhibition of return), one budget. Neither arm's fusion accounts
+      for correlation between successive measurements and OPEN's are far more
+      correlated, so part of the gap may be OPEN's fusion being more badly violated
+      rather than CLOSED's data being better; the check changes the arm definition
+      and was not run.
 
 measurements_note: >-
   No longer empty. Values enter this list only when a run in THIS repository
@@ -3091,6 +3156,68 @@ falsifier_verdicts:
       adopted. od-002 and od-003 untouched. THIS ITERATION MEASURED; THE DECISION
       IS THE MAINTAINER'S.
     verified_at_commit: 1508ce0
+
+  - iteration: exp010
+    id: fv-020
+    falsifier: >-
+      Four directions: (a) CLOSED beats OPEN — report the effect WITH its cost, not
+      as a headline; (b) indistinguishable — state what would have to change; (c)
+      CLOSED worse — say WHERE, distinguishing grid loss, vergence drift and
+      accumulated reprojection quantisation; (d) CLOSED cannot be run to completion
+      — report where it fails and at which fixation.
+    verdict: >-
+      (a), IN 8/8 SEEDS, ON THE COMMON CELL SET. Not at depth discontinuities,
+      where it is indistinguishable. (d) did not fire at all. (b) and (c) nowhere.
+    numbers:
+      x_bar: {AT_median: 0.96, AT_p90: 0.14, MIDDLE_median: 2.60, MIDDLE_p90: 5.70, AWAY_median: 4.26, AWAY_p90: 1.78, POOLED_median: 1.37, POOLED_p90: 0.48}
+      pooled_median_m: {OPEN: 0.0258, CLOSED: 0.0146}
+      seeds_favouring_closed_pooled_median: 8
+      ever_measured: {OPEN: 0.622, CLOSED: 0.928}
+      survived_whole_run: {OPEN: 1.000, CLOSED: 0.000}
+      visible_per_fixation_closed: 0.615
+      cost_seconds: {OPEN: 0.62, CLOSED: 25.6}
+      cost_ratio: 41.3
+      vergence_range_closed: [0.0103, 0.0599]
+      refusals: 0
+      seeds_reaching_budget: {OPEN: 8, CLOSED: 8}
+    detail: >-
+      THE FIRST POSITIVE RESULT FOR ACTIVE VISION IN EITHER REPOSITORY, and the
+      first time in either that an action changed the sensory data. Both
+      predecessors built the components for this and neither ran it.
+      THE PREREGISTRATION PREDICTED (c) OR (d) AND WAS WRONG ABOUT BOTH, INCLUDING
+      THE MECHANISM. It named three known-broken parts pointed at the loop at once
+      and expected them to sink it. fc-010's vergence estimator did not wander —
+      CLOSED ran 0.0103-0.0599 and ended at 0.0248, with D_fix never reaching its
+      0.3/10.0 m clip. target_to_fixation refused nothing. 8/8 seeds reached budget
+      in both arms.
+      THE BENEFIT IS NOT AT DEPTH DISCONTINUITIES AND THAT IS HALF THE RESULT. AT is
+      indistinguishable on both metrics and its p90 is the one cell where CLOSED is
+      nominally worse. POOLED p90 is indistinguishable because the AT tail dominates
+      it. So a closed loop helps on the smooth interior and not at the edges —
+      exactly where exp005 and exp008 both located the error, which means the thing
+      it improves is not the thing those experiments found hardest.
+      COVERAGE IS THE LARGER EFFECT AND IS REPORTED SEPARATELY, NOT POOLED IN.
+      CLOSED measures 0.928 of the belief against 0.622, because ActiveStereo.valid
+      excludes the border and the 64-column search margin and a saccade reaches
+      cells one viewpoint CANNOT measure at all. The common set is exactly OPEN's
+      set — it measured nothing outside it — so the accuracy comparison is clean
+      containment and coverage cannot explain it.
+      IT PAYS THE GRID LOSS 17a-fix PRICED AND WINS ANYWAY. Not one cell was on the
+      sensor at all 40 fixations, and 38.5% is off-sensor at an average fixation.
+      The belief is persistent and the lost cells differ each time, so a loop that
+      never holds its whole belief in view still accumulates a better one.
+      THE COST IS 41x AND THE FIRST VERSION OF THAT TABLE WAS WRONG. Timing only
+      ActiveStereo.measurement showed 0.02 s for BOTH arms, because measurement
+      reuses a disparity map CLOSED replaces every saccade. See bio-069: the front
+      end is 2.24 s against 0.05. The loop stays render-bound — 91% render.
+      A CAVEAT THAT THIS EXPERIMENT CANNOT SETTLE, RECORDED RATHER THAN BURIED.
+      Neither arm's fusion accounts for correlation between successive measurements
+      and OPEN's are far more correlated — its 40 measurements come from ONE
+      disparity map. The Kalman fusion assumes independence, so OPEN violates it
+      worse, and an unknown part of the gap may be that rather than better data.
+      NO FORECLOSURE TAKEN. fc-012 was taken separately, before the loop was built.
+      od-002 and od-003 untouched.
+    verified_at_commit: db62692
 
 # ------------------------------------------------------------------------------
 # STANDING CONSTRAINTS

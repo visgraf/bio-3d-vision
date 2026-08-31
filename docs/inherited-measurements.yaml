@@ -3581,7 +3581,7 @@ measurements:
       source: fc-012's only unverified link, pinned before the loop was built
       experiment: null
       run_id: null
-      measured_at_sha: PLACEHOLDER_SHA
+      measured_at_sha: c90c3e0
       environment: {python: 3.13.15, numpy: 2.5.2, scipy: 1.18.1, matplotlib: 3.11.1}
     status: measured
     notes: >-
@@ -3621,7 +3621,7 @@ measurements:
       source: recorded for fc-012's loop, NOT FIXED
       experiment: null
       run_id: null
-      measured_at_sha: PLACEHOLDER_SHA
+      measured_at_sha: c90c3e0
       environment: {python: 3.13.15, numpy: 2.5.2, scipy: 1.18.1, matplotlib: 3.11.1}
     status: measured
     notes: >-
@@ -3647,6 +3647,180 @@ measurements:
       consequence of the TARGET BEING A POINT, not of the weight being in pixels.
       The fix is to aim the weight at the fixation's own image — centre + d/2 in the
       left eye — which needs the vergence estimate the loop already computes.
+
+  - id: bio-066
+    statement: >-
+      A CLOSED loop beats an OPEN one on the cells both measure. The first positive
+      result for active vision in either repository.
+    value:
+      median_abs_err_m: {AT: [0.0310, 0.0171], MIDDLE: [0.0220, 0.0121], AWAY: [0.0155, 0.0110], POOLED: [0.0258, 0.0146]}
+      p90_m: {AT: [0.5003, 0.5311], MIDDLE: [0.1581, 0.0378], AWAY: [0.0545, 0.0322], POOLED: [0.3243, 0.2424]}
+      mean_diff_m: {AT_median: -0.0140, MIDDLE_median: -0.0100, AWAY_median: -0.0046, POOLED_median: -0.0112}
+      bar_m: {AT_median: 0.0146, MIDDLE_median: 0.0038, AWAY_median: 0.0011, POOLED_median: 0.0082}
+      x_bar: {AT_median: 0.96, AT_p90: 0.14, MIDDLE_median: 2.60, MIDDLE_p90: 5.70, AWAY_median: 4.26, AWAY_p90: 1.78, POOLED_median: 1.37, POOLED_p90: 0.48}
+      seeds_favouring_closed: {POOLED_median: 8, MIDDLE_median: 8, AWAY_median: 8, AT_median: 7}
+      common_cell_fraction: 0.622
+    units: m
+    n: {seeds: 8, fixations: 40, arms: 2, cells: 76800}
+    stimulus_family: rendered_chart
+    matcher: block
+    configuration: >-
+      Pairs are [OPEN, CLOSED]. Both arms render RECT+ — rectified with a
+      principal-point shift — and propose identically: argmax posterior variance
+      over the head-frame belief, restricted to cells ActiveStereo.valid can
+      measure, carried through target_to_fixation. CLOSED executes the saccade and
+      re-renders; OPEN does not. Stimulus split_cards(k=4), 8.84% left-occluded.
+      Scored as RANGE from the cyclopean origin against the anchor render's own
+      depth pass, on the intersection of the arms' measured sets. Bands are
+      exp004's. Bar is exp001's, max(sd, 0.02 * mean(OPEN)).
+    provenance:
+      cited_as: visgraf/bio-3d-vision
+      source: exp010, falsifier (a)
+      experiment: exp010_closed_loop
+      run_id: null
+      measured_at_sha: db62692
+      environment: {python: 3.13.15, numpy: 2.5.2, scipy: 1.18.1, matplotlib: 3.11.1}
+    status: measured
+    notes: >-
+      OUTCOME (a), AND THE PRE-REGISTRATION PREDICTED (c) OR (d). It was wrong, and
+      wrong about the mechanism it named: fc-010's vergence estimator did not
+      wander, target_to_fixation refused nothing, and 8/8 seeds reached budget.
+      THE BENEFIT IS NOT AT DEPTH DISCONTINUITIES AND THAT IS HALF THE RESULT. AT is
+      indistinguishable on BOTH metrics, and AT p90 is the one cell where CLOSED is
+      nominally worse (+0.0308, x_bar 0.14, inside the noise). POOLED p90 is
+      indistinguishable because the AT tail dominates it. A closed loop helps on the
+      smooth interior and does not help at the edges — which is exactly where exp005
+      and exp008 both located the error.
+      IN EVERY DISTINGUISHED CELL THE BAR IS THE SEED SD, NOT THE MATERIALITY FLOOR,
+      which is 4-20x smaller throughout. Nothing here is decided by the 2% floor.
+      A CAVEAT THAT CANNOT BE SETTLED BY THIS EXPERIMENT. Neither arm's fusion
+      accounts for correlation between successive measurements, and OPEN's are far
+      more correlated: ActiveStereo.measurement recomputes Zmeas from self.d_sub,
+      which for OPEN NEVER CHANGES, so its 40 measurements come from ONE disparity
+      map and differ only in pedestal and foveal weight. CLOSED's come from 41
+      independently matched pairs. The Kalman fusion assumes independence, so OPEN
+      violates it worse, and an unknown part of CLOSED's advantage may be that
+      rather than better data. The check changes the arm definition and is a
+      different experiment: give OPEN a single fuse and see what survives.
+      bio-065 IS NOT THE EXPLANATION: the foveal peak misses the target by 3.6-21.0
+      px in CLOSED (mean 7.4) against OPEN's fixed 7.6, so the defect is essentially
+      equal between arms.
+
+  - id: bio-067
+    statement: >-
+      Re-acquiring measures 49% more of the belief in relative terms, because a
+      saccade reaches cells one viewpoint cannot measure at all.
+    value:
+      ever_measured_fraction: {OPEN: 0.622, CLOSED: 0.928}
+      common_fraction: 0.622
+      closed_only_fraction: 0.306
+      open_outside_common: 0.000
+      closed_own_set_POOLED: {median_abs_err: 0.0146, p90: 0.2417}
+      open_own_set_POOLED: {median_abs_err: 0.0258, p90: 0.3243}
+    units: fraction
+    n: {seeds: 8, fixations: 40}
+    stimulus_family: rendered_chart
+    matcher: block
+    configuration: >-
+      Fraction of the 76800-cell head-frame belief that received any measurement
+      with non-zero precision during the run. Own-set error figures are over
+      DIFFERENT cell sets and are reported separately per exp003's rule.
+    provenance:
+      cited_as: visgraf/bio-3d-vision
+      source: exp010, the excluded sets
+      experiment: exp010_closed_loop
+      run_id: null
+      measured_at_sha: db62692
+      environment: {python: 3.13.15, numpy: 2.5.2, scipy: 1.18.1, matplotlib: 3.11.1}
+    status: measured
+    notes: >-
+      THE COMMON SET IS EXACTLY OPEN'S SET. OPEN measured nothing outside it
+      (0.000), so bio-066 compares the arms on every cell OPEN reached and on no
+      cell it did not — clean containment, not a negotiated intersection.
+      WHY ONE VIEWPOINT CANNOT REACH THEM: ActiveStereo.valid excludes the image
+      border and the 64-column disparity-search margin (dmax + win + 1), so from a
+      fixed camera those cells are PERMANENTLY unmeasurable. A saccade brings them
+      inside. This is a property of the ported front end, not of the scene.
+      THE TWO OWN-SET FIGURES MUST NOT BE COMPARED TO EACH OTHER. They cross
+      different cell sets; the comparable numbers are bio-066's.
+
+  - id: bio-068
+    statement: >-
+      A closed loop pays 38.5% of its belief per fixation in grid loss, keeps NO
+      cell across a whole run, and wins anyway.
+    value:
+      survived_whole_run: {OPEN: 1.000, CLOSED: 0.000}
+      visible_per_fixation_mean: {OPEN: 1.000, CLOSED: 0.615}
+      visible_per_fixation_min: {OPEN: 1.000, CLOSED: 0.247}
+      max_abs_azimuth_rad: 0.2308
+      max_abs_elevation_rad: 0.1691
+      policy_reach_rad: {azimuth: 0.2240, elevation: 0.1691}
+    units: fraction
+    n: {seeds: 8, fixations: 40}
+    stimulus_family: rendered_chart
+    matcher: block
+    configuration: >-
+      Fraction of belief cells on the sensor at a given fixation, and the fraction
+      on the sensor at EVERY fixation of the run. CLOSED's camera is RECT+ at each
+      proposed fixation; OPEN's never moves.
+    provenance:
+      cited_as: visgraf/bio-3d-vision
+      source: exp010, the grid-loss budget
+      experiment: exp010_closed_loop
+      run_id: null
+      measured_at_sha: db62692
+      environment: {python: 3.13.15, numpy: 2.5.2, scipy: 1.18.1, matplotlib: 3.11.1}
+    status: measured
+    notes: >-
+      NOT ONE CELL SURVIVED ALL 40 FIXATIONS. The loop reached the policy's full
+      reach in both axes — |az| 0.2308 against a half-field of 0.2240, |el| 0.1691
+      against 0.1691 — and bio-063 prices a saccade of that size at 0.436 of the
+      grid gone at once.
+      THE FINDING IS THAT IT DOES NOT MATTER: the belief is persistent and the lost
+      cells are not the same cells each time, so a loop that never holds its whole
+      belief in view still accumulates a better one than a loop that always does.
+      17a-fix's grid-loss numbers were recorded as a cost a closed loop would pay.
+      It pays them, and they are not decisive.
+
+  - id: bio-069
+    statement: >-
+      Closing the loop costs 41x wall clock, and the render is 91% of it.
+    value:
+      renders: {OPEN: 1, CLOSED: 41}
+      render_seconds: {OPEN: 0.57, CLOSED: 23.37}
+      front_end_calls: {OPEN: 1, CLOSED: 41}
+      front_end_seconds: {OPEN: 0.05, CLOSED: 2.24}
+      measurement_seconds: {OPEN: 0.02, CLOSED: 0.02}
+      total_seconds: {OPEN: 0.62, CLOSED: 25.6}
+      ratio: 41.3
+      render_share_of_closed_cost: 0.91
+    units: s
+    n: {seeds: 8, fixations: 40}
+    stimulus_family: rendered_chart
+    matcher: block
+    configuration: >-
+      Per seed, per arm. Render is a cold Blender 5.2.0 LTS subprocess at 0.57 s
+      (bio-062). Front end is ActiveStereo's construction, which runs
+      front_end_block; measurement is ActiveStereo.measurement, which reuses the
+      existing disparity map.
+    provenance:
+      cited_as: visgraf/bio-3d-vision
+      source: exp010, the cost beside outcome (a)
+      experiment: exp010_closed_loop
+      run_id: null
+      measured_at_sha: db62692
+      environment: {python: 3.13.15, numpy: 2.5.2, scipy: 1.18.1, matplotlib: 3.11.1}
+    status: measured
+    notes: >-
+      RECORDED BECAUSE THE FIRST VERSION OF THIS TABLE WAS WRONG AND FLATTERING.
+      Timing only ActiveStereo.measurement showed 0.02 s for BOTH arms, because
+      measurement reuses a disparity map that CLOSED replaces on every saccade. The
+      front-end match is where CLOSED's matcher cost is, and it was missing entirely
+      — 2.24 s against 0.05, a factor of 45 hidden inside a number that read as
+      equal.
+      THE LOOP REMAINS RENDER-BOUND, as bio-062 measured for a different question:
+      the render is 91% of CLOSED's cost, and the whole matcher — front end and
+      measurement together — is 9%.
 
   - id: gap-009
     statement: Nothing inside Blender is covered by any test, so rendered stimuli are the least-verified inputs in the record.
