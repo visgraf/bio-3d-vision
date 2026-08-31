@@ -100,6 +100,12 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
         help="tiled planes in LONGITUDE bands, for the spherical depth falsifier",
     )
     parser.add_argument(
+        "--sphere-textured",
+        action="store_true",
+        help="give the sphere-cards planes a noise texture, so a matcher can run",
+    )
+    parser.add_argument("--sphere-seed", type=int, default=0, help="texture seed")
+    parser.add_argument(
         "--cards",
         type=float,
         nargs="*",
@@ -185,7 +191,9 @@ def make_panoramic(cam_data: object) -> None:
             setattr(cam_data, attr, value)
 
 
-def build_sphere_calibration_scene(distances: list[float], res: tuple[int, int]) -> None:
+def build_sphere_calibration_scene(
+    distances: list[float], res: tuple[int, int], textured: bool = False, seed: int = 0
+) -> None:
     """Fronto-parallel planes at known distances, each in its own LONGITUDE band.
 
     The spherical counterpart of :func:`build_calibration_scene`, and it carries
@@ -208,10 +216,12 @@ def build_sphere_calibration_scene(distances: list[float], res: tuple[int, int])
     _reset_to_camera_only()
     ordered = sorted(distances)
     span = 2.0 * math.pi / len(ordered)
-    gap = span * 0.10
-    # Half-angle each plane must cover in longitude, and in latitude.
+    gap = span * 0.05
+    # Half-angle each plane must cover in longitude, and in latitude. Wide enough
+    # that most of the sphere carries geometry: an experiment whose premise is a
+    # COMPLETE capture should not score a small patch of one.
     half_lon = (span - 2.0 * gap) / 2.0
-    half_lat = math.radians(35.0)
+    half_lat = math.radians(58.0)
 
     for i, z in enumerate(ordered):
         centre_lon = -math.pi + span * (i + 0.5)
@@ -236,9 +246,23 @@ def build_sphere_calibration_scene(distances: list[float], res: tuple[int, int])
         nodes.clear()
         emission = nodes.new("ShaderNodeEmission")
         emission.inputs["Strength"].default_value = 1.0
-        emission.inputs["Color"].default_value = (0.2 + 0.2 * i, 0.5, 0.8, 1.0)
         output = nodes.new("ShaderNodeOutputMaterial")
-        material.node_tree.links.new(emission.outputs["Emission"], output.inputs["Surface"])
+        links = material.node_tree.links
+        if textured:
+            # HIGH-FREQUENCY EMISSIVE TEXTURE, so a block matcher has something to
+            # match. Emission and not diffuse: the depth pass must not depend on
+            # lighting, and neither should the intensity a matcher reads.
+            noise = nodes.new("ShaderNodeTexNoise")
+            noise.inputs["Scale"].default_value = 55.0 + 7.0 * i
+            noise.inputs["Detail"].default_value = 8.0
+            if "W" in noise.inputs:
+                noise.inputs["W"].default_value = float(seed) * 13.0 + i
+            coord = nodes.new("ShaderNodeTexCoord")
+            links.new(coord.outputs["Object"], noise.inputs["Vector"])
+            links.new(noise.outputs["Fac"], emission.inputs["Color"])
+        else:
+            emission.inputs["Color"].default_value = (0.2 + 0.2 * i, 0.5, 0.8, 1.0)
+        links.new(emission.outputs["Emission"], output.inputs["Surface"])
         plane.data.materials.append(material)
 
 
@@ -826,7 +850,9 @@ def main() -> None:
         # the two scenes would silently stop being the same scene.
         lens = float(params["f_px"]) * SENSOR_WIDTH_MM / res[0]
     elif args.sphere_cards:
-        build_sphere_calibration_scene(list(args.sphere_cards), res)
+        build_sphere_calibration_scene(
+            list(args.sphere_cards), res, textured=args.sphere_textured, seed=args.sphere_seed
+        )
     elif args.cards:
         build_calibration_scene(list(args.cards), res)
 
