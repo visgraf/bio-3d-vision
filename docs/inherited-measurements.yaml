@@ -2549,6 +2549,122 @@ measurements:
       a re-export, and fc-003 makes Blender the only rendered source, so an
       analytic toed-in forward model has nothing to serve here.
 
+  - id: bio-047
+    statement: >-
+      With the eyes held fixed, a head-frame belief with reprojection reproduces the
+      image-frame posterior bit-identically across every experiment's arms.
+    value:
+      configurations_checked: 34
+      arrays_compared: {mean: true, var: true}
+      divergences: 0
+      comparison: np.array_equal
+    units: count
+    n: {experiments: 5, arms: 8, seeds: 2, stimuli: 2}
+    stimulus_family: analytic_fixture
+    matcher: block
+    configuration: >-
+      Both beliefs receive the same measurement and precision fields from
+      ActiveStereo.measurement at every step; one fuses in image coordinates, the
+      other reprojects into the head frame first. exp001 A/A'/B/C at 18 steps,
+      exp002 A'/C/D/E at 40, exp003 W and V at 18, exp007 A/A'/D/E at 18, exp008
+      A'/D/E at 40 on RENDERED stimuli at occlusion levels k=1 and k=4. TWO SEEDS
+      per configuration, not the full seed sets.
+    provenance:
+      cited_as: visgraf/bio-3d-vision
+      source: tests/test_head_frame_belief.py, plus a control script over all five configurations
+      experiment: null
+      run_id: null
+      measured_at_sha: e83cfc3
+      environment: {python: 3.13.15, numpy: 2.5.2, scipy: 1.18.1, matplotlib: 3.11.1}
+    status: measured
+    notes: >-
+      FALSIFIER 1: BIT-EXACT. Every arm of all five experiments, including the
+      expensive B and C and the window arms W and V, and on rendered as well as
+      analytic stimuli.
+      IT IS BIT-EXACT STRUCTURALLY, NOT NUMERICALLY. At the origin fixation each
+      cell resolves to the index it came from, because index(direction(i)) is
+      exact on this lattice over all 76800 indices (bio-043). So the gather is the
+      identity MAP and no tolerance is involved anywhere.
+      WHAT WAS RE-RUN AND WHAT WAS NOT: all five experiments' ARM CONFIGURATIONS
+      were re-run; their full SEED SETS were not — two seeds each against 8 or 16.
+      The control is about the fusion path, which is seed-independent; seeds vary
+      the scanpath, and 34 distinct scanpaths were checked. That is the honest
+      scope and it is less than "every arm of every experiment re-run".
+
+  - id: bio-048
+    statement: >-
+      The head frame is not the image frame by construction: under an 8.6 degree
+      elevation change every cell resolves to a different index.
+    value:
+      rotation_deg: 8.59
+      cells_whose_index_moved: 1.000
+      max_index_shift_px: 112
+      cells_visible_after_rotation: 0.556
+      reprojected_max_error_cells: 0.48
+      not_reprojected_max_error_cells: 101.5
+      improvement_ratio: 210
+    units: mixed
+    n: {runs: 1, seed: 0}
+    stimulus_family: analytic_fixture
+    matcher: none
+    configuration: >-
+      Origin fixation elevation 0.20 rad, rotated to 0.35. A field defined as a
+      known function of the HEAD-FRAME direction (the cell's own y-component) is
+      evaluated in the rotated image frame, gathered back, and compared against
+      the direction-defined truth. Cell size is 1/f_px = 1/700 rad.
+    provenance:
+      cited_as: visgraf/bio-3d-vision
+      source: tests/test_head_frame_belief.py::test_a_synthetic_rotation_reprojects_a_known_scene_correctly
+      experiment: null
+      run_id: null
+      measured_at_sha: e83cfc3
+      environment: {python: 3.13.15, numpy: 2.5.2, scipy: 1.18.1, matplotlib: 3.11.1}
+    status: measured
+    notes: >-
+      FALSIFIER 4, THE ONE THE CONTROL CANNOT CATCH. A head frame that is the image
+      frame passes the fixed-eye control and is worthless, so the reprojection is
+      checked on a rotation no experiment applies.
+      It does real work: 100% of cells move, by up to 112 px, and the reprojected
+      field recovers direction-defined ground truth to 0.48 of a cell against
+      101.5 cells for not reprojecting — a factor of 210. The residual is angular
+      quantisation, which is what nearest-neighbour costs.
+      HONEST QUALIFICATION: the DISCRETISATION does coincide with the image lattice
+      at the origin fixation — cell density is the sensor's. What makes this not
+      outcome 4 is that a cell is a DIRECTION, so a rotation moves samples relative
+      to cells; if the frame were the image frame, nothing would move. The 100%
+      figure is the evidence, not the design intent.
+
+  - id: bio-049
+    statement: >-
+      A purely azimuthal gaze change reprojects nothing: the rectified frame is
+      azimuth-invariant by construction.
+    value: {azimuth_0_to_0p7_rad: identical_indices, elevation_0p20_to_0p35: 8.59_deg_rotation}
+    units: null
+    n: {runs: 1}
+    stimulus_family: analytic_fixture
+    matcher: none
+    configuration: >-
+      rectification_rotation(Fixation(az, el, mu)) compared across azimuth at fixed
+      elevation and across elevation at fixed azimuth.
+    provenance:
+      cited_as: visgraf/bio-3d-vision
+      source: tests/test_head_frame_belief.py::test_azimuth_alone_reprojects_nothing
+      experiment: null
+      run_id: null
+      measured_at_sha: e83cfc3
+      environment: {python: 3.13.15, numpy: 2.5.2, scipy: 1.18.1, matplotlib: 3.11.1}
+    status: measured
+    notes: >-
+      A REAL LIMITATION OF THIS OPERATOR, measured rather than assumed, and one a
+      reader would otherwise assume away. rectification_rotation zeroes azimuth by
+      construction — under Helmholtz composition the plane of regard is the
+      elevated plane for every azimuth — so the rectified frame does not rotate
+      with azimuth and the head grid, tied to it, reprojects nothing under a purely
+      azimuthal saccade.
+      Whether the grid should track GAZE rather than the RECTIFIER is a decision
+      17b has to take, and it is recorded here so that 17b confronts it rather
+      than discovering it.
+
   # ==============================================================================
   # GAPS — measurements that were NOT made, and whose absence is load-bearing.
   # ==============================================================================

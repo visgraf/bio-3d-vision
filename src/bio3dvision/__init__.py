@@ -15,6 +15,7 @@ something needs it. Recorded as ``fc-002`` in ``docs/state.yaml``.
 """
 
 from bio3dvision.baseline import BaselineRun, error_summary, run_baseline
+from bio3dvision.belief import HEAD_FRAME, HeadFrameBelief
 from bio3dvision.blender_load import (
     infer_depth_convention,
     load_render,
@@ -63,6 +64,8 @@ __all__ = [
     "EyeRotations",
     "Fixation",
     "FixationProposal",
+    "HEAD_FRAME",
+    "HeadFrameBelief",
     "PanelArrays",
     "PinholeSampling",
     "RECTIFIED_LEFT_CAMERA",
