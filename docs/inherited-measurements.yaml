@@ -3552,6 +3552,102 @@ measurements:
       vergence 0.03 and 112.2 px at 0.16 — out of that window on its own at
       vergence 0.10 and beyond.
 
+  - id: bio-064
+    statement: >-
+      Blender's ``shift_x`` is in units of the render's LARGER dimension. Pinned by
+      render, three ways, to 0.089 px.
+    value:
+      unit: width_for_a_landscape_sensor
+      formula: shift_x = f_px * tan(azimuth) / W
+      sign: positive_moves_imaged_content_left
+      max_residual_px: 0.089
+      azimuths_deg: [0.0, 5.0, 10.0, 12.83]
+      distances_m: [1.083, 3.0, 6.0]
+      wrong_unit_delta_over_H_error_px: -33.5
+      wrong_sign_result: marker_leaves_the_sensor
+      shift_y_0p1_moves_row_px: 32.02
+    units: px
+    n: {renders: 12}
+    stimulus_family: rendered_chart
+    matcher: none
+    configuration: >-
+      One emissive marker at a known head-frame direction on a black world,
+      rendered through RECTIFIED cameras — which cannot rotate to that direction —
+      with shift_x = f*tan(az)/W. Column measured by intensity centroid. The
+      prediction carries the LEFT EYE'S PARALLAX, f*(b/2)/distance, which is not
+      part of the shift. Blender 5.2.0 LTS, Cycles, 16 samples, 320x240, f_px 700.
+    provenance:
+      cited_as: visgraf/bio-3d-vision
+      source: fc-012's only unverified link, pinned before the loop was built
+      experiment: null
+      run_id: null
+      measured_at_sha: PLACEHOLDER_SHA
+      environment: {python: 3.13.15, numpy: 2.5.2, scipy: 1.18.1, matplotlib: 3.11.1}
+    status: measured
+    notes: >-
+      PINNED BECAUSE THE FAILURE MODE IS SILENT — the same shape as the File Output
+      node that completed successfully and wrote nothing (bio-024's neighbourhood).
+      A wrong unit here would not raise; it would render a plausible image of the
+      wrong part of the scene, and every number downstream would be about that.
+      THE UNIT IS DISCRIMINATED, NOT MERELY CONSISTENT. delta/H lands 33.5 px away,
+      and shift_y = 0.1 moves the row by 32.02 px = 0.1 * W and NOT 0.1 * H = 24,
+      so BOTH axes are in units of the width. The wrong sign leaves the sensor
+      entirely rather than landing near, so it cannot pass by luck.
+      A 7.6 px OFFSET AT 3 m IS NOT A SHIFT ERROR. It is f*(b/2)/distance, the left
+      eye's parallax on a finite-distance marker, and reading it as an error was the
+      first thing this measurement got wrong. With it in the prediction the residual
+      is 0.089 px at worst and 0.001 px at the fixation distance.
+
+  - id: bio-065
+    statement: >-
+      Under the common shift the fixation POINT images half a disparity from the
+      sensor centre, so the foveal Gaussian is aimed at the gaze DIRECTION and the
+      target sits off its peak.
+    value:
+      offset_px_by_vergence: {0.02: 7.00, 0.03: 10.50, 0.06: 21.01, 0.09: 31.52, 0.10: 35.03, 0.16: 56.12}
+      offset_in_sigma: {0.03: 0.31, 0.06: 0.62, 0.10: 1.03, 0.16: 1.65}
+      foveal_weight_at_the_target: {0.03: 0.953, 0.06: 0.826, 0.10: 0.588, 0.16: 0.256}
+      fovea_sigma_px: 34.0
+      fovea_sigma_deg: 2.78
+    units: px
+    n: {vergences: 6}
+    stimulus_family: analytic_fixture
+    matcher: none
+    configuration: >-
+      offset = f_px * baseline / (2 * fixation_distance), the half-disparity of the
+      fixation. fovea_sigma is ActiveStereo's default, 34.0 px, unchanged.
+    provenance:
+      cited_as: visgraf/bio-3d-vision
+      source: recorded for fc-012's loop, NOT FIXED
+      experiment: null
+      run_id: null
+      measured_at_sha: PLACEHOLDER_SHA
+      environment: {python: 3.13.15, numpy: 2.5.2, scipy: 1.18.1, matplotlib: 3.11.1}
+    status: measured
+    notes: >-
+      STATED BESIDE THE EXISTING KNOWN-BROKEN NOTE AND DELIBERATELY NOT FIXED. The
+      foveal weight is a Gaussian in ROW AND COLUMN and the vergence window is a
+      square in pixels; fc-009 already records that an angular foveal weight is
+      step 17/18 work. THIS IS A SECOND, SEPARATE THING and it is new with the
+      shift: the shift centres the gaze DIRECTION, while the thing the loop is
+      looking AT is a point at finite range, which images at +/- d/2 about that
+      centre — LEFT EYE POSITIVE.
+      WHY IT IS RECORDED RATHER THAN FIXED: a misaimed foveal accumulation would
+      read as a result. At vergence 0.06 the target sits 21 px off the Gaussian's
+      peak, 0.62 sigma, and still collects 83% weight — small enough to look like
+      the loop simply not helping much, which is the exact ambiguity that has now
+      been recorded three times in this repository under different names.
+      IT IS NOT CONSTANT ACROSS THE SWEEP, WHICH IS WHAT MAKES IT DANGEROUS. At
+      vergence 0.03 the target keeps 95% of the weight; at 0.16 it keeps 26%. A
+      loop whose vergence moves therefore has a foveal weight whose aim degrades
+      with the state, so an arm that verges nearer is penalised by the apparatus
+      and not by its policy.
+      WHAT AN ANGULAR FOVEAL WEIGHT WOULD CHANGE: nothing about this. Centring on
+      the direction is correct for an angular weight too; the offset is a
+      consequence of the TARGET BEING A POINT, not of the weight being in pixels.
+      The fix is to aim the weight at the fixation's own image — centre + d/2 in the
+      left eye — which needs the vergence estimate the loop already computes.
+
   - id: gap-009
     statement: Nothing inside Blender is covered by any test, so rendered stimuli are the least-verified inputs in the record.
     value: null
