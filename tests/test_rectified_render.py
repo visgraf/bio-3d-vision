@@ -297,3 +297,76 @@ def test_B0_the_rectified_path_reproduces_the_recorded_render_bit_identically(
         assert np.array_equal(outputs["baseline"][i], outputs["rectified"][i]), (
             f"{what} differs at Fixation(0, 0, 0); the composition is wrong"
         )
+
+
+# ---------------------------------------------------------------------------
+# The rotation and the sampling are a PAIR. Half of it reproduces 17a's fault.
+# ---------------------------------------------------------------------------
+def _rect_orientation(rig: StereoRig, fixation: Fixation, k: float) -> np.ndarray:
+    return np.asarray(rectification_rotation(fixation))
+
+
+def _belief(shift_col: float):
+    from bio3dvision.belief import HeadFrameBelief
+    from bio3dvision.sampling import PinholeSampling
+
+    sampling = PinholeSampling((H, W), F_PX, principal_point=(CENTRE_ROW, CENTRE_COL - shift_col))
+    belief = HeadFrameBelief.from_sampling(
+        PinholeSampling((H, W), F_PX),
+        Fixation(0.0, 0.0, 0.06),
+        RIG,
+        orientation=_rect_orientation,
+    )
+    return belief, sampling
+
+
+def test_a_rectified_belief_carries_azimuth_through_the_principal_point() -> None:
+    """The rectifier zeroes azimuth. The SHIFT is what puts it back."""
+    saccade = Fixation(0.15, 0.0, 0.06)
+    _row, col = gaze_shift_px(RIG, saccade, F_PX)
+    belief, shifted = _belief(col)
+    anchor_index, _ = belief.reproject(Fixation(0.0, 0.0, 0.06), _belief(0.0)[1])
+    moved_index, moved_visible = belief.reproject(saccade, shifted)
+    assert moved_visible.any(), "the saccade must leave some cell on the sensor"
+    changed = (anchor_index != moved_index).any(axis=-1) & moved_visible
+    # EVERY cell still on the sensor must have moved, not most of them. The shift
+    # at this amplitude is 106 px, so a cell that did not move is a cell the
+    # reprojection did not carry. Cells that LEFT the sensor are excluded — they
+    # are grid loss, which bio-063 measures separately.
+    assert int(changed.sum()) == int(moved_visible.sum())
+    assert moved_visible.mean() == pytest.approx(1.0 - col / W, abs=0.01)
+
+
+def test_the_same_rotation_with_a_CENTRED_sampling_reproduces_17a_s_fault() -> None:
+    """Deliberate: the pairing is load-bearing, and half of it is the old bug.
+
+    17a routed reprojection through ``rectification_rotation`` with a centred
+    sampling, and a purely azimuthal saccade then reprojected NOTHING while the
+    world direction each cell viewed moved by the full amplitude. This asserts
+    that failure still happens with the wrong half, so the passing test above is
+    evidence about the shift rather than about the rotation.
+    """
+    belief, centred = _belief(0.0)
+    anchor_index, _ = belief.reproject(Fixation(0.0, 0.0, 0.06), centred)
+    moved_index, _ = belief.reproject(Fixation(0.15, 0.0, 0.06), centred)
+    assert np.array_equal(anchor_index, moved_index), (
+        "without the shift the rectified reprojection is azimuth-blind — that is "
+        "the fault 17a-fix removed, and it is what the shift replaces"
+    )
+
+
+def test_the_belief_anchor_follows_the_orientation_it_is_given() -> None:
+    """A grid built in one camera's frame and read in another's is bio-063's 1.72 deg."""
+    from bio3dvision.belief import HeadFrameBelief
+    from bio3dvision.sampling import PinholeSampling
+
+    sampling = PinholeSampling((H, W), F_PX)
+    anchor = Fixation(0.0, 0.0, 0.06)
+    toed = HeadFrameBelief.from_sampling(sampling, anchor, RIG)
+    rect = HeadFrameBelief.from_sampling(sampling, anchor, RIG, orientation=_rect_orientation)
+    assert not np.allclose(toed.directions, rect.directions)
+    centre = (H // 2, W // 2)
+    angle = np.degrees(
+        np.arccos(np.clip(float(toed.directions[centre] @ rect.directions[centre]), -1, 1))
+    )
+    assert angle == pytest.approx(np.degrees(0.06 / 2), abs=0.02), "half the vergence"

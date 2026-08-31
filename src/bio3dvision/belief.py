@@ -110,6 +110,7 @@ advance.
 
 from __future__ import annotations
 
+from collections.abc import Callable
 from dataclasses import dataclass
 from typing import Any
 
@@ -168,7 +169,31 @@ class HeadFrameBelief:
     k: float = K_LISTING_DEFAULT
     eye: str = "left"
 
+    #: **Which camera this belief reprojects through.** ``None`` means
+    #: :func:`eye_rotations`, the toed-in path, which is what 17a-fix established
+    #: and what every earlier measurement used.
+    #:
+    #: fc-012's loop renders a RECTIFIED pair, whose head-frame orientation is
+    #: :func:`rectification_rotation` — and that function **zeroes azimuth**, which
+    #: is precisely the fault 17a-fix removed. It is correct here for a reason that
+    #: must be stated because it looks like the fault returning: **the azimuth is
+    #: carried by the principal point instead of by the rotation.** A rectified
+    #: camera cannot rotate to an eccentric gaze; it slides its sensor window, so
+    #: the gaze enters through ``sampling``'s principal point. The rotation and the
+    #: sampling are therefore a PAIR, and using this rotation with a centred
+    #: sampling reproduces 17a's fault exactly. ``tests/test_head_frame_belief.py``
+    #: asserts both halves.
+    orientation: Callable[[StereoRig, Fixation, float], FloatArray] | None = None
+
     frame: str = HEAD_FRAME
+
+    def _orientation(self, fixation: Fixation) -> FloatArray:
+        """This eye's head-frame orientation at ``fixation``, head <- eye."""
+        if self.orientation is not None:
+            return np.asarray(self.orientation(self.rig, fixation, self.k), dtype=np.float64)
+        return np.asarray(
+            getattr(eye_rotations(self.rig, fixation, k=self.k), self.eye), dtype=np.float64
+        )
 
     @classmethod
     def from_sampling(
@@ -180,6 +205,7 @@ class HeadFrameBelief:
         prior_std: float = 3.0,
         k: float = K_LISTING_DEFAULT,
         eye: str = "left",
+        orientation: Callable[[StereoRig, Fixation, float], FloatArray] | None = None,
     ) -> HeadFrameBelief:
         """Build a belief whose cells are ``sampling``'s directions at ``reference``.
 
@@ -199,7 +225,15 @@ class HeadFrameBelief:
         # The ANCHOR: this eye's orientation at the origin fixation. Carrying the
         # sensor directions through it defines the head frame BY that fixation,
         # which is what keeps the reprojection an exact identity there.
-        anchor = np.asarray(getattr(eye_rotations(rig, reference, k=k), eye), dtype=np.float64)
+        # The ANCHOR TAKES THE SAME ORIENTATION AS THE REPROJECTION, or the grid
+        # is built in one camera's frame and read in another's. bio-063 measures
+        # the gap that would open: the toed-in left eye sits 1.72 deg outside the
+        # cyclopean gaze at vergence 0.06.
+        anchor = (
+            np.asarray(orientation(rig, reference, k), dtype=np.float64)
+            if orientation is not None
+            else np.asarray(getattr(eye_rotations(rig, reference, k=k), eye), dtype=np.float64)
+        )
         directions = sampling.direction(index) @ anchor.T
         return cls(
             directions=np.asarray(directions, dtype=np.float64),
@@ -210,6 +244,7 @@ class HeadFrameBelief:
             anchor_rotation=anchor,
             k=k,
             eye=eye,
+            orientation=orientation,
         )
 
     @property
@@ -233,9 +268,7 @@ class HeadFrameBelief:
         nothing while the world direction each cell viewed moved by the full
         saccade amplitude. Cells then fused measurements of unrelated directions.
         """
-        current = np.asarray(
-            getattr(eye_rotations(self.rig, fixation, k=self.k), self.eye), dtype=np.float64
-        )
+        current = self._orientation(fixation)
         # The RELATIVE rotation, anchor -> current. Exactly the identity at the
         # anchor, which is what preserves the fixed-eye control.
         head_to_eye = current.T
@@ -247,14 +280,17 @@ class HeadFrameBelief:
     def world_direction(self, index: Any, fixation: Fixation, sampling: Any) -> FloatArray:
         """The head-frame direction a sensor sample views at ``fixation``.
 
-        Computed straight from ``eye_rotations``, deliberately NOT through
+        Computed straight from the orientation, deliberately NOT through
         :meth:`reproject`. It is the independent side of the invariance test: a
         cell must keep viewing the same world direction across a saccade, and
         checking that with the operator under test would prove nothing.
+
+        **Independent of the operator, not of the camera.** It must describe the
+        SAME camera :meth:`reproject` does, or the invariance test compares two
+        different rigs and passes or fails for reasons that have nothing to do
+        with the reprojection.
         """
-        rotation = np.asarray(
-            getattr(eye_rotations(self.rig, fixation, k=self.k), self.eye), dtype=np.float64
-        )
+        rotation = self._orientation(fixation)
         return np.asarray(sampling.direction(np.asarray(index, dtype=np.float64)) @ rotation.T)
 
     def gather(
