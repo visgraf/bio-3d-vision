@@ -26,6 +26,7 @@ from collections.abc import Iterator
 from typing import Any
 
 import numpy as np
+from scipy import stats
 
 HERE = pathlib.Path(__file__).parent
 REPO = HERE.resolve().parents[1]
@@ -334,6 +335,15 @@ def rescore() -> list[dict[str, Any]]:
                     "seeds_favouring_lower": favouring,
                     "seeds_nonzero": n_nonzero,
                     "sign_test_p": p,
+                    "sign_significant": bool(p < 0.05),
+                    # WHAT THE se THRESHOLD ACTUALLY IS, as a test. |mean| > sd/sqrt(n)
+                    # is t > 1, and t > 1 is not a significance test at any
+                    # conventional level — it is p ~ 0.33 two-sided. Recorded per
+                    # comparison so the disagreement set cannot be read as
+                    # "45 nulls that were real".
+                    "se_threshold_two_sided_p": float(2 * stats.t.sf(1.0, n - 1))
+                    if n > 1
+                    else float("nan"),
                     "recorded_verdict_matches": bool(rec["distinguishable"] == dist_sd),
                 }
             )

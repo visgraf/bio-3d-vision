@@ -3938,6 +3938,11 @@ measurements:
       AT is distinguishable at k1 (1.60) and k8 (1.18), so "not at discontinuities"
       is not a level-independent statement and this entry should not be cited as
       one.
+      AND ANNOTATED BY bio-076, WHICH IS THE STRONGER CORRECTION: the AT effect is
+      present at EVERY level in 23-24 of 24 seeds, p = 3e-6. "Not at
+      discontinuities" was a statement about effect size relative to the AT band's
+      large seed-to-seed spread, and it was read as a statement about existence. Do
+      not cite this entry as evidence that the closed loop fails at discontinuities.
 
   - id: bio-067
     statement: >-
@@ -4168,6 +4173,11 @@ measurements:
       does not help at discontinuities" is NOT a level-independent statement, and
       exp010 happened to measure the level where the AT case is weakest. AWAY goes
       the other way and loses distinguishability at k8 (0.97).
+      SUPERSEDED AS A READING BY bio-076, THOUGH THE NUMBERS STAND. Named with the
+      sign test, the AT effect is present at ALL FOUR levels in 23-24 of 24 seeds
+      (p = 3e-6), and the k8 AWAY null is 21 of 24 (p = 2.8e-04). The x_bar column
+      here measures effect size against the band's own spread and says nothing
+      about whether the effect exists.
 
   - id: bio-072
     statement: >-
@@ -4407,6 +4417,55 @@ measurements:
       exp004's own argument, repeated on the four occlusion levels that inherited
       it. met-011's prior needs only that bio-072's coverage figure be restated
       against a prior-free baseline.
+
+  - id: bio-076
+    statement: >-
+      Closing the loop helps at depth discontinuities at EVERY occlusion level, in
+      23-24 of 24 seeds. Two of the four levels recorded it as "indistinguishable".
+    value:
+      band: AT
+      by_level:
+        k1: {mean_diff_m: -0.00824, x_bar_sd: 1.60, seeds: "24/24", sign_test_p: 1.19e-07, recorded: distinguishable}
+        k2: {mean_diff_m: -0.00670, x_bar_sd: 0.80, seeds: "23/24", sign_test_p: 2.98e-06, recorded: INDISTINGUISHABLE}
+        k4: {mean_diff_m: -0.01864, x_bar_sd: 0.91, seeds: "23/24", sign_test_p: 2.98e-06, recorded: INDISTINGUISHABLE}
+        k8: {mean_diff_m: -0.01856, x_bar_sd: 1.18, seeds: "23/24", sign_test_p: 2.98e-06, recorded: distinguishable}
+      direction_consistent_at_every_level: true
+      also_AWAY_k8: {x_bar_sd: 0.97, seeds: "21/24", sign_test_p: 2.77e-04, recorded: INDISTINGUISHABLE}
+    units: m
+    n: {seeds: 24, levels: 4}
+    stimulus_family: rendered_chart
+    matcher: block
+    configuration: >-
+      exp011's stored per-seed differences, CLOSED minus OPEN on the common cell
+      set, AT band (<=10 px of a depth discontinuity, exp004's threshold). Sign
+      test is exact two-sided binomial on the per-seed differences. No re-run.
+    provenance:
+      cited_as: visgraf/bio-3d-vision
+      source: exp012, re-reading exp011 with the sign test named
+      experiment: exp012_bar_reanalysis
+      run_id: null
+      measured_at_sha: c02369c
+      environment: {python: 3.13.15, numpy: 2.5.2, scipy: 1.18.1, matplotlib: 3.11.1}
+    status: measured
+    notes: >-
+      THIS IS THE LOAD-BEARING NULL THAT ACTUALLY MOVED, AND IT IS NOT fc-007.
+      exp011's AT band was recorded as "indistinguishable" at k2 and k4 and read as
+      "the closed loop does not help at discontinuities". THE DIRECTION IS
+      CONSISTENT AT EVERY ONE OF THE FOUR LEVELS, 23-24 seeds of 24, p = 3e-6.
+      WHAT THE NULL ACTUALLY SAID: the effect at k2 and k4 is smaller than the
+      seed-to-seed spread of the AT band, whose sd is 3.8x MIDDLE's and 13.5x
+      AWAY's (bio-070). That is a statement about EFFECT SIZE RELATIVE TO SCENE
+      VARIATION. It was read as a statement about EXISTENCE, and those differ.
+      IT MATTERS BECAUSE IT IS THE FRAMEWORK'S ORIGINAL MOTIVATION. Active vision
+      was expected to help most where the geometry is hardest — at occlusion
+      boundaries. bio-066 and bio-071 both report "not at discontinuities", and
+      bio-071 already qualified it as not level-independent. The sign test says the
+      help is there at every level; only its size relative to AT's spread varies.
+      NOT A REVERSAL OF bio-066 OR bio-071. Their verdicts were correct under the
+      criterion in force and remain on record. What changes is the READING, and
+      both entries are annotated rather than rewritten.
+      THE AWAY BAND AT k8 IS THE SAME SHAPE: 21 of 24 seeds, p = 2.8e-04, recorded
+      as indistinguishable at 0.97x.
 
   - id: gap-009
     statement: Nothing inside Blender is covered by any test, so rendered stimuli are the least-verified inputs in the record.

@@ -4,12 +4,70 @@
 No runs, no renders. 353 comparisons across 10 experiments.
 
 **Which falsifiers occurred: (c), narrowly. (d) did not, and could not.**
-(a) and (b) did not — the disagreement set is neither empty nor peripheral, but
-it is far smaller in consequence than in size.
 
-**Exactly one foreclosure rests on a comparison that moved: fc-007, on one of its
-two primary metrics. fc-008 and fc-010 were checked comparison by comparison and
-are unaffected.**
+---
+
+## The finding: a null that should never have been read as absence
+
+**Closing the loop helps at depth discontinuities. At every occlusion level. In
+23–24 of 24 seeds. Two of the four levels recorded it as "indistinguishable".**
+
+| level | mean_diff | x̄ sd | seeds favouring CLOSED | sign test | recorded as |
+|---|---|---|---|---|---|
+| k1 | −0.00824 | 1.60 | 24/24 | 1.19e−07 | distinguishable |
+| **k2** | −0.00670 | **0.80** | **23/24** | **2.98e−06** | **INDISTINGUISHABLE** |
+| **k4** | −0.01864 | **0.91** | **23/24** | **2.98e−06** | **INDISTINGUISHABLE** |
+| k8 | −0.01856 | 1.18 | 23/24 | 2.98e−06 | distinguishable |
+
+**This is the framework's original motivation, and it was on record as an
+absence.** Active vision was expected to help most where the geometry is hardest.
+bio-066 and bio-071 both report "not at discontinuities"; exp010's findings led
+with it as "half the result".
+
+**What the null actually said** is that at k2 and k4 the effect is smaller than
+the seed-to-seed spread of the AT band — whose sd is 3.8× MIDDLE's and 13.5×
+AWAY's (bio-070). That is a statement about **effect size relative to scene
+variation**. It was read as a statement about **existence**.
+
+The same shape appears in AWAY at k8: 21 of 24 seeds, p = 2.8e−04, recorded as
+indistinguishable at 0.97×.
+
+**Nothing is reversed.** bio-066 and bio-071 were correct under the criterion in
+force and stay on record; both are annotated. Recorded as **bio-076**.
+
+---
+
+## Three criteria, named — which is the fix for the defect that produced this
+
+| criterion | question |
+|---|---|
+| **sd** | does the effect exceed scene-to-scene variation? *Would this reliably help on a new scene?* |
+| **sign test** | is there an effect at all? *Is the direction consistent?* |
+| **materiality** | is it large enough to act on? |
+
+A single unnamed threshold, answering whichever question the reader had in mind,
+is what went wrong in the first place. All three are now reported side by side.
+
+## The se bar is not a significance test — a correction to the specification
+
+`|mean| > sd/sqrt(n)` is **t > 1**. As a two-sided p that is:
+
+| n | 4 | 8 | 16 | 24 | ∞ |
+|---|---|---|---|---|---|
+| P(\|T\| > 1) | 0.391 | 0.351 | 0.333 | 0.328 | 0.317 |
+
+**No conventional level anywhere.** It is not a weaker sd bar; it is not a test.
+
+> **So the disagreement set of 45 is "where two non-tests disagree", not "45 nulls
+> that were real."**
+
+**Of the 45, ELEVEN pass an exact two-sided sign test at p < 0.05; thirty-four do
+not.** (Verified independently before recording.) And every one of the eleven
+either *is* the AT/AWAY finding above or points the **same way** as the
+foreclosure it neighbours — none threatens anything.
+
+This section corrects how the first version of this report was written, not the
+numbers in it.
 
 ---
 
@@ -36,6 +94,8 @@ disagree with the ledger by having computed something differently.
 | distinguishable under se | 302 |
 | nulls under sd | 96 |
 | **disagreement set** | **45** — 46.9% of nulls |
+| **of those, passing a sign test (p < 0.05)** | **11** |
+| of those, failing it | 34 |
 | positives that flipped | **0** |
 | agreement | **308 / 353 = 87.3%** |
 
@@ -65,7 +125,9 @@ throughout and it contributes 13 of the 45 on its own.
 
 ## Part B — what the disagreement set costs the ledger
 
-### fc-007 — AFFECTED, on one of its two primary metrics
+### fc-007 — AFFECTED, and NOT MOVED
+
+**`affected: true` must not be read as `contested`.**
 
 Its rationale says the principled objective and the cheap remedy are
 *"INDISTINGUISHABLE on both declared primary metrics"*. Under the se bar that
@@ -76,10 +138,13 @@ becomes **indistinguishable on one**:
 | `A'_vs_C median_abs_err` | 0.72 | **2.03 — flips** | 6/8, p = 0.2891 |
 | `A'_vs_C p90` | 0.14 | 0.15 — null under both | 3/8, p = 0.7266 |
 
-**The three criteria disagree with each other here, and that is the honest
-summary.** sd says no. se says yes. **The sign test says no** — 6 of 8 seeds,
-p = 0.2891. And the effect is **0.63 mm**. A foreclosure should not turn on which
-of the three was written down first.
+**It flips under the se bar and under no real test.** sd says no. The **sign test
+says no** — 6 of 8 seeds, p = 0.2891. The effect is **0.63 mm**. The only
+criterion that moves it is `t > 1`, which decides nothing.
+
+Every other flip near this entry behaves the same way: exp007's A-versus-A′
+comparisons on the fixture flip with sign-test p of 0.289, 0.070, 0.070, 0.289.
+**None passes.**
 
 Four of exp005's C-versus-A′ band nulls also flip, so
 `stratified_recheck_exp005`'s phrase *"both nulls"* is not se-robust either. Its
@@ -170,7 +235,10 @@ analyser was modified — the existing `analyse.py` files are imported and read,
 and their recorded verdicts are the control this re-score is checked against.
 od-002 and od-003 are untouched.
 
-**And it does not declare either bar correct.** They ask different questions —
-*would this reliably help on a new scene* against *did we see a real difference* —
-and both are legitimate. The defect on record was conflating them; replacing one
-with the other would repeat it in the other direction.
+**And it does not declare either bar correct.** The sd bar asks a real question —
+*would this reliably help on a new scene* — and the answer matters. The se bar as
+specified asks nothing: `t > 1` is p ≈ 0.33. **The criterion that answers "is
+there an effect" is the sign test**, and it is now reported beside both.
+
+The defect on record was one unnamed threshold standing in for three questions.
+Replacing it with a different unnamed threshold would repeat it exactly.

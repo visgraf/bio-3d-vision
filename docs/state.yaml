@@ -917,7 +917,12 @@ runs:
         What did exp001's bar cost, across every verdict this repository has taken
         — and what else walked in from the predecessor without being examined?
       answer: >-
-        (c), NARROWLY. 45 of 96 nulls read differently under a standard-error bar
+        THE FINDING IS exp011's AT BAND (bio-076): closing the loop helps at depth
+        discontinuities at all four occlusion levels in 23-24 of 24 seeds, p = 3e-6,
+        and two of the four were recorded as "indistinguishable". The framework's
+        original motivation was on record as an absence.
+        (c), NARROWLY, on the ledger question. 45 of 96 nulls read differently under
+        a standard-error bar
         and no positive moved, but the two bars agree on 87.3% of 353 comparisons
         and 138 of those agreements are by construction, because the materiality
         floor binds. Exactly one foreclosure rests on a comparison that moved —
@@ -1456,6 +1461,17 @@ foreclosures:
       That is supporting evidence about the remedy, not a test of the objectives
       null itself. The null remains untested on rendered data.
     bar_reanalysis_exp012: >-
+      fc-007 IS NOT MOVED, AND `affected: true` MUST NOT BE READ AS `contested`.
+      Its flipped primary — A'-versus-C on median — is mean_diff -0.00063 m with 6
+      of 8 seeds and SIGN TEST p = 0.289. IT FLIPS UNDER THE se BAR AND UNDER NO
+      REAL TEST. The se bar is |mean| > sd/sqrt(n), which is t > 1, which is
+      p ~ 0.35 two-sided at n = 8 — not a significance test at any conventional
+      level. So this comparison changes category under a threshold that decides
+      nothing, and it carries no signal by the one criterion here that asks whether
+      an effect exists.
+      THE SAME HOLDS FOR EVERY OTHER FLIP NEAR THIS ENTRY. exp007's rendered-support
+      comparisons that flip (A-versus-A' on the fixture at budget 18) have sign-test
+      p of 0.289, 0.070, 0.070 and 0.289. None passes.
       ANNOTATED, NOT REVERSED, AND THIS FORECLOSURE STANDS. exp012 re-scored every
       comparison in the repository under a standard-error bar as well as the
       criterion in force. THIS IS THE ONLY FORECLOSURE OF THE THREE CHECKED THAT
@@ -3542,6 +3558,32 @@ falsifier_verdicts:
       fc007_primary_flip: {comparison: "A_prime_vs_C|median_abs_err", x_bar_sd: 0.72, x_bar_se: 2.03, sign: "6/8", p: 0.2891, mean_diff_m: -0.00063}
       methods_audited: 13
       methods_never_examined: 8
+    amended_same_branch: >-
+      FOUR ADDITIONS AFTER THE FIRST REPORT, ONE OF THEM A CORRECTION TO THE
+      SPECIFICATION RATHER THAN TO THE WORK. Nothing was re-run and no recorded
+      value changed — both JSON artifacts were regenerated and diffed field by
+      field: 107 keys added, ZERO existing values altered.
+      (1) THE se BAR AS SPECIFIED IS NOT A SIGNIFICANCE TEST, AND THE REPORT SHOULD
+      NOT HAVE BEEN WRITTEN AS IF THE DISAGREEMENT SET WERE 45 REAL EFFECTS.
+      |mean| > sd/sqrt(n) is t > 1, which is two-sided p = 0.391 at n = 4, 0.351 at
+      n = 8, 0.333 at n = 16 and 0.328 at n = 24 — no conventional level anywhere.
+      It is not a weaker sd bar; it is not a test. THE DISAGREEMENT SET OF 45 IS
+      "WHERE TWO NON-TESTS DISAGREE", not "45 nulls that were real". OF THE 45,
+      ELEVEN pass an exact two-sided sign test at p < 0.05 and THIRTY-FOUR do not;
+      the count was verified independently before being recorded here.
+      (2) THREE CRITERIA ARE NOW REPORTED, NOT TWO, AND NAMING ALL THREE IS THE FIX
+      FOR THE DEFECT THAT PRODUCED THIS ITERATION: sd asks whether the effect
+      exceeds scene-to-scene variation, the SIGN TEST asks whether there is an
+      effect, and materiality asks whether it is large enough to act on. A single
+      unnamed threshold answering whichever question the reader had in mind is what
+      went wrong in the first place.
+      (3) fc-007 IS NOT MOVED. See its own block: the flip fails the sign test.
+      (4) THE LOAD-BEARING NULL THAT ACTUALLY MOVED IS exp011's AT BAND, NOT fc-007
+      — see bio-076. Closing the loop helps at depth discontinuities at ALL FOUR
+      occlusion levels in 23-24 of 24 seeds, p = 3e-6, and two of the four were
+      recorded as "indistinguishable". THAT IS THE FRAMEWORK'S ORIGINAL MOTIVATION
+      recorded as an absence. It is a null that should never have been read as one,
+      and it is the finding of this iteration.
     detail: >-
       (d) IS ALGEBRA, NOT LUCK, AND IS ASSERTED ANYWAY. max(sd, floor) >=
       max(sd/sqrt(n), floor), so a positive under the sd bar is a positive under

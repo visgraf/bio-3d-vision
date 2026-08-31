@@ -19,6 +19,8 @@
     "seeds_favouring_lower": 6,
     "seeds_nonzero": 8,
     "sign_test_p": 0.2890625,
+    "sign_significant": false,
+    "se_threshold_two_sided_p": 0.3506166628202074,
     "recorded_verdict_matches": true
   },
   {
@@ -41,6 +43,8 @@
     "seeds_favouring_lower": 3,
     "seeds_nonzero": 8,
     "sign_test_p": 0.7265625,
+    "sign_significant": false,
+    "se_threshold_two_sided_p": 0.3506166628202074,
     "recorded_verdict_matches": true
   },
   {
@@ -63,6 +67,8 @@
     "seeds_favouring_lower": 2,
     "seeds_nonzero": 8,
     "sign_test_p": 0.2890625,
+    "sign_significant": false,
+    "se_threshold_two_sided_p": 0.3506166628202074,
     "recorded_verdict_matches": true
   },
   {
@@ -85,6 +91,8 @@
     "seeds_favouring_lower": 2,
     "seeds_nonzero": 8,
     "sign_test_p": 0.2890625,
+    "sign_significant": false,
+    "se_threshold_two_sided_p": 0.3506166628202074,
     "recorded_verdict_matches": true
   },
   {
@@ -107,6 +115,8 @@
     "seeds_favouring_lower": 3,
     "seeds_nonzero": 8,
     "sign_test_p": 0.7265625,
+    "sign_significant": false,
+    "se_threshold_two_sided_p": 0.3506166628202074,
     "recorded_verdict_matches": true
   },
   {
@@ -129,6 +139,8 @@
     "seeds_favouring_lower": 4,
     "seeds_nonzero": 8,
     "sign_test_p": 1.0,
+    "sign_significant": false,
+    "se_threshold_two_sided_p": 0.3506166628202074,
     "recorded_verdict_matches": true
   },
   {
@@ -151,6 +163,8 @@
     "seeds_favouring_lower": 7,
     "seeds_nonzero": 8,
     "sign_test_p": 0.0703125,
+    "sign_significant": false,
+    "se_threshold_two_sided_p": 0.3506166628202074,
     "recorded_verdict_matches": true
   },
   {
@@ -173,6 +187,8 @@
     "seeds_favouring_lower": 7,
     "seeds_nonzero": 8,
     "sign_test_p": 0.0703125,
+    "sign_significant": false,
+    "se_threshold_two_sided_p": 0.3506166628202074,
     "recorded_verdict_matches": true
   },
   {
@@ -195,6 +211,8 @@
     "seeds_favouring_lower": 6,
     "seeds_nonzero": 8,
     "sign_test_p": 0.2890625,
+    "sign_significant": false,
+    "se_threshold_two_sided_p": 0.3506166628202074,
     "recorded_verdict_matches": true
   },
   {
@@ -217,6 +235,8 @@
     "seeds_favouring_lower": 8,
     "seeds_nonzero": 8,
     "sign_test_p": 0.0078125,
+    "sign_significant": true,
+    "se_threshold_two_sided_p": 0.3506166628202074,
     "recorded_verdict_matches": true
   },
   {
@@ -239,6 +259,8 @@
     "seeds_favouring_lower": 6,
     "seeds_nonzero": 8,
     "sign_test_p": 0.2890625,
+    "sign_significant": false,
+    "se_threshold_two_sided_p": 0.3506166628202074,
     "recorded_verdict_matches": true
   },
   {
@@ -261,6 +283,8 @@
     "seeds_favouring_lower": 6,
     "seeds_nonzero": 8,
     "sign_test_p": 0.2890625,
+    "sign_significant": false,
+    "se_threshold_two_sided_p": 0.3506166628202074,
     "recorded_verdict_matches": true
   },
   {
@@ -283,6 +307,8 @@
     "seeds_favouring_lower": 0,
     "seeds_nonzero": 16,
     "sign_test_p": 3.0517578125e-05,
+    "sign_significant": true,
+    "se_threshold_two_sided_p": 0.3331701359154764,
     "recorded_verdict_matches": true
   },
   {
@@ -305,6 +331,8 @@
     "seeds_favouring_lower": 1,
     "seeds_nonzero": 16,
     "sign_test_p": 0.000518798828125,
+    "sign_significant": true,
+    "se_threshold_two_sided_p": 0.3331701359154764,
     "recorded_verdict_matches": true
   },
   {
@@ -327,6 +355,8 @@
     "seeds_favouring_lower": 2,
     "seeds_nonzero": 16,
     "sign_test_p": 0.004180908203125,
+    "sign_significant": true,
+    "se_threshold_two_sided_p": 0.3331701359154764,
     "recorded_verdict_matches": true
   },
   {
@@ -349,6 +379,8 @@
     "seeds_favouring_lower": 0,
     "seeds_nonzero": 16,
     "sign_test_p": 3.0517578125e-05,
+    "sign_significant": true,
+    "se_threshold_two_sided_p": 0.3331701359154764,
     "recorded_verdict_matches": true
   },
   {
@@ -371,6 +403,8 @@
     "seeds_favouring_lower": 0,
     "seeds_nonzero": 16,
     "sign_test_p": 3.0517578125e-05,
+    "sign_significant": true,
+    "se_threshold_two_sided_p": 0.3331701359154764,
     "recorded_verdict_matches": true
   },
   {
@@ -393,6 +427,8 @@
     "seeds_favouring_lower": 0,
     "seeds_nonzero": 16,
     "sign_test_p": 3.0517578125e-05,
+    "sign_significant": true,
+    "se_threshold_two_sided_p": 0.3331701359154764,
     "recorded_verdict_matches": true
   },
   {
@@ -415,6 +451,8 @@
     "seeds_favouring_lower": 2,
     "seeds_nonzero": 16,
     "sign_test_p": 0.004180908203125,
+    "sign_significant": true,
+    "se_threshold_two_sided_p": 0.3331701359154764,
     "recorded_verdict_matches": true
   },
   {
@@ -437,6 +475,8 @@
     "seeds_favouring_lower": 13,
     "seeds_nonzero": 16,
     "sign_test_p": 0.021270751953125,
+    "sign_significant": true,
+    "se_threshold_two_sided_p": 0.3331701359154764,
     "recorded_verdict_matches": true
   },
   {
@@ -459,6 +499,8 @@
     "seeds_favouring_lower": 3,
     "seeds_nonzero": 16,
     "sign_test_p": 0.021270751953125,
+    "sign_significant": true,
+    "se_threshold_two_sided_p": 0.3331701359154764,
     "recorded_verdict_matches": true
   },
   {
@@ -481,6 +523,8 @@
     "seeds_favouring_lower": 3,
     "seeds_nonzero": 16,
     "sign_test_p": 0.021270751953125,
+    "sign_significant": true,
+    "se_threshold_two_sided_p": 0.3331701359154764,
     "recorded_verdict_matches": true
   },
   {
@@ -503,6 +547,8 @@
     "seeds_favouring_lower": 4,
     "seeds_nonzero": 16,
     "sign_test_p": 0.076812744140625,
+    "sign_significant": false,
+    "se_threshold_two_sided_p": 0.3331701359154764,
     "recorded_verdict_matches": true
   },
   {
@@ -525,6 +571,8 @@
     "seeds_favouring_lower": 7,
     "seeds_nonzero": 16,
     "sign_test_p": 0.803619384765625,
+    "sign_significant": false,
+    "se_threshold_two_sided_p": 0.3331701359154764,
     "recorded_verdict_matches": true
   },
   {
@@ -547,6 +595,8 @@
     "seeds_favouring_lower": 0,
     "seeds_nonzero": 16,
     "sign_test_p": 3.0517578125e-05,
+    "sign_significant": true,
+    "se_threshold_two_sided_p": 0.3331701359154764,
     "recorded_verdict_matches": true
   },
   {
@@ -569,6 +619,8 @@
     "seeds_favouring_lower": 0,
     "seeds_nonzero": 16,
     "sign_test_p": 3.0517578125e-05,
+    "sign_significant": true,
+    "se_threshold_two_sided_p": 0.3331701359154764,
     "recorded_verdict_matches": true
   },
   {
@@ -591,6 +643,8 @@
     "seeds_favouring_lower": 0,
     "seeds_nonzero": 16,
     "sign_test_p": 3.0517578125e-05,
+    "sign_significant": true,
+    "se_threshold_two_sided_p": 0.3331701359154764,
     "recorded_verdict_matches": true
   },
   {
@@ -613,6 +667,8 @@
     "seeds_favouring_lower": 0,
     "seeds_nonzero": 16,
     "sign_test_p": 3.0517578125e-05,
+    "sign_significant": true,
+    "se_threshold_two_sided_p": 0.3331701359154764,
     "recorded_verdict_matches": true
   },
   {
@@ -635,6 +691,8 @@
     "seeds_favouring_lower": 0,
     "seeds_nonzero": 16,
     "sign_test_p": 3.0517578125e-05,
+    "sign_significant": true,
+    "se_threshold_two_sided_p": 0.3331701359154764,
     "recorded_verdict_matches": true
   },
   {
@@ -657,6 +715,8 @@
     "seeds_favouring_lower": 0,
     "seeds_nonzero": 16,
     "sign_test_p": 3.0517578125e-05,
+    "sign_significant": true,
+    "se_threshold_two_sided_p": 0.3331701359154764,
     "recorded_verdict_matches": true
   },
   {
@@ -679,6 +739,8 @@
     "seeds_favouring_lower": 7,
     "seeds_nonzero": 16,
     "sign_test_p": 0.803619384765625,
+    "sign_significant": false,
+    "se_threshold_two_sided_p": 0.3331701359154764,
     "recorded_verdict_matches": true
   },
   {
@@ -701,6 +763,8 @@
     "seeds_favouring_lower": 15,
     "seeds_nonzero": 16,
     "sign_test_p": 0.000518798828125,
+    "sign_significant": true,
+    "se_threshold_two_sided_p": 0.3331701359154764,
     "recorded_verdict_matches": true
   },
   {
@@ -723,6 +787,8 @@
     "seeds_favouring_lower": 15,
     "seeds_nonzero": 16,
     "sign_test_p": 0.000518798828125,
+    "sign_significant": true,
+    "se_threshold_two_sided_p": 0.3331701359154764,
     "recorded_verdict_matches": true
   },
   {
@@ -745,6 +811,8 @@
     "seeds_favouring_lower": 0,
     "seeds_nonzero": 16,
     "sign_test_p": 3.0517578125e-05,
+    "sign_significant": true,
+    "se_threshold_two_sided_p": 0.3331701359154764,
     "recorded_verdict_matches": true
   },
   {
@@ -767,6 +835,8 @@
     "seeds_favouring_lower": 0,
     "seeds_nonzero": 16,
     "sign_test_p": 3.0517578125e-05,
+    "sign_significant": true,
+    "se_threshold_two_sided_p": 0.3331701359154764,
     "recorded_verdict_matches": true
   },
   {
@@ -789,6 +859,8 @@
     "seeds_favouring_lower": 0,
     "seeds_nonzero": 16,
     "sign_test_p": 3.0517578125e-05,
+    "sign_significant": true,
+    "se_threshold_two_sided_p": 0.3331701359154764,
     "recorded_verdict_matches": true
   },
   {
@@ -811,6 +883,8 @@
     "seeds_favouring_lower": 0,
     "seeds_nonzero": 16,
     "sign_test_p": 3.0517578125e-05,
+    "sign_significant": true,
+    "se_threshold_two_sided_p": 0.3331701359154764,
     "recorded_verdict_matches": true
   },
   {
@@ -833,6 +907,8 @@
     "seeds_favouring_lower": 0,
     "seeds_nonzero": 16,
     "sign_test_p": 3.0517578125e-05,
+    "sign_significant": true,
+    "se_threshold_two_sided_p": 0.3331701359154764,
     "recorded_verdict_matches": true
   },
   {
@@ -855,6 +931,8 @@
     "seeds_favouring_lower": 0,
     "seeds_nonzero": 16,
     "sign_test_p": 3.0517578125e-05,
+    "sign_significant": true,
+    "se_threshold_two_sided_p": 0.3331701359154764,
     "recorded_verdict_matches": true
   },
   {
@@ -877,6 +955,8 @@
     "seeds_favouring_lower": 0,
     "seeds_nonzero": 16,
     "sign_test_p": 3.0517578125e-05,
+    "sign_significant": true,
+    "se_threshold_two_sided_p": 0.3331701359154764,
     "recorded_verdict_matches": true
   },
   {
@@ -899,6 +979,8 @@
     "seeds_favouring_lower": 13,
     "seeds_nonzero": 16,
     "sign_test_p": 0.021270751953125,
+    "sign_significant": true,
+    "se_threshold_two_sided_p": 0.3331701359154764,
     "recorded_verdict_matches": true
   },
   {
@@ -921,6 +1003,8 @@
     "seeds_favouring_lower": 13,
     "seeds_nonzero": 16,
     "sign_test_p": 0.021270751953125,
+    "sign_significant": true,
+    "se_threshold_two_sided_p": 0.3331701359154764,
     "recorded_verdict_matches": true
   },
   {
@@ -943,6 +1027,8 @@
     "seeds_favouring_lower": 0,
     "seeds_nonzero": 16,
     "sign_test_p": 3.0517578125e-05,
+    "sign_significant": true,
+    "se_threshold_two_sided_p": 0.3331701359154764,
     "recorded_verdict_matches": true
   },
   {
@@ -965,6 +1051,8 @@
     "seeds_favouring_lower": 0,
     "seeds_nonzero": 16,
     "sign_test_p": 3.0517578125e-05,
+    "sign_significant": true,
+    "se_threshold_two_sided_p": 0.3331701359154764,
     "recorded_verdict_matches": true
   },
   {
@@ -987,6 +1075,8 @@
     "seeds_favouring_lower": 0,
     "seeds_nonzero": 16,
     "sign_test_p": 3.0517578125e-05,
+    "sign_significant": true,
+    "se_threshold_two_sided_p": 0.3331701359154764,
     "recorded_verdict_matches": true
   },
   {
@@ -1009,6 +1099,8 @@
     "seeds_favouring_lower": 0,
     "seeds_nonzero": 16,
     "sign_test_p": 3.0517578125e-05,
+    "sign_significant": true,
+    "se_threshold_two_sided_p": 0.3331701359154764,
     "recorded_verdict_matches": true
   },
   {
@@ -1031,6 +1123,8 @@
     "seeds_favouring_lower": 0,
     "seeds_nonzero": 16,
     "sign_test_p": 3.0517578125e-05,
+    "sign_significant": true,
+    "se_threshold_two_sided_p": 0.3331701359154764,
     "recorded_verdict_matches": true
   },
   {
@@ -1053,6 +1147,8 @@
     "seeds_favouring_lower": 0,
     "seeds_nonzero": 16,
     "sign_test_p": 3.0517578125e-05,
+    "sign_significant": true,
+    "se_threshold_two_sided_p": 0.3331701359154764,
     "recorded_verdict_matches": true
   },
   {
@@ -1075,6 +1171,8 @@
     "seeds_favouring_lower": 0,
     "seeds_nonzero": 16,
     "sign_test_p": 3.0517578125e-05,
+    "sign_significant": true,
+    "se_threshold_two_sided_p": 0.3331701359154764,
     "recorded_verdict_matches": true
   },
   {
@@ -1097,6 +1195,8 @@
     "seeds_favouring_lower": 15,
     "seeds_nonzero": 16,
     "sign_test_p": 0.000518798828125,
+    "sign_significant": true,
+    "se_threshold_two_sided_p": 0.3331701359154764,
     "recorded_verdict_matches": true
   },
   {
@@ -1119,6 +1219,8 @@
     "seeds_favouring_lower": 15,
     "seeds_nonzero": 16,
     "sign_test_p": 0.000518798828125,
+    "sign_significant": true,
+    "se_threshold_two_sided_p": 0.3331701359154764,
     "recorded_verdict_matches": true
   },
   {
@@ -1141,6 +1243,8 @@
     "seeds_favouring_lower": 4,
     "seeds_nonzero": 8,
     "sign_test_p": 1.0,
+    "sign_significant": false,
+    "se_threshold_two_sided_p": 0.3506166628202074,
     "recorded_verdict_matches": true
   },
   {
@@ -1163,6 +1267,8 @@
     "seeds_favouring_lower": 7,
     "seeds_nonzero": 8,
     "sign_test_p": 0.0703125,
+    "sign_significant": false,
+    "se_threshold_two_sided_p": 0.3506166628202074,
     "recorded_verdict_matches": true
   },
   {
@@ -1185,6 +1291,8 @@
     "seeds_favouring_lower": 8,
     "seeds_nonzero": 8,
     "sign_test_p": 0.0078125,
+    "sign_significant": true,
+    "se_threshold_two_sided_p": 0.3506166628202074,
     "recorded_verdict_matches": true
   },
   {
@@ -1207,6 +1315,8 @@
     "seeds_favouring_lower": 8,
     "seeds_nonzero": 8,
     "sign_test_p": 0.0078125,
+    "sign_significant": true,
+    "se_threshold_two_sided_p": 0.3506166628202074,
     "recorded_verdict_matches": true
   },
   {
@@ -1229,6 +1339,8 @@
     "seeds_favouring_lower": 8,
     "seeds_nonzero": 8,
     "sign_test_p": 0.0078125,
+    "sign_significant": true,
+    "se_threshold_two_sided_p": 0.3506166628202074,
     "recorded_verdict_matches": true
   },
   {
@@ -1251,6 +1363,8 @@
     "seeds_favouring_lower": 8,
     "seeds_nonzero": 8,
     "sign_test_p": 0.0078125,
+    "sign_significant": true,
+    "se_threshold_two_sided_p": 0.3506166628202074,
     "recorded_verdict_matches": true
   },
   {
@@ -1273,6 +1387,8 @@
     "seeds_favouring_lower": 8,
     "seeds_nonzero": 8,
     "sign_test_p": 0.0078125,
+    "sign_significant": true,
+    "se_threshold_two_sided_p": 0.3506166628202074,
     "recorded_verdict_matches": true
   },
   {
@@ -1295,6 +1411,8 @@
     "seeds_favouring_lower": 6,
     "seeds_nonzero": 8,
     "sign_test_p": 0.2890625,
+    "sign_significant": false,
+    "se_threshold_two_sided_p": 0.3506166628202074,
     "recorded_verdict_matches": true
   },
   {
@@ -1317,6 +1435,8 @@
     "seeds_favouring_lower": 4,
     "seeds_nonzero": 8,
     "sign_test_p": 1.0,
+    "sign_significant": false,
+    "se_threshold_two_sided_p": 0.3506166628202074,
     "recorded_verdict_matches": true
   },
   {
@@ -1339,6 +1459,8 @@
     "seeds_favouring_lower": 4,
     "seeds_nonzero": 8,
     "sign_test_p": 1.0,
+    "sign_significant": false,
+    "se_threshold_two_sided_p": 0.3506166628202074,
     "recorded_verdict_matches": true
   },
   {
@@ -1361,6 +1483,8 @@
     "seeds_favouring_lower": 4,
     "seeds_nonzero": 8,
     "sign_test_p": 1.0,
+    "sign_significant": false,
+    "se_threshold_two_sided_p": 0.3506166628202074,
     "recorded_verdict_matches": true
   },
   {
@@ -1383,6 +1507,8 @@
     "seeds_favouring_lower": 8,
     "seeds_nonzero": 8,
     "sign_test_p": 0.0078125,
+    "sign_significant": true,
+    "se_threshold_two_sided_p": 0.3506166628202074,
     "recorded_verdict_matches": true
   },
   {
@@ -1405,6 +1531,8 @@
     "seeds_favouring_lower": 7,
     "seeds_nonzero": 8,
     "sign_test_p": 0.0703125,
+    "sign_significant": false,
+    "se_threshold_two_sided_p": 0.3506166628202074,
     "recorded_verdict_matches": true
   },
   {
@@ -1427,6 +1555,8 @@
     "seeds_favouring_lower": 7,
     "seeds_nonzero": 8,
     "sign_test_p": 0.0703125,
+    "sign_significant": false,
+    "se_threshold_two_sided_p": 0.3506166628202074,
     "recorded_verdict_matches": true
   },
   {
@@ -1449,6 +1579,8 @@
     "seeds_favouring_lower": 7,
     "seeds_nonzero": 8,
     "sign_test_p": 0.0703125,
+    "sign_significant": false,
+    "se_threshold_two_sided_p": 0.3506166628202074,
     "recorded_verdict_matches": true
   },
   {
@@ -1471,6 +1603,8 @@
     "seeds_favouring_lower": 5,
     "seeds_nonzero": 8,
     "sign_test_p": 0.7265625,
+    "sign_significant": false,
+    "se_threshold_two_sided_p": 0.3506166628202074,
     "recorded_verdict_matches": true
   },
   {
@@ -1493,6 +1627,8 @@
     "seeds_favouring_lower": 8,
     "seeds_nonzero": 8,
     "sign_test_p": 0.0078125,
+    "sign_significant": true,
+    "se_threshold_two_sided_p": 0.3506166628202074,
     "recorded_verdict_matches": true
   },
   {
@@ -1515,6 +1651,8 @@
     "seeds_favouring_lower": 8,
     "seeds_nonzero": 8,
     "sign_test_p": 0.0078125,
+    "sign_significant": true,
+    "se_threshold_two_sided_p": 0.3506166628202074,
     "recorded_verdict_matches": true
   },
   {
@@ -1537,6 +1675,8 @@
     "seeds_favouring_lower": 8,
     "seeds_nonzero": 8,
     "sign_test_p": 0.0078125,
+    "sign_significant": true,
+    "se_threshold_two_sided_p": 0.3506166628202074,
     "recorded_verdict_matches": true
   },
   {
@@ -1559,6 +1699,8 @@
     "seeds_favouring_lower": 8,
     "seeds_nonzero": 8,
     "sign_test_p": 0.0078125,
+    "sign_significant": true,
+    "se_threshold_two_sided_p": 0.3506166628202074,
     "recorded_verdict_matches": true
   },
   {
@@ -1581,6 +1723,8 @@
     "seeds_favouring_lower": 8,
     "seeds_nonzero": 8,
     "sign_test_p": 0.0078125,
+    "sign_significant": true,
+    "se_threshold_two_sided_p": 0.3506166628202074,
     "recorded_verdict_matches": true
   },
   {
@@ -1603,6 +1747,8 @@
     "seeds_favouring_lower": 8,
     "seeds_nonzero": 8,
     "sign_test_p": 0.0078125,
+    "sign_significant": true,
+    "se_threshold_two_sided_p": 0.3506166628202074,
     "recorded_verdict_matches": true
   },
   {
@@ -1625,6 +1771,8 @@
     "seeds_favouring_lower": 8,
     "seeds_nonzero": 8,
     "sign_test_p": 0.0078125,
+    "sign_significant": true,
+    "se_threshold_two_sided_p": 0.3506166628202074,
     "recorded_verdict_matches": true
   },
   {
@@ -1647,6 +1795,8 @@
     "seeds_favouring_lower": 8,
     "seeds_nonzero": 8,
     "sign_test_p": 0.0078125,
+    "sign_significant": true,
+    "se_threshold_two_sided_p": 0.3506166628202074,
     "recorded_verdict_matches": true
   },
   {
@@ -1669,6 +1819,8 @@
     "seeds_favouring_lower": 5,
     "seeds_nonzero": 8,
     "sign_test_p": 0.7265625,
+    "sign_significant": false,
+    "se_threshold_two_sided_p": 0.3506166628202074,
     "recorded_verdict_matches": true
   },
   {
@@ -1691,6 +1843,8 @@
     "seeds_favouring_lower": 4,
     "seeds_nonzero": 8,
     "sign_test_p": 1.0,
+    "sign_significant": false,
+    "se_threshold_two_sided_p": 0.3506166628202074,
     "recorded_verdict_matches": true
   },
   {
@@ -1713,6 +1867,8 @@
     "seeds_favouring_lower": 8,
     "seeds_nonzero": 8,
     "sign_test_p": 0.0078125,
+    "sign_significant": true,
+    "se_threshold_two_sided_p": 0.3506166628202074,
     "recorded_verdict_matches": true
   },
   {
@@ -1735,6 +1891,8 @@
     "seeds_favouring_lower": 8,
     "seeds_nonzero": 8,
     "sign_test_p": 0.0078125,
+    "sign_significant": true,
+    "se_threshold_two_sided_p": 0.3506166628202074,
     "recorded_verdict_matches": true
   },
   {
@@ -1757,6 +1915,8 @@
     "seeds_favouring_lower": 6,
     "seeds_nonzero": 8,
     "sign_test_p": 0.2890625,
+    "sign_significant": false,
+    "se_threshold_two_sided_p": 0.3506166628202074,
     "recorded_verdict_matches": true
   },
   {
@@ -1779,6 +1939,8 @@
     "seeds_favouring_lower": 6,
     "seeds_nonzero": 8,
     "sign_test_p": 0.2890625,
+    "sign_significant": false,
+    "se_threshold_two_sided_p": 0.3506166628202074,
     "recorded_verdict_matches": true
   },
   {
@@ -1801,6 +1963,8 @@
     "seeds_favouring_lower": 6,
     "seeds_nonzero": 8,
     "sign_test_p": 0.2890625,
+    "sign_significant": false,
+    "se_threshold_two_sided_p": 0.3506166628202074,
     "recorded_verdict_matches": true
   },
   {
@@ -1823,6 +1987,8 @@
     "seeds_favouring_lower": 3,
     "seeds_nonzero": 8,
     "sign_test_p": 0.7265625,
+    "sign_significant": false,
+    "se_threshold_two_sided_p": 0.3506166628202074,
     "recorded_verdict_matches": true
   },
   {
@@ -1845,6 +2011,8 @@
     "seeds_favouring_lower": 2,
     "seeds_nonzero": 8,
     "sign_test_p": 0.2890625,
+    "sign_significant": false,
+    "se_threshold_two_sided_p": 0.3506166628202074,
     "recorded_verdict_matches": true
   },
   {
@@ -1867,6 +2035,8 @@
     "seeds_favouring_lower": 3,
     "seeds_nonzero": 8,
     "sign_test_p": 0.7265625,
+    "sign_significant": false,
+    "se_threshold_two_sided_p": 0.3506166628202074,
     "recorded_verdict_matches": true
   },
   {
@@ -1889,6 +2059,8 @@
     "seeds_favouring_lower": 2,
     "seeds_nonzero": 8,
     "sign_test_p": 0.2890625,
+    "sign_significant": false,
+    "se_threshold_two_sided_p": 0.3506166628202074,
     "recorded_verdict_matches": true
   },
   {
@@ -1911,6 +2083,8 @@
     "seeds_favouring_lower": 1,
     "seeds_nonzero": 8,
     "sign_test_p": 0.0703125,
+    "sign_significant": false,
+    "se_threshold_two_sided_p": 0.3506166628202074,
     "recorded_verdict_matches": true
   },
   {
@@ -1933,6 +2107,8 @@
     "seeds_favouring_lower": 4,
     "seeds_nonzero": 8,
     "sign_test_p": 1.0,
+    "sign_significant": false,
+    "se_threshold_two_sided_p": 0.3506166628202074,
     "recorded_verdict_matches": true
   },
   {
@@ -1955,6 +2131,8 @@
     "seeds_favouring_lower": 2,
     "seeds_nonzero": 8,
     "sign_test_p": 0.2890625,
+    "sign_significant": false,
+    "se_threshold_two_sided_p": 0.3506166628202074,
     "recorded_verdict_matches": true
   },
   {
@@ -1977,6 +2155,8 @@
     "seeds_favouring_lower": 2,
     "seeds_nonzero": 8,
     "sign_test_p": 0.2890625,
+    "sign_significant": false,
+    "se_threshold_two_sided_p": 0.3506166628202074,
     "recorded_verdict_matches": true
   },
   {
@@ -1999,6 +2179,8 @@
     "seeds_favouring_lower": 3,
     "seeds_nonzero": 8,
     "sign_test_p": 0.7265625,
+    "sign_significant": false,
+    "se_threshold_two_sided_p": 0.3506166628202074,
     "recorded_verdict_matches": true
   },
   {
@@ -2021,6 +2203,8 @@
     "seeds_favouring_lower": 1,
     "seeds_nonzero": 8,
     "sign_test_p": 0.0703125,
+    "sign_significant": false,
+    "se_threshold_two_sided_p": 0.3506166628202074,
     "recorded_verdict_matches": true
   },
   {
@@ -2043,6 +2227,8 @@
     "seeds_favouring_lower": 4,
     "seeds_nonzero": 8,
     "sign_test_p": 1.0,
+    "sign_significant": false,
+    "se_threshold_two_sided_p": 0.3506166628202074,
     "recorded_verdict_matches": true
   },
   {
@@ -2065,6 +2251,8 @@
     "seeds_favouring_lower": 1,
     "seeds_nonzero": 8,
     "sign_test_p": 0.0703125,
+    "sign_significant": false,
+    "se_threshold_two_sided_p": 0.3506166628202074,
     "recorded_verdict_matches": true
   },
   {
@@ -2087,6 +2275,8 @@
     "seeds_favouring_lower": 0,
     "seeds_nonzero": 8,
     "sign_test_p": 0.0078125,
+    "sign_significant": true,
+    "se_threshold_two_sided_p": 0.3506166628202074,
     "recorded_verdict_matches": true
   },
   {
@@ -2109,6 +2299,8 @@
     "seeds_favouring_lower": 2,
     "seeds_nonzero": 8,
     "sign_test_p": 0.2890625,
+    "sign_significant": false,
+    "se_threshold_two_sided_p": 0.3506166628202074,
     "recorded_verdict_matches": true
   },
   {
@@ -2131,6 +2323,8 @@
     "seeds_favouring_lower": 1,
     "seeds_nonzero": 8,
     "sign_test_p": 0.0703125,
+    "sign_significant": false,
+    "se_threshold_two_sided_p": 0.3506166628202074,
     "recorded_verdict_matches": true
   },
   {
@@ -2153,6 +2347,8 @@
     "seeds_favouring_lower": 1,
     "seeds_nonzero": 8,
     "sign_test_p": 0.0703125,
+    "sign_significant": false,
+    "se_threshold_two_sided_p": 0.3506166628202074,
     "recorded_verdict_matches": true
   },
   {
@@ -2175,6 +2371,8 @@
     "seeds_favouring_lower": 1,
     "seeds_nonzero": 8,
     "sign_test_p": 0.0703125,
+    "sign_significant": false,
+    "se_threshold_two_sided_p": 0.3506166628202074,
     "recorded_verdict_matches": true
   },
   {
@@ -2197,6 +2395,8 @@
     "seeds_favouring_lower": 1,
     "seeds_nonzero": 16,
     "sign_test_p": 0.000518798828125,
+    "sign_significant": true,
+    "se_threshold_two_sided_p": 0.3331701359154764,
     "recorded_verdict_matches": true
   },
   {
@@ -2219,6 +2419,8 @@
     "seeds_favouring_lower": 16,
     "seeds_nonzero": 16,
     "sign_test_p": 3.0517578125e-05,
+    "sign_significant": true,
+    "se_threshold_two_sided_p": 0.3331701359154764,
     "recorded_verdict_matches": true
   },
   {
@@ -2241,6 +2443,8 @@
     "seeds_favouring_lower": 0,
     "seeds_nonzero": 16,
     "sign_test_p": 3.0517578125e-05,
+    "sign_significant": true,
+    "se_threshold_two_sided_p": 0.3331701359154764,
     "recorded_verdict_matches": true
   },
   {
@@ -2263,6 +2467,8 @@
     "seeds_favouring_lower": 0,
     "seeds_nonzero": 16,
     "sign_test_p": 3.0517578125e-05,
+    "sign_significant": true,
+    "se_threshold_two_sided_p": 0.3331701359154764,
     "recorded_verdict_matches": true
   },
   {
@@ -2285,6 +2491,8 @@
     "seeds_favouring_lower": 6,
     "seeds_nonzero": 16,
     "sign_test_p": 0.454498291015625,
+    "sign_significant": false,
+    "se_threshold_two_sided_p": 0.3331701359154764,
     "recorded_verdict_matches": true
   },
   {
@@ -2307,6 +2515,8 @@
     "seeds_favouring_lower": 16,
     "seeds_nonzero": 16,
     "sign_test_p": 3.0517578125e-05,
+    "sign_significant": true,
+    "se_threshold_two_sided_p": 0.3331701359154764,
     "recorded_verdict_matches": true
   },
   {
@@ -2329,6 +2539,8 @@
     "seeds_favouring_lower": 0,
     "seeds_nonzero": 16,
     "sign_test_p": 3.0517578125e-05,
+    "sign_significant": true,
+    "se_threshold_two_sided_p": 0.3331701359154764,
     "recorded_verdict_matches": true
   },
   {
@@ -2351,6 +2563,8 @@
     "seeds_favouring_lower": 1,
     "seeds_nonzero": 16,
     "sign_test_p": 0.000518798828125,
+    "sign_significant": true,
+    "se_threshold_two_sided_p": 0.3331701359154764,
     "recorded_verdict_matches": true
   },
   {
@@ -2373,6 +2587,8 @@
     "seeds_favouring_lower": 0,
     "seeds_nonzero": 16,
     "sign_test_p": 3.0517578125e-05,
+    "sign_significant": true,
+    "se_threshold_two_sided_p": 0.3331701359154764,
     "recorded_verdict_matches": true
   },
   {
@@ -2395,6 +2611,8 @@
     "seeds_favouring_lower": 16,
     "seeds_nonzero": 16,
     "sign_test_p": 3.0517578125e-05,
+    "sign_significant": true,
+    "se_threshold_two_sided_p": 0.3331701359154764,
     "recorded_verdict_matches": true
   },
   {
@@ -2417,6 +2635,8 @@
     "seeds_favouring_lower": 0,
     "seeds_nonzero": 16,
     "sign_test_p": 3.0517578125e-05,
+    "sign_significant": true,
+    "se_threshold_two_sided_p": 0.3331701359154764,
     "recorded_verdict_matches": true
   },
   {
@@ -2439,6 +2659,8 @@
     "seeds_favouring_lower": 0,
     "seeds_nonzero": 16,
     "sign_test_p": 3.0517578125e-05,
+    "sign_significant": true,
+    "se_threshold_two_sided_p": 0.3331701359154764,
     "recorded_verdict_matches": true
   },
   {
@@ -2461,6 +2683,8 @@
     "seeds_favouring_lower": 0,
     "seeds_nonzero": 16,
     "sign_test_p": 3.0517578125e-05,
+    "sign_significant": true,
+    "se_threshold_two_sided_p": 0.3331701359154764,
     "recorded_verdict_matches": true
   },
   {
@@ -2483,6 +2707,8 @@
     "seeds_favouring_lower": 0,
     "seeds_nonzero": 16,
     "sign_test_p": 3.0517578125e-05,
+    "sign_significant": true,
+    "se_threshold_two_sided_p": 0.3331701359154764,
     "recorded_verdict_matches": true
   },
   {
@@ -2505,6 +2731,8 @@
     "seeds_favouring_lower": 0,
     "seeds_nonzero": 16,
     "sign_test_p": 3.0517578125e-05,
+    "sign_significant": true,
+    "se_threshold_two_sided_p": 0.3331701359154764,
     "recorded_verdict_matches": true
   },
   {
@@ -2527,6 +2755,8 @@
     "seeds_favouring_lower": 0,
     "seeds_nonzero": 16,
     "sign_test_p": 3.0517578125e-05,
+    "sign_significant": true,
+    "se_threshold_two_sided_p": 0.3331701359154764,
     "recorded_verdict_matches": true
   },
   {
@@ -2549,6 +2779,8 @@
     "seeds_favouring_lower": 1,
     "seeds_nonzero": 16,
     "sign_test_p": 0.000518798828125,
+    "sign_significant": true,
+    "se_threshold_two_sided_p": 0.3331701359154764,
     "recorded_verdict_matches": true
   },
   {
@@ -2571,6 +2803,8 @@
     "seeds_favouring_lower": 10,
     "seeds_nonzero": 16,
     "sign_test_p": 0.454498291015625,
+    "sign_significant": false,
+    "se_threshold_two_sided_p": 0.3331701359154764,
     "recorded_verdict_matches": true
   },
   {
@@ -2593,6 +2827,8 @@
     "seeds_favouring_lower": 4,
     "seeds_nonzero": 16,
     "sign_test_p": 0.076812744140625,
+    "sign_significant": false,
+    "se_threshold_two_sided_p": 0.3331701359154764,
     "recorded_verdict_matches": true
   },
   {
@@ -2615,6 +2851,8 @@
     "seeds_favouring_lower": 2,
     "seeds_nonzero": 16,
     "sign_test_p": 0.004180908203125,
+    "sign_significant": true,
+    "se_threshold_two_sided_p": 0.3331701359154764,
     "recorded_verdict_matches": true
   },
   {
@@ -2637,6 +2875,8 @@
     "seeds_favouring_lower": 6,
     "seeds_nonzero": 16,
     "sign_test_p": 0.454498291015625,
+    "sign_significant": false,
+    "se_threshold_two_sided_p": 0.3331701359154764,
     "recorded_verdict_matches": true
   },
   {
@@ -2659,6 +2899,8 @@
     "seeds_favouring_lower": 7,
     "seeds_nonzero": 16,
     "sign_test_p": 0.803619384765625,
+    "sign_significant": false,
+    "se_threshold_two_sided_p": 0.3331701359154764,
     "recorded_verdict_matches": true
   },
   {
@@ -2681,6 +2923,8 @@
     "seeds_favouring_lower": 2,
     "seeds_nonzero": 16,
     "sign_test_p": 0.004180908203125,
+    "sign_significant": true,
+    "se_threshold_two_sided_p": 0.3331701359154764,
     "recorded_verdict_matches": true
   },
   {
@@ -2703,6 +2947,8 @@
     "seeds_favouring_lower": 13,
     "seeds_nonzero": 16,
     "sign_test_p": 0.021270751953125,
+    "sign_significant": true,
+    "se_threshold_two_sided_p": 0.3331701359154764,
     "recorded_verdict_matches": true
   },
   {
@@ -2725,6 +2971,8 @@
     "seeds_favouring_lower": 0,
     "seeds_nonzero": 8,
     "sign_test_p": 0.0078125,
+    "sign_significant": true,
+    "se_threshold_two_sided_p": 0.3506166628202074,
     "recorded_verdict_matches": true
   },
   {
@@ -2747,6 +2995,8 @@
     "seeds_favouring_lower": 3,
     "seeds_nonzero": 8,
     "sign_test_p": 0.7265625,
+    "sign_significant": false,
+    "se_threshold_two_sided_p": 0.3506166628202074,
     "recorded_verdict_matches": true
   },
   {
@@ -2769,6 +3019,8 @@
     "seeds_favouring_lower": 0,
     "seeds_nonzero": 8,
     "sign_test_p": 0.0078125,
+    "sign_significant": true,
+    "se_threshold_two_sided_p": 0.3506166628202074,
     "recorded_verdict_matches": true
   },
   {
@@ -2791,6 +3043,8 @@
     "seeds_favouring_lower": 0,
     "seeds_nonzero": 8,
     "sign_test_p": 0.0078125,
+    "sign_significant": true,
+    "se_threshold_two_sided_p": 0.3506166628202074,
     "recorded_verdict_matches": true
   },
   {
@@ -2813,6 +3067,8 @@
     "seeds_favouring_lower": 0,
     "seeds_nonzero": 8,
     "sign_test_p": 0.0078125,
+    "sign_significant": true,
+    "se_threshold_two_sided_p": 0.3506166628202074,
     "recorded_verdict_matches": true
   },
   {
@@ -2835,6 +3091,8 @@
     "seeds_favouring_lower": 0,
     "seeds_nonzero": 8,
     "sign_test_p": 0.0078125,
+    "sign_significant": true,
+    "se_threshold_two_sided_p": 0.3506166628202074,
     "recorded_verdict_matches": true
   },
   {
@@ -2857,6 +3115,8 @@
     "seeds_favouring_lower": 0,
     "seeds_nonzero": 8,
     "sign_test_p": 0.0078125,
+    "sign_significant": true,
+    "se_threshold_two_sided_p": 0.3506166628202074,
     "recorded_verdict_matches": true
   },
   {
@@ -2879,6 +3139,8 @@
     "seeds_favouring_lower": 0,
     "seeds_nonzero": 8,
     "sign_test_p": 0.0078125,
+    "sign_significant": true,
+    "se_threshold_two_sided_p": 0.3506166628202074,
     "recorded_verdict_matches": true
   },
   {
@@ -2901,6 +3163,8 @@
     "seeds_favouring_lower": 0,
     "seeds_nonzero": 8,
     "sign_test_p": 0.0078125,
+    "sign_significant": true,
+    "se_threshold_two_sided_p": 0.3506166628202074,
     "recorded_verdict_matches": true
   },
   {
@@ -2923,6 +3187,8 @@
     "seeds_favouring_lower": 0,
     "seeds_nonzero": 8,
     "sign_test_p": 0.0078125,
+    "sign_significant": true,
+    "se_threshold_two_sided_p": 0.3506166628202074,
     "recorded_verdict_matches": true
   },
   {
@@ -2945,6 +3211,8 @@
     "seeds_favouring_lower": 0,
     "seeds_nonzero": 8,
     "sign_test_p": 0.0078125,
+    "sign_significant": true,
+    "se_threshold_two_sided_p": 0.3506166628202074,
     "recorded_verdict_matches": true
   },
   {
@@ -2967,6 +3235,8 @@
     "seeds_favouring_lower": 0,
     "seeds_nonzero": 8,
     "sign_test_p": 0.0078125,
+    "sign_significant": true,
+    "se_threshold_two_sided_p": 0.3506166628202074,
     "recorded_verdict_matches": true
   },
   {
@@ -2989,6 +3259,8 @@
     "seeds_favouring_lower": 0,
     "seeds_nonzero": 8,
     "sign_test_p": 0.0078125,
+    "sign_significant": true,
+    "se_threshold_two_sided_p": 0.3506166628202074,
     "recorded_verdict_matches": true
   },
   {
@@ -3011,6 +3283,8 @@
     "seeds_favouring_lower": 0,
     "seeds_nonzero": 8,
     "sign_test_p": 0.0078125,
+    "sign_significant": true,
+    "se_threshold_two_sided_p": 0.3506166628202074,
     "recorded_verdict_matches": true
   },
   {
@@ -3033,6 +3307,8 @@
     "seeds_favouring_lower": 0,
     "seeds_nonzero": 8,
     "sign_test_p": 0.0078125,
+    "sign_significant": true,
+    "se_threshold_two_sided_p": 0.3506166628202074,
     "recorded_verdict_matches": true
   },
   {
@@ -3055,6 +3331,8 @@
     "seeds_favouring_lower": 0,
     "seeds_nonzero": 8,
     "sign_test_p": 0.0078125,
+    "sign_significant": true,
+    "se_threshold_two_sided_p": 0.3506166628202074,
     "recorded_verdict_matches": true
   },
   {
@@ -3077,6 +3355,8 @@
     "seeds_favouring_lower": 1,
     "seeds_nonzero": 8,
     "sign_test_p": 0.0703125,
+    "sign_significant": false,
+    "se_threshold_two_sided_p": 0.3506166628202074,
     "recorded_verdict_matches": true
   },
   {
@@ -3099,6 +3379,8 @@
     "seeds_favouring_lower": 4,
     "seeds_nonzero": 8,
     "sign_test_p": 1.0,
+    "sign_significant": false,
+    "se_threshold_two_sided_p": 0.3506166628202074,
     "recorded_verdict_matches": true
   },
   {
@@ -3121,6 +3403,8 @@
     "seeds_favouring_lower": 1,
     "seeds_nonzero": 8,
     "sign_test_p": 0.0703125,
+    "sign_significant": false,
+    "se_threshold_two_sided_p": 0.3506166628202074,
     "recorded_verdict_matches": true
   },
   {
@@ -3143,6 +3427,8 @@
     "seeds_favouring_lower": 0,
     "seeds_nonzero": 8,
     "sign_test_p": 0.0078125,
+    "sign_significant": true,
+    "se_threshold_two_sided_p": 0.3506166628202074,
     "recorded_verdict_matches": true
   },
   {
@@ -3165,6 +3451,8 @@
     "seeds_favouring_lower": 2,
     "seeds_nonzero": 8,
     "sign_test_p": 0.2890625,
+    "sign_significant": false,
+    "se_threshold_two_sided_p": 0.3506166628202074,
     "recorded_verdict_matches": true
   },
   {
@@ -3187,6 +3475,8 @@
     "seeds_favouring_lower": 1,
     "seeds_nonzero": 8,
     "sign_test_p": 0.0703125,
+    "sign_significant": false,
+    "se_threshold_two_sided_p": 0.3506166628202074,
     "recorded_verdict_matches": true
   },
   {
@@ -3209,6 +3499,8 @@
     "seeds_favouring_lower": 1,
     "seeds_nonzero": 8,
     "sign_test_p": 0.0703125,
+    "sign_significant": false,
+    "se_threshold_two_sided_p": 0.3506166628202074,
     "recorded_verdict_matches": true
   },
   {
@@ -3231,6 +3523,8 @@
     "seeds_favouring_lower": 1,
     "seeds_nonzero": 8,
     "sign_test_p": 0.0703125,
+    "sign_significant": false,
+    "se_threshold_two_sided_p": 0.3506166628202074,
     "recorded_verdict_matches": true
   },
   {
@@ -3253,6 +3547,8 @@
     "seeds_favouring_lower": 0,
     "seeds_nonzero": 8,
     "sign_test_p": 0.0078125,
+    "sign_significant": true,
+    "se_threshold_two_sided_p": 0.3506166628202074,
     "recorded_verdict_matches": true
   },
   {
@@ -3275,6 +3571,8 @@
     "seeds_favouring_lower": 5,
     "seeds_nonzero": 8,
     "sign_test_p": 0.7265625,
+    "sign_significant": false,
+    "se_threshold_two_sided_p": 0.3506166628202074,
     "recorded_verdict_matches": true
   },
   {
@@ -3297,6 +3595,8 @@
     "seeds_favouring_lower": 0,
     "seeds_nonzero": 8,
     "sign_test_p": 0.0078125,
+    "sign_significant": true,
+    "se_threshold_two_sided_p": 0.3506166628202074,
     "recorded_verdict_matches": true
   },
   {
@@ -3319,6 +3619,8 @@
     "seeds_favouring_lower": 0,
     "seeds_nonzero": 8,
     "sign_test_p": 0.0078125,
+    "sign_significant": true,
+    "se_threshold_two_sided_p": 0.3506166628202074,
     "recorded_verdict_matches": true
   },
   {
@@ -3341,6 +3643,8 @@
     "seeds_favouring_lower": 0,
     "seeds_nonzero": 8,
     "sign_test_p": 0.0078125,
+    "sign_significant": true,
+    "se_threshold_two_sided_p": 0.3506166628202074,
     "recorded_verdict_matches": true
   },
   {
@@ -3363,6 +3667,8 @@
     "seeds_favouring_lower": 0,
     "seeds_nonzero": 8,
     "sign_test_p": 0.0078125,
+    "sign_significant": true,
+    "se_threshold_two_sided_p": 0.3506166628202074,
     "recorded_verdict_matches": true
   },
   {
@@ -3385,6 +3691,8 @@
     "seeds_favouring_lower": 0,
     "seeds_nonzero": 8,
     "sign_test_p": 0.0078125,
+    "sign_significant": true,
+    "se_threshold_two_sided_p": 0.3506166628202074,
     "recorded_verdict_matches": true
   },
   {
@@ -3407,6 +3715,8 @@
     "seeds_favouring_lower": 0,
     "seeds_nonzero": 8,
     "sign_test_p": 0.0078125,
+    "sign_significant": true,
+    "se_threshold_two_sided_p": 0.3506166628202074,
     "recorded_verdict_matches": true
   },
   {
@@ -3429,6 +3739,8 @@
     "seeds_favouring_lower": 0,
     "seeds_nonzero": 8,
     "sign_test_p": 0.0078125,
+    "sign_significant": true,
+    "se_threshold_two_sided_p": 0.3506166628202074,
     "recorded_verdict_matches": true
   },
   {
@@ -3451,6 +3763,8 @@
     "seeds_favouring_lower": 0,
     "seeds_nonzero": 8,
     "sign_test_p": 0.0078125,
+    "sign_significant": true,
+    "se_threshold_two_sided_p": 0.3506166628202074,
     "recorded_verdict_matches": true
   },
   {
@@ -3473,6 +3787,8 @@
     "seeds_favouring_lower": 0,
     "seeds_nonzero": 8,
     "sign_test_p": 0.0078125,
+    "sign_significant": true,
+    "se_threshold_two_sided_p": 0.3506166628202074,
     "recorded_verdict_matches": true
   },
   {
@@ -3495,6 +3811,8 @@
     "seeds_favouring_lower": 0,
     "seeds_nonzero": 8,
     "sign_test_p": 0.0078125,
+    "sign_significant": true,
+    "se_threshold_two_sided_p": 0.3506166628202074,
     "recorded_verdict_matches": true
   },
   {
@@ -3517,6 +3835,8 @@
     "seeds_favouring_lower": 0,
     "seeds_nonzero": 8,
     "sign_test_p": 0.0078125,
+    "sign_significant": true,
+    "se_threshold_two_sided_p": 0.3506166628202074,
     "recorded_verdict_matches": true
   },
   {
@@ -3539,6 +3859,8 @@
     "seeds_favouring_lower": 0,
     "seeds_nonzero": 8,
     "sign_test_p": 0.0078125,
+    "sign_significant": true,
+    "se_threshold_two_sided_p": 0.3506166628202074,
     "recorded_verdict_matches": true
   },
   {
@@ -3561,6 +3883,8 @@
     "seeds_favouring_lower": 0,
     "seeds_nonzero": 8,
     "sign_test_p": 0.0078125,
+    "sign_significant": true,
+    "se_threshold_two_sided_p": 0.3506166628202074,
     "recorded_verdict_matches": true
   },
   {
@@ -3583,6 +3907,8 @@
     "seeds_favouring_lower": 0,
     "seeds_nonzero": 8,
     "sign_test_p": 0.0078125,
+    "sign_significant": true,
+    "se_threshold_two_sided_p": 0.3506166628202074,
     "recorded_verdict_matches": true
   },
   {
@@ -3605,6 +3931,8 @@
     "seeds_favouring_lower": 0,
     "seeds_nonzero": 8,
     "sign_test_p": 0.0078125,
+    "sign_significant": true,
+    "se_threshold_two_sided_p": 0.3506166628202074,
     "recorded_verdict_matches": true
   },
   {
@@ -3627,6 +3955,8 @@
     "seeds_favouring_lower": 0,
     "seeds_nonzero": 8,
     "sign_test_p": 0.0078125,
+    "sign_significant": true,
+    "se_threshold_two_sided_p": 0.3506166628202074,
     "recorded_verdict_matches": true
   },
   {
@@ -3649,6 +3979,8 @@
     "seeds_favouring_lower": 0,
     "seeds_nonzero": 8,
     "sign_test_p": 0.0078125,
+    "sign_significant": true,
+    "se_threshold_two_sided_p": 0.3506166628202074,
     "recorded_verdict_matches": true
   },
   {
@@ -3671,6 +4003,8 @@
     "seeds_favouring_lower": 0,
     "seeds_nonzero": 8,
     "sign_test_p": 0.0078125,
+    "sign_significant": true,
+    "se_threshold_two_sided_p": 0.3506166628202074,
     "recorded_verdict_matches": true
   },
   {
@@ -3693,6 +4027,8 @@
     "seeds_favouring_lower": 0,
     "seeds_nonzero": 8,
     "sign_test_p": 0.0078125,
+    "sign_significant": true,
+    "se_threshold_two_sided_p": 0.3506166628202074,
     "recorded_verdict_matches": true
   },
   {
@@ -3715,6 +4051,8 @@
     "seeds_favouring_lower": 0,
     "seeds_nonzero": 8,
     "sign_test_p": 0.0078125,
+    "sign_significant": true,
+    "se_threshold_two_sided_p": 0.3506166628202074,
     "recorded_verdict_matches": true
   },
   {
@@ -3737,6 +4075,8 @@
     "seeds_favouring_lower": 0,
     "seeds_nonzero": 8,
     "sign_test_p": 0.0078125,
+    "sign_significant": true,
+    "se_threshold_two_sided_p": 0.3506166628202074,
     "recorded_verdict_matches": true
   },
   {
@@ -3759,6 +4099,8 @@
     "seeds_favouring_lower": 0,
     "seeds_nonzero": 8,
     "sign_test_p": 0.0078125,
+    "sign_significant": true,
+    "se_threshold_two_sided_p": 0.3506166628202074,
     "recorded_verdict_matches": true
   },
   {
@@ -3781,6 +4123,8 @@
     "seeds_favouring_lower": 0,
     "seeds_nonzero": 8,
     "sign_test_p": 0.0078125,
+    "sign_significant": true,
+    "se_threshold_two_sided_p": 0.3506166628202074,
     "recorded_verdict_matches": true
   },
   {
@@ -3803,6 +4147,8 @@
     "seeds_favouring_lower": 1,
     "seeds_nonzero": 8,
     "sign_test_p": 0.0703125,
+    "sign_significant": false,
+    "se_threshold_two_sided_p": 0.3506166628202074,
     "recorded_verdict_matches": true
   },
   {
@@ -3825,6 +4171,8 @@
     "seeds_favouring_lower": 0,
     "seeds_nonzero": 8,
     "sign_test_p": 0.0078125,
+    "sign_significant": true,
+    "se_threshold_two_sided_p": 0.3506166628202074,
     "recorded_verdict_matches": true
   },
   {
@@ -3847,6 +4195,8 @@
     "seeds_favouring_lower": 0,
     "seeds_nonzero": 8,
     "sign_test_p": 0.0078125,
+    "sign_significant": true,
+    "se_threshold_two_sided_p": 0.3506166628202074,
     "recorded_verdict_matches": true
   },
   {
@@ -3869,6 +4219,8 @@
     "seeds_favouring_lower": 4,
     "seeds_nonzero": 8,
     "sign_test_p": 1.0,
+    "sign_significant": false,
+    "se_threshold_two_sided_p": 0.3506166628202074,
     "recorded_verdict_matches": true
   },
   {
@@ -3891,6 +4243,8 @@
     "seeds_favouring_lower": 2,
     "seeds_nonzero": 8,
     "sign_test_p": 0.2890625,
+    "sign_significant": false,
+    "se_threshold_two_sided_p": 0.3506166628202074,
     "recorded_verdict_matches": true
   },
   {
@@ -3913,6 +4267,8 @@
     "seeds_favouring_lower": 0,
     "seeds_nonzero": 8,
     "sign_test_p": 0.0078125,
+    "sign_significant": true,
+    "se_threshold_two_sided_p": 0.3506166628202074,
     "recorded_verdict_matches": true
   },
   {
@@ -3935,6 +4291,8 @@
     "seeds_favouring_lower": 0,
     "seeds_nonzero": 8,
     "sign_test_p": 0.0078125,
+    "sign_significant": true,
+    "se_threshold_two_sided_p": 0.3506166628202074,
     "recorded_verdict_matches": true
   },
   {
@@ -3957,6 +4315,8 @@
     "seeds_favouring_lower": 0,
     "seeds_nonzero": 8,
     "sign_test_p": 0.0078125,
+    "sign_significant": true,
+    "se_threshold_two_sided_p": 0.3506166628202074,
     "recorded_verdict_matches": true
   },
   {
@@ -3979,6 +4339,8 @@
     "seeds_favouring_lower": 0,
     "seeds_nonzero": 8,
     "sign_test_p": 0.0078125,
+    "sign_significant": true,
+    "se_threshold_two_sided_p": 0.3506166628202074,
     "recorded_verdict_matches": true
   },
   {
@@ -4001,6 +4363,8 @@
     "seeds_favouring_lower": 0,
     "seeds_nonzero": 8,
     "sign_test_p": 0.0078125,
+    "sign_significant": true,
+    "se_threshold_two_sided_p": 0.3506166628202074,
     "recorded_verdict_matches": true
   },
   {
@@ -4023,6 +4387,8 @@
     "seeds_favouring_lower": 0,
     "seeds_nonzero": 8,
     "sign_test_p": 0.0078125,
+    "sign_significant": true,
+    "se_threshold_two_sided_p": 0.3506166628202074,
     "recorded_verdict_matches": true
   },
   {
@@ -4045,6 +4411,8 @@
     "seeds_favouring_lower": 0,
     "seeds_nonzero": 8,
     "sign_test_p": 0.0078125,
+    "sign_significant": true,
+    "se_threshold_two_sided_p": 0.3506166628202074,
     "recorded_verdict_matches": true
   },
   {
@@ -4067,6 +4435,8 @@
     "seeds_favouring_lower": 0,
     "seeds_nonzero": 8,
     "sign_test_p": 0.0078125,
+    "sign_significant": true,
+    "se_threshold_two_sided_p": 0.3506166628202074,
     "recorded_verdict_matches": true
   },
   {
@@ -4089,6 +4459,8 @@
     "seeds_favouring_lower": 0,
     "seeds_nonzero": 8,
     "sign_test_p": 0.0078125,
+    "sign_significant": true,
+    "se_threshold_two_sided_p": 0.3506166628202074,
     "recorded_verdict_matches": true
   },
   {
@@ -4111,6 +4483,8 @@
     "seeds_favouring_lower": 0,
     "seeds_nonzero": 8,
     "sign_test_p": 0.0078125,
+    "sign_significant": true,
+    "se_threshold_two_sided_p": 0.3506166628202074,
     "recorded_verdict_matches": true
   },
   {
@@ -4133,6 +4507,8 @@
     "seeds_favouring_lower": 0,
     "seeds_nonzero": 8,
     "sign_test_p": 0.0078125,
+    "sign_significant": true,
+    "se_threshold_two_sided_p": 0.3506166628202074,
     "recorded_verdict_matches": true
   },
   {
@@ -4155,6 +4531,8 @@
     "seeds_favouring_lower": 8,
     "seeds_nonzero": 8,
     "sign_test_p": 0.0078125,
+    "sign_significant": true,
+    "se_threshold_two_sided_p": 0.3506166628202074,
     "recorded_verdict_matches": true
   },
   {
@@ -4177,6 +4555,8 @@
     "seeds_favouring_lower": 0,
     "seeds_nonzero": 8,
     "sign_test_p": 0.0078125,
+    "sign_significant": true,
+    "se_threshold_two_sided_p": 0.3506166628202074,
     "recorded_verdict_matches": true
   },
   {
@@ -4199,6 +4579,8 @@
     "seeds_favouring_lower": 0,
     "seeds_nonzero": 8,
     "sign_test_p": 0.0078125,
+    "sign_significant": true,
+    "se_threshold_two_sided_p": 0.3506166628202074,
     "recorded_verdict_matches": true
   },
   {
@@ -4221,6 +4603,8 @@
     "seeds_favouring_lower": 3,
     "seeds_nonzero": 8,
     "sign_test_p": 0.7265625,
+    "sign_significant": false,
+    "se_threshold_two_sided_p": 0.3506166628202074,
     "recorded_verdict_matches": true
   },
   {
@@ -4243,6 +4627,8 @@
     "seeds_favouring_lower": 8,
     "seeds_nonzero": 8,
     "sign_test_p": 0.0078125,
+    "sign_significant": true,
+    "se_threshold_two_sided_p": 0.3506166628202074,
     "recorded_verdict_matches": true
   },
   {
@@ -4265,6 +4651,8 @@
     "seeds_favouring_lower": 0,
     "seeds_nonzero": 8,
     "sign_test_p": 0.0078125,
+    "sign_significant": true,
+    "se_threshold_two_sided_p": 0.3506166628202074,
     "recorded_verdict_matches": true
   },
   {
@@ -4287,6 +4675,8 @@
     "seeds_favouring_lower": 0,
     "seeds_nonzero": 8,
     "sign_test_p": 0.0078125,
+    "sign_significant": true,
+    "se_threshold_two_sided_p": 0.3506166628202074,
     "recorded_verdict_matches": true
   },
   {
@@ -4309,6 +4699,8 @@
     "seeds_favouring_lower": 0,
     "seeds_nonzero": 8,
     "sign_test_p": 0.0078125,
+    "sign_significant": true,
+    "se_threshold_two_sided_p": 0.3506166628202074,
     "recorded_verdict_matches": true
   },
   {
@@ -4331,6 +4723,8 @@
     "seeds_favouring_lower": 8,
     "seeds_nonzero": 8,
     "sign_test_p": 0.0078125,
+    "sign_significant": true,
+    "se_threshold_two_sided_p": 0.3506166628202074,
     "recorded_verdict_matches": true
   },
   {
@@ -4353,6 +4747,8 @@
     "seeds_favouring_lower": 0,
     "seeds_nonzero": 8,
     "sign_test_p": 0.0078125,
+    "sign_significant": true,
+    "se_threshold_two_sided_p": 0.3506166628202074,
     "recorded_verdict_matches": true
   },
   {
@@ -4375,6 +4771,8 @@
     "seeds_favouring_lower": 0,
     "seeds_nonzero": 8,
     "sign_test_p": 0.0078125,
+    "sign_significant": true,
+    "se_threshold_two_sided_p": 0.3506166628202074,
     "recorded_verdict_matches": true
   },
   {
@@ -4397,6 +4795,8 @@
     "seeds_favouring_lower": 0,
     "seeds_nonzero": 8,
     "sign_test_p": 0.0078125,
+    "sign_significant": true,
+    "se_threshold_two_sided_p": 0.3506166628202074,
     "recorded_verdict_matches": true
   },
   {
@@ -4419,6 +4819,8 @@
     "seeds_favouring_lower": 0,
     "seeds_nonzero": 8,
     "sign_test_p": 0.0078125,
+    "sign_significant": true,
+    "se_threshold_two_sided_p": 0.3506166628202074,
     "recorded_verdict_matches": true
   },
   {
@@ -4441,6 +4843,8 @@
     "seeds_favouring_lower": 0,
     "seeds_nonzero": 8,
     "sign_test_p": 0.0078125,
+    "sign_significant": true,
+    "se_threshold_two_sided_p": 0.3506166628202074,
     "recorded_verdict_matches": true
   },
   {
@@ -4463,6 +4867,8 @@
     "seeds_favouring_lower": 0,
     "seeds_nonzero": 8,
     "sign_test_p": 0.0078125,
+    "sign_significant": true,
+    "se_threshold_two_sided_p": 0.3506166628202074,
     "recorded_verdict_matches": true
   },
   {
@@ -4485,6 +4891,8 @@
     "seeds_favouring_lower": 0,
     "seeds_nonzero": 8,
     "sign_test_p": 0.0078125,
+    "sign_significant": true,
+    "se_threshold_two_sided_p": 0.3506166628202074,
     "recorded_verdict_matches": true
   },
   {
@@ -4507,6 +4915,8 @@
     "seeds_favouring_lower": 0,
     "seeds_nonzero": 8,
     "sign_test_p": 0.0078125,
+    "sign_significant": true,
+    "se_threshold_two_sided_p": 0.3506166628202074,
     "recorded_verdict_matches": true
   },
   {
@@ -4529,6 +4939,8 @@
     "seeds_favouring_lower": 2,
     "seeds_nonzero": 8,
     "sign_test_p": 0.2890625,
+    "sign_significant": false,
+    "se_threshold_two_sided_p": 0.3506166628202074,
     "recorded_verdict_matches": true
   },
   {
@@ -4551,6 +4963,8 @@
     "seeds_favouring_lower": 0,
     "seeds_nonzero": 8,
     "sign_test_p": 0.0078125,
+    "sign_significant": true,
+    "se_threshold_two_sided_p": 0.3506166628202074,
     "recorded_verdict_matches": true
   },
   {
@@ -4573,6 +4987,8 @@
     "seeds_favouring_lower": 5,
     "seeds_nonzero": 8,
     "sign_test_p": 0.7265625,
+    "sign_significant": false,
+    "se_threshold_two_sided_p": 0.3506166628202074,
     "recorded_verdict_matches": true
   },
   {
@@ -4595,6 +5011,8 @@
     "seeds_favouring_lower": 8,
     "seeds_nonzero": 8,
     "sign_test_p": 0.0078125,
+    "sign_significant": true,
+    "se_threshold_two_sided_p": 0.3506166628202074,
     "recorded_verdict_matches": true
   },
   {
@@ -4617,6 +5035,8 @@
     "seeds_favouring_lower": 0,
     "seeds_nonzero": 8,
     "sign_test_p": 0.0078125,
+    "sign_significant": true,
+    "se_threshold_two_sided_p": 0.3506166628202074,
     "recorded_verdict_matches": true
   },
   {
@@ -4639,6 +5059,8 @@
     "seeds_favouring_lower": 0,
     "seeds_nonzero": 8,
     "sign_test_p": 0.0078125,
+    "sign_significant": true,
+    "se_threshold_two_sided_p": 0.3506166628202074,
     "recorded_verdict_matches": true
   },
   {
@@ -4661,6 +5083,8 @@
     "seeds_favouring_lower": 0,
     "seeds_nonzero": 8,
     "sign_test_p": 0.0078125,
+    "sign_significant": true,
+    "se_threshold_two_sided_p": 0.3506166628202074,
     "recorded_verdict_matches": true
   },
   {
@@ -4683,6 +5107,8 @@
     "seeds_favouring_lower": 0,
     "seeds_nonzero": 8,
     "sign_test_p": 0.0078125,
+    "sign_significant": true,
+    "se_threshold_two_sided_p": 0.3506166628202074,
     "recorded_verdict_matches": true
   },
   {
@@ -4705,6 +5131,8 @@
     "seeds_favouring_lower": 0,
     "seeds_nonzero": 8,
     "sign_test_p": 0.0078125,
+    "sign_significant": true,
+    "se_threshold_two_sided_p": 0.3506166628202074,
     "recorded_verdict_matches": true
   },
   {
@@ -4727,6 +5155,8 @@
     "seeds_favouring_lower": 0,
     "seeds_nonzero": 8,
     "sign_test_p": 0.0078125,
+    "sign_significant": true,
+    "se_threshold_two_sided_p": 0.3506166628202074,
     "recorded_verdict_matches": true
   },
   {
@@ -4749,6 +5179,8 @@
     "seeds_favouring_lower": 0,
     "seeds_nonzero": 8,
     "sign_test_p": 0.0078125,
+    "sign_significant": true,
+    "se_threshold_two_sided_p": 0.3506166628202074,
     "recorded_verdict_matches": true
   },
   {
@@ -4771,6 +5203,8 @@
     "seeds_favouring_lower": 0,
     "seeds_nonzero": 8,
     "sign_test_p": 0.0078125,
+    "sign_significant": true,
+    "se_threshold_two_sided_p": 0.3506166628202074,
     "recorded_verdict_matches": true
   },
   {
@@ -4793,6 +5227,8 @@
     "seeds_favouring_lower": 0,
     "seeds_nonzero": 8,
     "sign_test_p": 0.0078125,
+    "sign_significant": true,
+    "se_threshold_two_sided_p": 0.3506166628202074,
     "recorded_verdict_matches": true
   },
   {
@@ -4815,6 +5251,8 @@
     "seeds_favouring_lower": 0,
     "seeds_nonzero": 8,
     "sign_test_p": 0.0078125,
+    "sign_significant": true,
+    "se_threshold_two_sided_p": 0.3506166628202074,
     "recorded_verdict_matches": true
   },
   {
@@ -4837,6 +5275,8 @@
     "seeds_favouring_lower": 0,
     "seeds_nonzero": 8,
     "sign_test_p": 0.0078125,
+    "sign_significant": true,
+    "se_threshold_two_sided_p": 0.3506166628202074,
     "recorded_verdict_matches": true
   },
   {
@@ -4859,6 +5299,8 @@
     "seeds_favouring_lower": 0,
     "seeds_nonzero": 8,
     "sign_test_p": 0.0078125,
+    "sign_significant": true,
+    "se_threshold_two_sided_p": 0.3506166628202074,
     "recorded_verdict_matches": true
   },
   {
@@ -4881,6 +5323,8 @@
     "seeds_favouring_lower": 2,
     "seeds_nonzero": 8,
     "sign_test_p": 0.2890625,
+    "sign_significant": false,
+    "se_threshold_two_sided_p": 0.3506166628202074,
     "recorded_verdict_matches": true
   },
   {
@@ -4903,6 +5347,8 @@
     "seeds_favouring_lower": 0,
     "seeds_nonzero": 8,
     "sign_test_p": 0.0078125,
+    "sign_significant": true,
+    "se_threshold_two_sided_p": 0.3506166628202074,
     "recorded_verdict_matches": true
   },
   {
@@ -4925,6 +5371,8 @@
     "seeds_favouring_lower": 5,
     "seeds_nonzero": 8,
     "sign_test_p": 0.7265625,
+    "sign_significant": false,
+    "se_threshold_two_sided_p": 0.3506166628202074,
     "recorded_verdict_matches": true
   },
   {
@@ -4947,6 +5395,8 @@
     "seeds_favouring_lower": 8,
     "seeds_nonzero": 8,
     "sign_test_p": 0.0078125,
+    "sign_significant": true,
+    "se_threshold_two_sided_p": 0.3506166628202074,
     "recorded_verdict_matches": true
   },
   {
@@ -4969,6 +5419,8 @@
     "seeds_favouring_lower": 0,
     "seeds_nonzero": 8,
     "sign_test_p": 0.0078125,
+    "sign_significant": true,
+    "se_threshold_two_sided_p": 0.3506166628202074,
     "recorded_verdict_matches": true
   },
   {
@@ -4991,6 +5443,8 @@
     "seeds_favouring_lower": 0,
     "seeds_nonzero": 8,
     "sign_test_p": 0.0078125,
+    "sign_significant": true,
+    "se_threshold_two_sided_p": 0.3506166628202074,
     "recorded_verdict_matches": true
   },
   {
@@ -5013,6 +5467,8 @@
     "seeds_favouring_lower": 0,
     "seeds_nonzero": 8,
     "sign_test_p": 0.0078125,
+    "sign_significant": true,
+    "se_threshold_two_sided_p": 0.3506166628202074,
     "recorded_verdict_matches": true
   },
   {
@@ -5035,6 +5491,8 @@
     "seeds_favouring_lower": 0,
     "seeds_nonzero": 8,
     "sign_test_p": 0.0078125,
+    "sign_significant": true,
+    "se_threshold_two_sided_p": 0.3506166628202074,
     "recorded_verdict_matches": true
   },
   {
@@ -5057,6 +5515,8 @@
     "seeds_favouring_lower": 0,
     "seeds_nonzero": 8,
     "sign_test_p": 0.0078125,
+    "sign_significant": true,
+    "se_threshold_two_sided_p": 0.3506166628202074,
     "recorded_verdict_matches": true
   },
   {
@@ -5079,6 +5539,8 @@
     "seeds_favouring_lower": 0,
     "seeds_nonzero": 8,
     "sign_test_p": 0.0078125,
+    "sign_significant": true,
+    "se_threshold_two_sided_p": 0.3506166628202074,
     "recorded_verdict_matches": true
   },
   {
@@ -5101,6 +5563,8 @@
     "seeds_favouring_lower": 0,
     "seeds_nonzero": 8,
     "sign_test_p": 0.0078125,
+    "sign_significant": true,
+    "se_threshold_two_sided_p": 0.3506166628202074,
     "recorded_verdict_matches": true
   },
   {
@@ -5123,6 +5587,8 @@
     "seeds_favouring_lower": 0,
     "seeds_nonzero": 8,
     "sign_test_p": 0.0078125,
+    "sign_significant": true,
+    "se_threshold_two_sided_p": 0.3506166628202074,
     "recorded_verdict_matches": true
   },
   {
@@ -5145,6 +5611,8 @@
     "seeds_favouring_lower": 0,
     "seeds_nonzero": 8,
     "sign_test_p": 0.0078125,
+    "sign_significant": true,
+    "se_threshold_two_sided_p": 0.3506166628202074,
     "recorded_verdict_matches": true
   },
   {
@@ -5167,6 +5635,8 @@
     "seeds_favouring_lower": 0,
     "seeds_nonzero": 8,
     "sign_test_p": 0.0078125,
+    "sign_significant": true,
+    "se_threshold_two_sided_p": 0.3506166628202074,
     "recorded_verdict_matches": true
   },
   {
@@ -5189,6 +5659,8 @@
     "seeds_favouring_lower": 3,
     "seeds_nonzero": 8,
     "sign_test_p": 0.7265625,
+    "sign_significant": false,
+    "se_threshold_two_sided_p": 0.3506166628202074,
     "recorded_verdict_matches": true
   },
   {
@@ -5211,6 +5683,8 @@
     "seeds_favouring_lower": 1,
     "seeds_nonzero": 8,
     "sign_test_p": 0.0703125,
+    "sign_significant": false,
+    "se_threshold_two_sided_p": 0.3506166628202074,
     "recorded_verdict_matches": true
   },
   {
@@ -5233,6 +5707,8 @@
     "seeds_favouring_lower": 2,
     "seeds_nonzero": 8,
     "sign_test_p": 0.2890625,
+    "sign_significant": false,
+    "se_threshold_two_sided_p": 0.3506166628202074,
     "recorded_verdict_matches": true
   },
   {
@@ -5255,6 +5731,8 @@
     "seeds_favouring_lower": 1,
     "seeds_nonzero": 8,
     "sign_test_p": 0.0703125,
+    "sign_significant": false,
+    "se_threshold_two_sided_p": 0.3506166628202074,
     "recorded_verdict_matches": true
   },
   {
@@ -5277,6 +5755,8 @@
     "seeds_favouring_lower": 7,
     "seeds_nonzero": 8,
     "sign_test_p": 0.0703125,
+    "sign_significant": false,
+    "se_threshold_two_sided_p": 0.3506166628202074,
     "recorded_verdict_matches": true
   },
   {
@@ -5299,6 +5779,8 @@
     "seeds_favouring_lower": 6,
     "seeds_nonzero": 8,
     "sign_test_p": 0.2890625,
+    "sign_significant": false,
+    "se_threshold_two_sided_p": 0.3506166628202074,
     "recorded_verdict_matches": true
   },
   {
@@ -5321,6 +5803,8 @@
     "seeds_favouring_lower": 2,
     "seeds_nonzero": 8,
     "sign_test_p": 0.2890625,
+    "sign_significant": false,
+    "se_threshold_two_sided_p": 0.3506166628202074,
     "recorded_verdict_matches": true
   },
   {
@@ -5343,6 +5827,8 @@
     "seeds_favouring_lower": 1,
     "seeds_nonzero": 8,
     "sign_test_p": 0.0703125,
+    "sign_significant": false,
+    "se_threshold_two_sided_p": 0.3506166628202074,
     "recorded_verdict_matches": true
   },
   {
@@ -5365,6 +5851,8 @@
     "seeds_favouring_lower": 0,
     "seeds_nonzero": 8,
     "sign_test_p": 0.0078125,
+    "sign_significant": true,
+    "se_threshold_two_sided_p": 0.3506166628202074,
     "recorded_verdict_matches": true
   },
   {
@@ -5387,6 +5875,8 @@
     "seeds_favouring_lower": 0,
     "seeds_nonzero": 8,
     "sign_test_p": 0.0078125,
+    "sign_significant": true,
+    "se_threshold_two_sided_p": 0.3506166628202074,
     "recorded_verdict_matches": true
   },
   {
@@ -5409,6 +5899,8 @@
     "seeds_favouring_lower": 0,
     "seeds_nonzero": 8,
     "sign_test_p": 0.0078125,
+    "sign_significant": true,
+    "se_threshold_two_sided_p": 0.3506166628202074,
     "recorded_verdict_matches": true
   },
   {
@@ -5431,6 +5923,8 @@
     "seeds_favouring_lower": 0,
     "seeds_nonzero": 8,
     "sign_test_p": 0.0078125,
+    "sign_significant": true,
+    "se_threshold_two_sided_p": 0.3506166628202074,
     "recorded_verdict_matches": true
   },
   {
@@ -5453,6 +5947,8 @@
     "seeds_favouring_lower": 0,
     "seeds_nonzero": 8,
     "sign_test_p": 0.0078125,
+    "sign_significant": true,
+    "se_threshold_two_sided_p": 0.3506166628202074,
     "recorded_verdict_matches": true
   },
   {
@@ -5475,6 +5971,8 @@
     "seeds_favouring_lower": 0,
     "seeds_nonzero": 8,
     "sign_test_p": 0.0078125,
+    "sign_significant": true,
+    "se_threshold_two_sided_p": 0.3506166628202074,
     "recorded_verdict_matches": true
   },
   {
@@ -5497,6 +5995,8 @@
     "seeds_favouring_lower": 0,
     "seeds_nonzero": 8,
     "sign_test_p": 0.0078125,
+    "sign_significant": true,
+    "se_threshold_two_sided_p": 0.3506166628202074,
     "recorded_verdict_matches": true
   },
   {
@@ -5519,6 +6019,8 @@
     "seeds_favouring_lower": 0,
     "seeds_nonzero": 8,
     "sign_test_p": 0.0078125,
+    "sign_significant": true,
+    "se_threshold_two_sided_p": 0.3506166628202074,
     "recorded_verdict_matches": true
   },
   {
@@ -5541,6 +6043,8 @@
     "seeds_favouring_lower": 0,
     "seeds_nonzero": 8,
     "sign_test_p": 0.0078125,
+    "sign_significant": true,
+    "se_threshold_two_sided_p": 0.3506166628202074,
     "recorded_verdict_matches": true
   },
   {
@@ -5563,6 +6067,8 @@
     "seeds_favouring_lower": 0,
     "seeds_nonzero": 8,
     "sign_test_p": 0.0078125,
+    "sign_significant": true,
+    "se_threshold_two_sided_p": 0.3506166628202074,
     "recorded_verdict_matches": true
   },
   {
@@ -5585,6 +6091,8 @@
     "seeds_favouring_lower": 0,
     "seeds_nonzero": 8,
     "sign_test_p": 0.0078125,
+    "sign_significant": true,
+    "se_threshold_two_sided_p": 0.3506166628202074,
     "recorded_verdict_matches": true
   },
   {
@@ -5607,6 +6115,8 @@
     "seeds_favouring_lower": 0,
     "seeds_nonzero": 8,
     "sign_test_p": 0.0078125,
+    "sign_significant": true,
+    "se_threshold_two_sided_p": 0.3506166628202074,
     "recorded_verdict_matches": true
   },
   {
@@ -5629,6 +6139,8 @@
     "seeds_favouring_lower": 0,
     "seeds_nonzero": 8,
     "sign_test_p": 0.0078125,
+    "sign_significant": true,
+    "se_threshold_two_sided_p": 0.3506166628202074,
     "recorded_verdict_matches": true
   },
   {
@@ -5651,6 +6163,8 @@
     "seeds_favouring_lower": 0,
     "seeds_nonzero": 8,
     "sign_test_p": 0.0078125,
+    "sign_significant": true,
+    "se_threshold_two_sided_p": 0.3506166628202074,
     "recorded_verdict_matches": true
   },
   {
@@ -5673,6 +6187,8 @@
     "seeds_favouring_lower": 0,
     "seeds_nonzero": 8,
     "sign_test_p": 0.0078125,
+    "sign_significant": true,
+    "se_threshold_two_sided_p": 0.3506166628202074,
     "recorded_verdict_matches": true
   },
   {
@@ -5695,6 +6211,8 @@
     "seeds_favouring_lower": 0,
     "seeds_nonzero": 8,
     "sign_test_p": 0.0078125,
+    "sign_significant": true,
+    "se_threshold_two_sided_p": 0.3506166628202074,
     "recorded_verdict_matches": true
   },
   {
@@ -5717,6 +6235,8 @@
     "seeds_favouring_lower": 0,
     "seeds_nonzero": 8,
     "sign_test_p": 0.0078125,
+    "sign_significant": true,
+    "se_threshold_two_sided_p": 0.3506166628202074,
     "recorded_verdict_matches": true
   },
   {
@@ -5739,6 +6259,8 @@
     "seeds_favouring_lower": 0,
     "seeds_nonzero": 8,
     "sign_test_p": 0.0078125,
+    "sign_significant": true,
+    "se_threshold_two_sided_p": 0.3506166628202074,
     "recorded_verdict_matches": true
   },
   {
@@ -5761,6 +6283,8 @@
     "seeds_favouring_lower": 7,
     "seeds_nonzero": 8,
     "sign_test_p": 0.0703125,
+    "sign_significant": false,
+    "se_threshold_two_sided_p": 0.3506166628202074,
     "recorded_verdict_matches": true
   },
   {
@@ -5783,6 +6307,8 @@
     "seeds_favouring_lower": 8,
     "seeds_nonzero": 8,
     "sign_test_p": 0.0078125,
+    "sign_significant": true,
+    "se_threshold_two_sided_p": 0.3506166628202074,
     "recorded_verdict_matches": true
   },
   {
@@ -5805,6 +6331,8 @@
     "seeds_favouring_lower": 0,
     "seeds_nonzero": 8,
     "sign_test_p": 0.0078125,
+    "sign_significant": true,
+    "se_threshold_two_sided_p": 0.3506166628202074,
     "recorded_verdict_matches": true
   },
   {
@@ -5827,6 +6355,8 @@
     "seeds_favouring_lower": 0,
     "seeds_nonzero": 8,
     "sign_test_p": 0.0078125,
+    "sign_significant": true,
+    "se_threshold_two_sided_p": 0.3506166628202074,
     "recorded_verdict_matches": true
   },
   {
@@ -5849,6 +6379,8 @@
     "seeds_favouring_lower": 0,
     "seeds_nonzero": 8,
     "sign_test_p": 0.0078125,
+    "sign_significant": true,
+    "se_threshold_two_sided_p": 0.3506166628202074,
     "recorded_verdict_matches": true
   },
   {
@@ -5871,6 +6403,8 @@
     "seeds_favouring_lower": 0,
     "seeds_nonzero": 8,
     "sign_test_p": 0.0078125,
+    "sign_significant": true,
+    "se_threshold_two_sided_p": 0.3506166628202074,
     "recorded_verdict_matches": true
   },
   {
@@ -5893,6 +6427,8 @@
     "seeds_favouring_lower": 2,
     "seeds_nonzero": 8,
     "sign_test_p": 0.2890625,
+    "sign_significant": false,
+    "se_threshold_two_sided_p": 0.3506166628202074,
     "recorded_verdict_matches": true
   },
   {
@@ -5915,6 +6451,8 @@
     "seeds_favouring_lower": 1,
     "seeds_nonzero": 8,
     "sign_test_p": 0.0703125,
+    "sign_significant": false,
+    "se_threshold_two_sided_p": 0.3506166628202074,
     "recorded_verdict_matches": true
   },
   {
@@ -5937,6 +6475,8 @@
     "seeds_favouring_lower": 5,
     "seeds_nonzero": 8,
     "sign_test_p": 0.7265625,
+    "sign_significant": false,
+    "se_threshold_two_sided_p": 0.3506166628202074,
     "recorded_verdict_matches": true
   },
   {
@@ -5959,6 +6499,8 @@
     "seeds_favouring_lower": 5,
     "seeds_nonzero": 8,
     "sign_test_p": 0.7265625,
+    "sign_significant": false,
+    "se_threshold_two_sided_p": 0.3506166628202074,
     "recorded_verdict_matches": true
   },
   {
@@ -5981,6 +6523,8 @@
     "seeds_favouring_lower": 1,
     "seeds_nonzero": 8,
     "sign_test_p": 0.0703125,
+    "sign_significant": false,
+    "se_threshold_two_sided_p": 0.3506166628202074,
     "recorded_verdict_matches": true
   },
   {
@@ -6003,6 +6547,8 @@
     "seeds_favouring_lower": 1,
     "seeds_nonzero": 8,
     "sign_test_p": 0.0703125,
+    "sign_significant": false,
+    "se_threshold_two_sided_p": 0.3506166628202074,
     "recorded_verdict_matches": true
   },
   {
@@ -6025,6 +6571,8 @@
     "seeds_favouring_lower": 3,
     "seeds_nonzero": 8,
     "sign_test_p": 0.7265625,
+    "sign_significant": false,
+    "se_threshold_two_sided_p": 0.3506166628202074,
     "recorded_verdict_matches": true
   },
   {
@@ -6047,6 +6595,8 @@
     "seeds_favouring_lower": 0,
     "seeds_nonzero": 8,
     "sign_test_p": 0.0078125,
+    "sign_significant": true,
+    "se_threshold_two_sided_p": 0.3506166628202074,
     "recorded_verdict_matches": true
   },
   {
@@ -6069,6 +6619,8 @@
     "seeds_favouring_lower": 3,
     "seeds_nonzero": 8,
     "sign_test_p": 0.7265625,
+    "sign_significant": false,
+    "se_threshold_two_sided_p": 0.3506166628202074,
     "recorded_verdict_matches": true
   },
   {
@@ -6091,6 +6643,8 @@
     "seeds_favouring_lower": 7,
     "seeds_nonzero": 8,
     "sign_test_p": 0.0703125,
+    "sign_significant": false,
+    "se_threshold_two_sided_p": 0.3506166628202074,
     "recorded_verdict_matches": true
   },
   {
@@ -6113,6 +6667,8 @@
     "seeds_favouring_lower": 1,
     "seeds_nonzero": 8,
     "sign_test_p": 0.0703125,
+    "sign_significant": false,
+    "se_threshold_two_sided_p": 0.3506166628202074,
     "recorded_verdict_matches": true
   },
   {
@@ -6135,6 +6691,8 @@
     "seeds_favouring_lower": 0,
     "seeds_nonzero": 8,
     "sign_test_p": 0.0078125,
+    "sign_significant": true,
+    "se_threshold_two_sided_p": 0.3506166628202074,
     "recorded_verdict_matches": true
   },
   {
@@ -6157,6 +6715,8 @@
     "seeds_favouring_lower": 0,
     "seeds_nonzero": 8,
     "sign_test_p": 0.0078125,
+    "sign_significant": true,
+    "se_threshold_two_sided_p": 0.3506166628202074,
     "recorded_verdict_matches": true
   },
   {
@@ -6179,6 +6739,8 @@
     "seeds_favouring_lower": 0,
     "seeds_nonzero": 8,
     "sign_test_p": 0.0078125,
+    "sign_significant": true,
+    "se_threshold_two_sided_p": 0.3506166628202074,
     "recorded_verdict_matches": true
   },
   {
@@ -6201,6 +6763,8 @@
     "seeds_favouring_lower": 0,
     "seeds_nonzero": 8,
     "sign_test_p": 0.0078125,
+    "sign_significant": true,
+    "se_threshold_two_sided_p": 0.3506166628202074,
     "recorded_verdict_matches": true
   },
   {
@@ -6223,6 +6787,8 @@
     "seeds_favouring_lower": 7,
     "seeds_nonzero": 8,
     "sign_test_p": 0.0703125,
+    "sign_significant": false,
+    "se_threshold_two_sided_p": 0.3506166628202074,
     "recorded_verdict_matches": true
   },
   {
@@ -6245,6 +6811,8 @@
     "seeds_favouring_lower": 0,
     "seeds_nonzero": 4,
     "sign_test_p": 0.125,
+    "sign_significant": false,
+    "se_threshold_two_sided_p": 0.3910022189557705,
     "recorded_verdict_matches": true
   },
   {
@@ -6267,6 +6835,8 @@
     "seeds_favouring_lower": 0,
     "seeds_nonzero": 4,
     "sign_test_p": 0.125,
+    "sign_significant": false,
+    "se_threshold_two_sided_p": 0.3910022189557705,
     "recorded_verdict_matches": true
   },
   {
@@ -6289,6 +6859,8 @@
     "seeds_favouring_lower": 0,
     "seeds_nonzero": 4,
     "sign_test_p": 0.125,
+    "sign_significant": false,
+    "se_threshold_two_sided_p": 0.3910022189557705,
     "recorded_verdict_matches": true
   },
   {
@@ -6311,6 +6883,8 @@
     "seeds_favouring_lower": 0,
     "seeds_nonzero": 4,
     "sign_test_p": 0.125,
+    "sign_significant": false,
+    "se_threshold_two_sided_p": 0.3910022189557705,
     "recorded_verdict_matches": true
   },
   {
@@ -6333,6 +6907,8 @@
     "seeds_favouring_lower": 0,
     "seeds_nonzero": 4,
     "sign_test_p": 0.125,
+    "sign_significant": false,
+    "se_threshold_two_sided_p": 0.3910022189557705,
     "recorded_verdict_matches": true
   },
   {
@@ -6355,6 +6931,8 @@
     "seeds_favouring_lower": 0,
     "seeds_nonzero": 4,
     "sign_test_p": 0.125,
+    "sign_significant": false,
+    "se_threshold_two_sided_p": 0.3910022189557705,
     "recorded_verdict_matches": true
   },
   {
@@ -6377,6 +6955,8 @@
     "seeds_favouring_lower": 0,
     "seeds_nonzero": 4,
     "sign_test_p": 0.125,
+    "sign_significant": false,
+    "se_threshold_two_sided_p": 0.3910022189557705,
     "recorded_verdict_matches": true
   },
   {
@@ -6399,6 +6979,8 @@
     "seeds_favouring_lower": 0,
     "seeds_nonzero": 4,
     "sign_test_p": 0.125,
+    "sign_significant": false,
+    "se_threshold_two_sided_p": 0.3910022189557705,
     "recorded_verdict_matches": true
   },
   {
@@ -6421,6 +7003,8 @@
     "seeds_favouring_lower": 0,
     "seeds_nonzero": 4,
     "sign_test_p": 0.125,
+    "sign_significant": false,
+    "se_threshold_two_sided_p": 0.3910022189557705,
     "recorded_verdict_matches": true
   },
   {
@@ -6443,6 +7027,8 @@
     "seeds_favouring_lower": 0,
     "seeds_nonzero": 4,
     "sign_test_p": 0.125,
+    "sign_significant": false,
+    "se_threshold_two_sided_p": 0.3910022189557705,
     "recorded_verdict_matches": true
   },
   {
@@ -6465,6 +7051,8 @@
     "seeds_favouring_lower": 0,
     "seeds_nonzero": 4,
     "sign_test_p": 0.125,
+    "sign_significant": false,
+    "se_threshold_two_sided_p": 0.3910022189557705,
     "recorded_verdict_matches": true
   },
   {
@@ -6487,6 +7075,8 @@
     "seeds_favouring_lower": 0,
     "seeds_nonzero": 4,
     "sign_test_p": 0.125,
+    "sign_significant": false,
+    "se_threshold_two_sided_p": 0.3910022189557705,
     "recorded_verdict_matches": true
   },
   {
@@ -6509,6 +7099,8 @@
     "seeds_favouring_lower": 0,
     "seeds_nonzero": 4,
     "sign_test_p": 0.125,
+    "sign_significant": false,
+    "se_threshold_two_sided_p": 0.3910022189557705,
     "recorded_verdict_matches": true
   },
   {
@@ -6531,6 +7123,8 @@
     "seeds_favouring_lower": 0,
     "seeds_nonzero": 4,
     "sign_test_p": 0.125,
+    "sign_significant": false,
+    "se_threshold_two_sided_p": 0.3910022189557705,
     "recorded_verdict_matches": true
   },
   {
@@ -6553,6 +7147,8 @@
     "seeds_favouring_lower": 0,
     "seeds_nonzero": 4,
     "sign_test_p": 0.125,
+    "sign_significant": false,
+    "se_threshold_two_sided_p": 0.3910022189557705,
     "recorded_verdict_matches": true
   },
   {
@@ -6575,6 +7171,8 @@
     "seeds_favouring_lower": 0,
     "seeds_nonzero": 4,
     "sign_test_p": 0.125,
+    "sign_significant": false,
+    "se_threshold_two_sided_p": 0.3910022189557705,
     "recorded_verdict_matches": true
   },
   {
@@ -6597,6 +7195,8 @@
     "seeds_favouring_lower": 0,
     "seeds_nonzero": 4,
     "sign_test_p": 0.125,
+    "sign_significant": false,
+    "se_threshold_two_sided_p": 0.3910022189557705,
     "recorded_verdict_matches": true
   },
   {
@@ -6619,6 +7219,8 @@
     "seeds_favouring_lower": 1,
     "seeds_nonzero": 4,
     "sign_test_p": 0.625,
+    "sign_significant": false,
+    "se_threshold_two_sided_p": 0.3910022189557705,
     "recorded_verdict_matches": true
   },
   {
@@ -6641,6 +7243,8 @@
     "seeds_favouring_lower": 0,
     "seeds_nonzero": 4,
     "sign_test_p": 0.125,
+    "sign_significant": false,
+    "se_threshold_two_sided_p": 0.3910022189557705,
     "recorded_verdict_matches": true
   },
   {
@@ -6663,6 +7267,8 @@
     "seeds_favouring_lower": 0,
     "seeds_nonzero": 4,
     "sign_test_p": 0.125,
+    "sign_significant": false,
+    "se_threshold_two_sided_p": 0.3910022189557705,
     "recorded_verdict_matches": true
   },
   {
@@ -6685,6 +7291,8 @@
     "seeds_favouring_lower": 0,
     "seeds_nonzero": 4,
     "sign_test_p": 0.125,
+    "sign_significant": false,
+    "se_threshold_two_sided_p": 0.3910022189557705,
     "recorded_verdict_matches": true
   },
   {
@@ -6707,6 +7315,8 @@
     "seeds_favouring_lower": 0,
     "seeds_nonzero": 4,
     "sign_test_p": 0.125,
+    "sign_significant": false,
+    "se_threshold_two_sided_p": 0.3910022189557705,
     "recorded_verdict_matches": true
   },
   {
@@ -6729,6 +7339,8 @@
     "seeds_favouring_lower": 0,
     "seeds_nonzero": 4,
     "sign_test_p": 0.125,
+    "sign_significant": false,
+    "se_threshold_two_sided_p": 0.3910022189557705,
     "recorded_verdict_matches": true
   },
   {
@@ -6751,6 +7363,8 @@
     "seeds_favouring_lower": 3,
     "seeds_nonzero": 4,
     "sign_test_p": 0.625,
+    "sign_significant": false,
+    "se_threshold_two_sided_p": 0.3910022189557705,
     "recorded_verdict_matches": true
   },
   {
@@ -6773,6 +7387,8 @@
     "seeds_favouring_lower": 0,
     "seeds_nonzero": 4,
     "sign_test_p": 0.125,
+    "sign_significant": false,
+    "se_threshold_two_sided_p": 0.3910022189557705,
     "recorded_verdict_matches": true
   },
   {
@@ -6795,6 +7411,8 @@
     "seeds_favouring_lower": 0,
     "seeds_nonzero": 4,
     "sign_test_p": 0.125,
+    "sign_significant": false,
+    "se_threshold_two_sided_p": 0.3910022189557705,
     "recorded_verdict_matches": true
   },
   {
@@ -6817,6 +7435,8 @@
     "seeds_favouring_lower": 0,
     "seeds_nonzero": 4,
     "sign_test_p": 0.125,
+    "sign_significant": false,
+    "se_threshold_two_sided_p": 0.3910022189557705,
     "recorded_verdict_matches": true
   },
   {
@@ -6839,6 +7459,8 @@
     "seeds_favouring_lower": 0,
     "seeds_nonzero": 4,
     "sign_test_p": 0.125,
+    "sign_significant": false,
+    "se_threshold_two_sided_p": 0.3910022189557705,
     "recorded_verdict_matches": true
   },
   {
@@ -6861,6 +7483,8 @@
     "seeds_favouring_lower": 0,
     "seeds_nonzero": 4,
     "sign_test_p": 0.125,
+    "sign_significant": false,
+    "se_threshold_two_sided_p": 0.3910022189557705,
     "recorded_verdict_matches": true
   },
   {
@@ -6883,6 +7507,8 @@
     "seeds_favouring_lower": 4,
     "seeds_nonzero": 4,
     "sign_test_p": 0.125,
+    "sign_significant": false,
+    "se_threshold_two_sided_p": 0.3910022189557705,
     "recorded_verdict_matches": true
   },
   {
@@ -6905,6 +7531,8 @@
     "seeds_favouring_lower": 7,
     "seeds_nonzero": 8,
     "sign_test_p": 0.0703125,
+    "sign_significant": false,
+    "se_threshold_two_sided_p": 0.3506166628202074,
     "recorded_verdict_matches": true
   },
   {
@@ -6927,6 +7555,8 @@
     "seeds_favouring_lower": 2,
     "seeds_nonzero": 8,
     "sign_test_p": 0.2890625,
+    "sign_significant": false,
+    "se_threshold_two_sided_p": 0.3506166628202074,
     "recorded_verdict_matches": true
   },
   {
@@ -6949,6 +7579,8 @@
     "seeds_favouring_lower": 8,
     "seeds_nonzero": 8,
     "sign_test_p": 0.0078125,
+    "sign_significant": true,
+    "se_threshold_two_sided_p": 0.3506166628202074,
     "recorded_verdict_matches": true
   },
   {
@@ -6971,6 +7603,8 @@
     "seeds_favouring_lower": 8,
     "seeds_nonzero": 8,
     "sign_test_p": 0.0078125,
+    "sign_significant": true,
+    "se_threshold_two_sided_p": 0.3506166628202074,
     "recorded_verdict_matches": true
   },
   {
@@ -6993,6 +7627,8 @@
     "seeds_favouring_lower": 8,
     "seeds_nonzero": 8,
     "sign_test_p": 0.0078125,
+    "sign_significant": true,
+    "se_threshold_two_sided_p": 0.3506166628202074,
     "recorded_verdict_matches": true
   },
   {
@@ -7015,6 +7651,8 @@
     "seeds_favouring_lower": 8,
     "seeds_nonzero": 8,
     "sign_test_p": 0.0078125,
+    "sign_significant": true,
+    "se_threshold_two_sided_p": 0.3506166628202074,
     "recorded_verdict_matches": true
   },
   {
@@ -7037,6 +7675,8 @@
     "seeds_favouring_lower": 8,
     "seeds_nonzero": 8,
     "sign_test_p": 0.0078125,
+    "sign_significant": true,
+    "se_threshold_two_sided_p": 0.3506166628202074,
     "recorded_verdict_matches": true
   },
   {
@@ -7059,6 +7699,8 @@
     "seeds_favouring_lower": 6,
     "seeds_nonzero": 8,
     "sign_test_p": 0.2890625,
+    "sign_significant": false,
+    "se_threshold_two_sided_p": 0.3506166628202074,
     "recorded_verdict_matches": true
   },
   {
@@ -7081,6 +7723,8 @@
     "seeds_favouring_lower": 24,
     "seeds_nonzero": 24,
     "sign_test_p": 1.1920928955078125e-07,
+    "sign_significant": true,
+    "se_threshold_two_sided_p": 0.3277158061428582,
     "recorded_verdict_matches": true
   },
   {
@@ -7103,6 +7747,8 @@
     "seeds_favouring_lower": 24,
     "seeds_nonzero": 24,
     "sign_test_p": 1.1920928955078125e-07,
+    "sign_significant": true,
+    "se_threshold_two_sided_p": 0.3277158061428582,
     "recorded_verdict_matches": true
   },
   {
@@ -7125,6 +7771,8 @@
     "seeds_favouring_lower": 24,
     "seeds_nonzero": 24,
     "sign_test_p": 1.1920928955078125e-07,
+    "sign_significant": true,
+    "se_threshold_two_sided_p": 0.3277158061428582,
     "recorded_verdict_matches": true
   },
   {
@@ -7147,6 +7795,8 @@
     "seeds_favouring_lower": 24,
     "seeds_nonzero": 24,
     "sign_test_p": 1.1920928955078125e-07,
+    "sign_significant": true,
+    "se_threshold_two_sided_p": 0.3277158061428582,
     "recorded_verdict_matches": true
   },
   {
@@ -7169,6 +7819,8 @@
     "seeds_favouring_lower": 24,
     "seeds_nonzero": 24,
     "sign_test_p": 1.1920928955078125e-07,
+    "sign_significant": true,
+    "se_threshold_two_sided_p": 0.3277158061428582,
     "recorded_verdict_matches": true
   },
   {
@@ -7191,6 +7843,8 @@
     "seeds_favouring_lower": 24,
     "seeds_nonzero": 24,
     "sign_test_p": 1.1920928955078125e-07,
+    "sign_significant": true,
+    "se_threshold_two_sided_p": 0.3277158061428582,
     "recorded_verdict_matches": true
   },
   {
@@ -7213,6 +7867,8 @@
     "seeds_favouring_lower": 24,
     "seeds_nonzero": 24,
     "sign_test_p": 1.1920928955078125e-07,
+    "sign_significant": true,
+    "se_threshold_two_sided_p": 0.3277158061428582,
     "recorded_verdict_matches": true
   },
   {
@@ -7235,6 +7891,8 @@
     "seeds_favouring_lower": 24,
     "seeds_nonzero": 24,
     "sign_test_p": 1.1920928955078125e-07,
+    "sign_significant": true,
+    "se_threshold_two_sided_p": 0.3277158061428582,
     "recorded_verdict_matches": true
   },
   {
@@ -7257,6 +7915,8 @@
     "seeds_favouring_lower": 23,
     "seeds_nonzero": 24,
     "sign_test_p": 2.9802322387695312e-06,
+    "sign_significant": true,
+    "se_threshold_two_sided_p": 0.3277158061428582,
     "recorded_verdict_matches": true
   },
   {
@@ -7279,6 +7939,8 @@
     "seeds_favouring_lower": 24,
     "seeds_nonzero": 24,
     "sign_test_p": 1.1920928955078125e-07,
+    "sign_significant": true,
+    "se_threshold_two_sided_p": 0.3277158061428582,
     "recorded_verdict_matches": true
   },
   {
@@ -7301,6 +7963,8 @@
     "seeds_favouring_lower": 23,
     "seeds_nonzero": 24,
     "sign_test_p": 2.9802322387695312e-06,
+    "sign_significant": true,
+    "se_threshold_two_sided_p": 0.3277158061428582,
     "recorded_verdict_matches": true
   },
   {
@@ -7323,6 +7987,8 @@
     "seeds_favouring_lower": 24,
     "seeds_nonzero": 24,
     "sign_test_p": 1.1920928955078125e-07,
+    "sign_significant": true,
+    "se_threshold_two_sided_p": 0.3277158061428582,
     "recorded_verdict_matches": true
   },
   {
@@ -7345,6 +8011,8 @@
     "seeds_favouring_lower": 24,
     "seeds_nonzero": 24,
     "sign_test_p": 1.1920928955078125e-07,
+    "sign_significant": true,
+    "se_threshold_two_sided_p": 0.3277158061428582,
     "recorded_verdict_matches": true
   },
   {
@@ -7367,6 +8035,8 @@
     "seeds_favouring_lower": 24,
     "seeds_nonzero": 24,
     "sign_test_p": 1.1920928955078125e-07,
+    "sign_significant": true,
+    "se_threshold_two_sided_p": 0.3277158061428582,
     "recorded_verdict_matches": true
   },
   {
@@ -7389,6 +8059,8 @@
     "seeds_favouring_lower": 23,
     "seeds_nonzero": 24,
     "sign_test_p": 2.9802322387695312e-06,
+    "sign_significant": true,
+    "se_threshold_two_sided_p": 0.3277158061428582,
     "recorded_verdict_matches": true
   },
   {
@@ -7411,6 +8083,8 @@
     "seeds_favouring_lower": 24,
     "seeds_nonzero": 24,
     "sign_test_p": 1.1920928955078125e-07,
+    "sign_significant": true,
+    "se_threshold_two_sided_p": 0.3277158061428582,
     "recorded_verdict_matches": true
   },
   {
@@ -7433,6 +8107,8 @@
     "seeds_favouring_lower": 23,
     "seeds_nonzero": 24,
     "sign_test_p": 2.9802322387695312e-06,
+    "sign_significant": true,
+    "se_threshold_two_sided_p": 0.3277158061428582,
     "recorded_verdict_matches": true
   },
   {
@@ -7455,6 +8131,8 @@
     "seeds_favouring_lower": 24,
     "seeds_nonzero": 24,
     "sign_test_p": 1.1920928955078125e-07,
+    "sign_significant": true,
+    "se_threshold_two_sided_p": 0.3277158061428582,
     "recorded_verdict_matches": true
   },
   {
@@ -7477,6 +8155,8 @@
     "seeds_favouring_lower": 24,
     "seeds_nonzero": 24,
     "sign_test_p": 1.1920928955078125e-07,
+    "sign_significant": true,
+    "se_threshold_two_sided_p": 0.3277158061428582,
     "recorded_verdict_matches": true
   },
   {
@@ -7499,6 +8179,8 @@
     "seeds_favouring_lower": 24,
     "seeds_nonzero": 24,
     "sign_test_p": 1.1920928955078125e-07,
+    "sign_significant": true,
+    "se_threshold_two_sided_p": 0.3277158061428582,
     "recorded_verdict_matches": true
   },
   {
@@ -7521,6 +8203,8 @@
     "seeds_favouring_lower": 24,
     "seeds_nonzero": 24,
     "sign_test_p": 1.1920928955078125e-07,
+    "sign_significant": true,
+    "se_threshold_two_sided_p": 0.3277158061428582,
     "recorded_verdict_matches": true
   },
   {
@@ -7543,6 +8227,8 @@
     "seeds_favouring_lower": 24,
     "seeds_nonzero": 24,
     "sign_test_p": 1.1920928955078125e-07,
+    "sign_significant": true,
+    "se_threshold_two_sided_p": 0.3277158061428582,
     "recorded_verdict_matches": true
   },
   {
@@ -7565,6 +8251,8 @@
     "seeds_favouring_lower": 24,
     "seeds_nonzero": 24,
     "sign_test_p": 1.1920928955078125e-07,
+    "sign_significant": true,
+    "se_threshold_two_sided_p": 0.3277158061428582,
     "recorded_verdict_matches": true
   },
   {
@@ -7587,6 +8275,8 @@
     "seeds_favouring_lower": 24,
     "seeds_nonzero": 24,
     "sign_test_p": 1.1920928955078125e-07,
+    "sign_significant": true,
+    "se_threshold_two_sided_p": 0.3277158061428582,
     "recorded_verdict_matches": true
   },
   {
@@ -7609,6 +8299,8 @@
     "seeds_favouring_lower": 23,
     "seeds_nonzero": 24,
     "sign_test_p": 2.9802322387695312e-06,
+    "sign_significant": true,
+    "se_threshold_two_sided_p": 0.3277158061428582,
     "recorded_verdict_matches": true
   },
   {
@@ -7631,6 +8323,8 @@
     "seeds_favouring_lower": 24,
     "seeds_nonzero": 24,
     "sign_test_p": 1.1920928955078125e-07,
+    "sign_significant": true,
+    "se_threshold_two_sided_p": 0.3277158061428582,
     "recorded_verdict_matches": true
   },
   {
@@ -7653,6 +8347,8 @@
     "seeds_favouring_lower": 24,
     "seeds_nonzero": 24,
     "sign_test_p": 1.1920928955078125e-07,
+    "sign_significant": true,
+    "se_threshold_two_sided_p": 0.3277158061428582,
     "recorded_verdict_matches": true
   },
   {
@@ -7675,6 +8371,8 @@
     "seeds_favouring_lower": 24,
     "seeds_nonzero": 24,
     "sign_test_p": 1.1920928955078125e-07,
+    "sign_significant": true,
+    "se_threshold_two_sided_p": 0.3277158061428582,
     "recorded_verdict_matches": true
   },
   {
@@ -7697,6 +8395,8 @@
     "seeds_favouring_lower": 21,
     "seeds_nonzero": 24,
     "sign_test_p": 0.0002771615982055664,
+    "sign_significant": true,
+    "se_threshold_two_sided_p": 0.3277158061428582,
     "recorded_verdict_matches": true
   },
   {
@@ -7719,6 +8419,8 @@
     "seeds_favouring_lower": 24,
     "seeds_nonzero": 24,
     "sign_test_p": 1.1920928955078125e-07,
+    "sign_significant": true,
+    "se_threshold_two_sided_p": 0.3277158061428582,
     "recorded_verdict_matches": true
   },
   {
@@ -7741,6 +8443,8 @@
     "seeds_favouring_lower": 24,
     "seeds_nonzero": 24,
     "sign_test_p": 1.1920928955078125e-07,
+    "sign_significant": true,
+    "se_threshold_two_sided_p": 0.3277158061428582,
     "recorded_verdict_matches": true
   },
   {
@@ -7763,6 +8467,8 @@
     "seeds_favouring_lower": 24,
     "seeds_nonzero": 24,
     "sign_test_p": 1.1920928955078125e-07,
+    "sign_significant": true,
+    "se_threshold_two_sided_p": 0.3277158061428582,
     "recorded_verdict_matches": true
   }
 ]
