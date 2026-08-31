@@ -23,12 +23,53 @@ eyes, +X right, +Y down, +Z forward, right-handed. ``fc-006`` records why this i
 declared here: the predecessor's ``CLAUDE.md`` §3 declared a frame that was false
 for eleven days, and a sentence in a governance file has nothing to fail against.
 
+Reprojection is through ``eye_rotations``, and 17a's was not
+------------------------------------------------------------
+**17a tied this frame to ``rectification_rotation``, and that was wrong.** The
+rectifier zeroes azimuth AND vergence by construction, so the frame it defines is
+a *rectifier* frame, not a head frame. The consequence was not a cost: across a
+17 degree azimuth saccade the mapping moved **zero cells**, while the world
+direction a given cell actually views moved **17 degrees**. The same cell received
+measurements of unrelated world directions and fused them, and a
+precision-weighted fusion of two unrelated depths is a confident average of
+neither.
+
+17a's own docstring described that azimuth-invariance and called it "a real
+limitation of this operator". **An honest description of a defect is not the same
+as noticing it is one.** 17b then priced it — 0.0% grid loss at every azimuth
+amplitude — and a number that implausible was the thing that made it visible.
+
+Reprojection now goes through ``eye_rotations``, which carries azimuth, elevation
+and vergence.
+
+Anchoring, and why the frame is defined by a fixation
+-----------------------------------------------------
+``eye_rotations`` at any fixation is already toed in by half the vergence, so a
+raw head-to-eye map is **not** the identity even at the origin fixation, and the
+fixed-eye control would break. The frame is therefore defined **by the origin
+fixation's own eye orientation**, and reprojection uses the RELATIVE rotation
+``R_current.T @ R_anchor``. At the anchor that is exactly the identity — the
+control is preserved structurally — while azimuth and vergence enter everywhere
+else.
+
+**The left eye, and it is a decision.** The measurement is a depth field attached
+to the LEFT image's pixels: disparity is left-image convention, ``d = f*I/Z`` has
+``Z`` in the rectified left-camera frame, and ``target_to_fixation`` unprojects
+about the left optical centre. So the map is the left eye's frame to the head.
+**A single reprojection cannot be right for both eyes** — measured, the two
+rotations differ by 1.7 degrees at vergence 0.03 and 9.2 degrees at 0.16, which is
+21 px and 112 px at ``f = 700``. That costs nothing today because the loop
+produces exactly one depth field and it is left-indexed; it becomes a per-eye
+belief the moment anything consumes a right-eye measurement, and that is a finding
+about the representation rather than an inconvenience.
+
 Discretisation, and what it costs
 ---------------------------------
-The grid is the **sampling model's directions at a reference fixation**, rotated
-into the head frame once. Three consequences, all of them load-bearing:
+The grid is the **sampling model's directions at the origin fixation**, carried
+into the head frame by that fixation's own left-eye rotation. Three consequences,
+all of them load-bearing:
 
-* **At the reference fixation the reprojection is the identity map**, exactly —
+* **At the origin fixation the reprojection is the identity map**, exactly —
   each cell resolves to the index it came from, because ``index(direction(i))``
   is exact on this lattice over all 76 800 indices (``bio-043``). The fixed-eye
   control is therefore bit-exact **structurally**, not to a tolerance.
@@ -36,7 +77,7 @@ into the head frame once. Three consequences, all of them load-bearing:
   rotation moves the samples relative to the cells and the gather does real work.
   Were the head frame the image frame, a rotation would move nothing — which is
   the outcome that would look like success and be worthless.
-* **The discretisation coincides with the image lattice at the reference
+* **The discretisation coincides with the image lattice at the origin
   fixation**, and that is a real limitation rather than a neutral choice: cell
   density is the sensor's, so a rotation that moves samples off their cells
   quantises. Said plainly because it is the part a reader would otherwise assume
@@ -75,7 +116,12 @@ from typing import Any
 import numpy as np
 from numpy.typing import NDArray
 
-from bio3dvision.oculomotor import Fixation, rectification_rotation
+from bio3dvision.oculomotor import (
+    K_LISTING_DEFAULT,
+    Fixation,
+    StereoRig,
+    eye_rotations,
+)
 
 FloatArray = NDArray[np.float64]
 PosteriorArray = NDArray[np.floating[Any]]
@@ -117,6 +163,10 @@ class HeadFrameBelief:
     mean: PosteriorArray
     var: PosteriorArray
     origin_fixation: Fixation
+    rig: StereoRig
+    anchor_rotation: FloatArray
+    k: float = K_LISTING_DEFAULT
+    eye: str = "left"
 
     frame: str = HEAD_FRAME
 
@@ -125,27 +175,41 @@ class HeadFrameBelief:
         cls,
         sampling: Any,
         reference: Fixation,
+        rig: StereoRig,
         prior_depth: float = 3.0,
         prior_std: float = 3.0,
+        k: float = K_LISTING_DEFAULT,
+        eye: str = "left",
     ) -> HeadFrameBelief:
         """Build a belief whose cells are ``sampling``'s directions at ``reference``.
+
+        ``rig`` is required and was not in 17a: without a baseline there is no
+        ``eye_rotations``, and without ``eye_rotations`` the frame can only be the
+        rectifier's — which is the fault this construction repairs.
 
         The prior defaults match ``ActiveStereo``'s, because the control compares
         against it and a different prior would make every subsequent number differ
         for a reason that has nothing to do with the frame.
         """
+        if eye not in ("left", "right"):
+            raise ValueError(f"eye must be 'left' or 'right', got {eye!r}")
         height, width = sampling.shape
         rows, cols = np.mgrid[0:height, 0:width]
         index = np.stack([rows, cols], axis=-1).astype(np.float64)
-        # Sensor directions are in the rectified left-camera frame; one rotation
-        # carries them into the head frame, and it is the only place that happens.
-        rect_to_head = rectification_rotation(reference)
-        directions = sampling.direction(index) @ rect_to_head.T
+        # The ANCHOR: this eye's orientation at the origin fixation. Carrying the
+        # sensor directions through it defines the head frame BY that fixation,
+        # which is what keeps the reprojection an exact identity there.
+        anchor = np.asarray(getattr(eye_rotations(rig, reference, k=k), eye), dtype=np.float64)
+        directions = sampling.direction(index) @ anchor.T
         return cls(
             directions=np.asarray(directions, dtype=np.float64),
             mean=np.full((height, width), prior_depth, np.float32),
             var=np.full((height, width), prior_std**2, np.float32),
             origin_fixation=reference,
+            rig=rig,
+            anchor_rotation=anchor,
+            k=k,
+            eye=eye,
         )
 
     @property
@@ -159,23 +223,39 @@ class HeadFrameBelief:
         an ``(H, W)`` mask of cells that fall inside the sensor.
 
         **The direction of the map matters and is the thing that can be wrong.**
-        ``rectification_rotation`` maps rect -> head, so head -> rect is its
-        transpose. Getting this backwards is invisible at zero elevation, where
-        the rotation is the identity — the sagittal-gaze hole — so any test of it
-        must use a non-zero elevation.
+        ``eye_rotations`` returns head <- eye, so eye <- head is the transpose.
+        Getting it backwards is invisible at the anchor, where the relative
+        rotation is the identity, so any test of it must move the gaze.
 
-        **Azimuth does not enter.** ``rectification_rotation`` zeroes azimuth by
-        construction, so a purely azimuthal gaze change produces the identity here
-        and reprojects nothing. That is a property of tying the head frame to the
-        *rectified* frame rather than to the gaze, it is measured rather than
-        assumed (``test_azimuth_alone_reprojects_nothing``), and it is a real
-        limitation of this operator rather than a subtlety.
+        **Azimuth, elevation and vergence all enter**, which is the whole
+        correction. 17a routed this through ``rectification_rotation``, which
+        zeroes azimuth and vergence, so a purely azimuthal saccade reprojected
+        nothing while the world direction each cell viewed moved by the full
+        saccade amplitude. Cells then fused measurements of unrelated directions.
         """
-        head_to_rect = rectification_rotation(fixation).T
-        in_rect = self.directions @ head_to_rect.T
-        index = np.asarray(sampling.index(in_rect))
-        visible = np.asarray(sampling.contains(index)) & (in_rect[..., 2] > 0.0)
+        current = np.asarray(
+            getattr(eye_rotations(self.rig, fixation, k=self.k), self.eye), dtype=np.float64
+        )
+        # The RELATIVE rotation, anchor -> current. Exactly the identity at the
+        # anchor, which is what preserves the fixed-eye control.
+        head_to_eye = current.T
+        in_eye = self.directions @ head_to_eye.T
+        index = np.asarray(sampling.index(in_eye))
+        visible = np.asarray(sampling.contains(index)) & (in_eye[..., 2] > 0.0)
         return index, visible
+
+    def world_direction(self, index: Any, fixation: Fixation, sampling: Any) -> FloatArray:
+        """The head-frame direction a sensor sample views at ``fixation``.
+
+        Computed straight from ``eye_rotations``, deliberately NOT through
+        :meth:`reproject`. It is the independent side of the invariance test: a
+        cell must keep viewing the same world direction across a saccade, and
+        checking that with the operator under test would prove nothing.
+        """
+        rotation = np.asarray(
+            getattr(eye_rotations(self.rig, fixation, k=self.k), self.eye), dtype=np.float64
+        )
+        return np.asarray(sampling.direction(np.asarray(index, dtype=np.float64)) @ rotation.T)
 
     def gather(
         self, field: PosteriorArray, fixation: Fixation, sampling: Any, fill: float

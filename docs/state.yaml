@@ -22,7 +22,7 @@ updated_at: 2026-08-29
 # a current one", which invited exactly that comparison and would have failed
 # after every merge. Staleness is tested per half, in `sequence`, and each half
 # gets the test it can actually pass.
-updated_by_commit: a2aba67   # the repository state this file describes
+updated_by_commit: a9624f0   # the repository state this file describes
 
 # ------------------------------------------------------------------------------
 # SEQUENCE — where this project is, and what it plans next
@@ -142,6 +142,16 @@ sequence:
       12: src/bio3dvision/scene_model.py, exp004, fv-012-1..3, bio-027..bio-031
       15: src/bio3dvision/oculomotor.py, fv-016, bio-043..bio-046; fc-009's falsifier 2 answered
     out_of_sequence:
+      - what: >-
+          Step 17a-fix, the anchored head frame. Corrects 17a's frame choice; see
+          am-007.
+        note: >-
+          The belief now reprojects through eye_rotations rather than the
+          rectifier, so azimuth and vergence enter. The fixed-eye control is
+          unchanged at 34 configurations, and grid loss is symmetric up to the
+          sensor's aspect ratio. It also surfaced bio-056, which is NOT fixed and
+          blocks nothing yet: the block matcher assumes a rectified pair and a
+          gaze-contingent render is toed in.
       - what: >-
           Step 17b, gaze-contingent rendering. Renders a stereo pair at an
           arbitrary fixation with per-eye orientations from eye_rotations. Not one
@@ -501,6 +511,39 @@ sequence:
           the first commit in which a geometry layer consumes a ray directly. That
           commit has still not happened.
 
+      - id: am-007
+        corrects: step 17a's frame choice
+        what_was_wrong: >-
+          The head-frame belief was tied to rectification_rotation, which zeroes
+          azimuth AND vergence by construction. That makes it a RECTIFIER frame,
+          not a head frame. Across a 17 degree azimuth saccade the mapping moved
+          ZERO cells while the world direction each cell views moved 17 degrees, so
+          one cell received measurements of unrelated directions and fused them
+          (bio-053). A correctness fault, not a cost.
+        how_it_survived: >-
+          THIS IS THE PART WORTH THE RECORD. 17a's own reproject docstring described
+          the azimuth-invariance and called it "a real limitation of this operator",
+          and a test asserted it. Every 17a control either held the eyes fixed or
+          varied elevation alone; there was NO test in which azimuth changed and
+          something was REQUIRED to move.
+          AN HONEST DESCRIPTION OF A DEFECT IS NOT THE SAME AS NOTICING IT IS ONE.
+          The defect was documented, tested, reviewed and merged as a property.
+        how_it_was_caught: >-
+          17b priced it: 0.0% grid loss for azimuth at EVERY amplitude, against
+          26-77% for elevation. A number that implausible is what made it visible,
+          which is an argument for measuring a consequence even when the mechanism
+          is believed understood.
+        the_fix: >-
+          Reproject through eye_rotations by the RELATIVE rotation between the
+          anchor fixation's eye orientation and the current one. The anchor makes
+          the map exactly the identity at the origin, preserving the fixed-eye
+          control, while azimuth and vergence enter everywhere else (bio-054).
+        also_recorded: >-
+          17a's specification framed the discretisation as a choice to be stated
+          with its cost, and the cost that surfaced was a wrong answer. Recorded so
+          a later session reading 17a's confident docstring finds the correction
+          attached to it.
+
 # ------------------------------------------------------------------------------
 # WHAT RUNS
 # ------------------------------------------------------------------------------
@@ -522,7 +565,7 @@ runs:
     package: bio3dvision
     modules: [fixture, matching, loop, figure, baseline, policy, sampling, acquisition,
               blender_render, blender_load, scene_model, oculomotor, belief]
-    lines: 3771
+    lines: 3851
     policies: [A, A_prime, B, C, D, E]
     sampling: >-
       SamplingModel Protocol with PinholeSampling; sits in front of ActiveStereo,
@@ -534,9 +577,9 @@ runs:
     note: Still flat. Zero subpackages. See fc-002 and falsifier fv-003-2.
   test_suite:
     exists: true
-    count: 205
+    count: 208
     count_note: >-
-      189 run everywhere; 16 need the optional `blender` extra and skip without it.
+      192 run everywhere; 16 need the optional `blender` extra and skip without it.
       CI installs the extra so those 8 run there — falsifier 1a is the only check
       of the render path that needs no Blender binary, and skipping it in CI would
       have left the path unverified in the one place it is always checked. THREE
@@ -2722,6 +2765,72 @@ falsifier_verdicts:
       confront it rather than discover it.
       NO FORECLOSURE TAKEN, the expected shape for a geom iteration.
     verified_at_commit: a2aba67
+
+  - iteration: 16
+    id: fv-019
+    falsifier: >-
+      Four directions for the anchored head frame:
+        (1) THE MISSING TEST — change azimuth, REQUIRE the mapping to move, and
+            REQUIRE the world direction each cell views to be invariant, checked
+            through eye_rotations rather than through the operator under test;
+        (2) the fixed-eye control must survive UNCHANGED, bit-identical across
+            every arm of all five experiments;
+        (3) grid loss must become symmetric — or not, and either is informative;
+        (4) if reprojecting through eye_rotations exposes that something else in
+            the loop assumes a rectified pair, STOP AND REPORT rather than fixing
+            it here.
+    verdict: (1) BOTH CLAUSES PASS. (2) UNCHANGED. (3) SYMMETRIC UP TO THE ASPECT RATIO. (4) FIRED — reported, not fixed.
+    numbers:
+      cells_moved_17deg_azimuth: {before: 0.0, after: 1.0}
+      world_direction_drift_deg: {max: 0.056, median: 0.027, one_cell: 0.082}
+      fixed_eye_control: {configurations: 34, divergences: 0}
+      grid_loss_azimuth: {before: 0.0, after_10deg: 0.394}
+      grid_loss_elevation_10deg: 0.516
+      loss_ratio: {at_5deg: 1.30, at_10deg: 1.31}
+      field_of_view_ratio: 1.33
+      toed_in_vertical_disparity_px: {parallel: 0.0, az0p15_el0p10: 1.43, az0p30_el0p20: 2.41}
+      matching_window_px: 7
+    detail: >-
+      (1) BOTH CLAUSES, AND BOTH WERE NEEDED. 100% of cells move under the 17
+      degree azimuth saccade that previously moved none, and each keeps viewing the
+      same world direction to within 0.056 degrees — below the 0.082 degrees one
+      cell subtends, so the residual is nearest-neighbour quantisation. The second
+      clause is computed through eye_rotations, not through reproject: checking an
+      operator against itself proves nothing, and 17a HAD a test that changed
+      azimuth — it asserted the defect.
+      (2) UNCHANGED at all 34 configurations, zero divergences. The anchor is what
+      makes that possible: eye_rotations at any fixation is already toed in by half
+      the vergence, so a raw head-to-eye map would not be the identity even at the
+      origin. Defining the frame BY the origin fixation's orientation makes the
+      relative rotation exactly the identity there.
+      (3) SYMMETRIC, AND THE RESIDUAL ASYMMETRY IS THE SENSOR'S ASPECT RATIO.
+      Azimuth now costs 39.4% at 10 degrees against elevation's 51.6%; the ratio is
+      1.30-1.31 against a field-of-view ratio of 1.33, agreeing to about 2%.
+      Equal-angle saccades cost less in azimuth because the horizontal field is
+      wider — expected and correct, not a residue of the fault.
+      (4) FIRED, AND IT IS THE MOST CONSEQUENTIAL FINDING HERE. matching.cost_volume
+      searches disparity by shifting the right image HORIZONTALLY only, over a 7x7
+      box — correct only for a rectified pair. eye_camera_poses places cameras from
+      eye_rotations, so any render at a non-zero fixation is TOED IN, and there is
+      no rectification step anywhere in the pipeline.
+      LATENT, NOT BROKEN: vertical disparity is exactly 0.00 px at Fixation(0,0,0),
+      where every recorded render was made. It becomes live the moment 17c renders
+      off-axis. The magnitude is 1.0-1.4 px at realistic amplitudes and 2.4 px at
+      0.30/0.20 rad — large enough to degrade matching against a 7 px window, small
+      enough that the degradation would read as "the closed loop does not help"
+      rather than as a broken epipolar assumption. That is the exact ambiguity 17a's
+      control was built to prevent, reappearing one layer down.
+      NOT FIXED HERE, as the specification required. 17c must either rectify the
+      rendered pair before matching or accept the violation, and that is now a
+      decision with a measured cost.
+      A DECISION RECORDED RATHER THAN DEFERRED: the belief is anchored to the LEFT
+      eye, because the measurement is a depth field attached to that eye's pixels.
+      A single reprojection cannot be right for both — the rotations differ by 1.72
+      degrees at vergence 0.03 and 9.17 at 0.16, 21 px and 112 px at f = 700. It
+      costs nothing today and becomes a per-eye belief the moment anything consumes
+      a right-eye measurement.
+      NO FORECLOSURE TAKEN.
+    verified_at_commit: a9624f0
 
 # ------------------------------------------------------------------------------
 # STANDING CONSTRAINTS

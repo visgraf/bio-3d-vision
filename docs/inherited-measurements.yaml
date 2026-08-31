@@ -2791,6 +2791,182 @@ measurements:
       bio-049 left open — whether the grid should track GAZE rather than the
       RECTIFIER — now with a cost attached.
 
+  - id: bio-053
+    statement: >-
+      17a's head-frame belief fused measurements of unrelated world directions: a
+      17 degree azimuth saccade moved zero cells while the direction each cell
+      views moved 17 degrees.
+    value:
+      cells_moved_by_reproject: 0
+      cells_total: 76800
+      world_direction_before: [0.0307, 0.0007, 0.9995]
+      world_direction_after: [0.3213, 0.0007, 0.9470]
+      angle_between_deg: 16.98
+    units: mixed
+    n: {runs: 1, seed: 0}
+    stimulus_family: analytic_fixture
+    matcher: none
+    configuration: >-
+      HeadFrameBelief at 17a's construction, anchor Fixation(0, 0, 0.06), saccade
+      to azimuth 17 degrees. World direction of cell (120, 160) computed through
+      eye_rotations(...).left, independently of the operator under test.
+    provenance:
+      cited_as: visgraf/bio-3d-vision
+      source: verified at a9624f0 before the fix; the defect is now pinned by tests/test_head_frame_belief.py
+      experiment: null
+      run_id: null
+      measured_at_sha: a9624f0
+      environment: {python: 3.13.15, numpy: 2.5.2, scipy: 1.18.1, matplotlib: 3.11.1}
+    status: measured
+    notes: >-
+      A CORRECTNESS FAULT, NOT A COST. Precision-weighted fusion of two unrelated
+      depths is a confident average of neither.
+      THE CAUSE was tying the frame to rectification_rotation, which zeroes
+      azimuth AND vergence by construction — making it a RECTIFIER frame, not a
+      head frame.
+      THE REASON IT SURVIVED REVIEW is worth more than the fault. 17a's own
+      docstring described the azimuth-invariance and called it "a real limitation
+      of this operator", and a test asserted it. Every 17a control either held the
+      eyes fixed or varied elevation alone; there was no test in which azimuth
+      changed and something was REQUIRED to move. AN HONEST DESCRIPTION OF A
+      DEFECT IS NOT THE SAME AS NOTICING IT IS ONE.
+      17b priced it at 0.0% grid loss for azimuth at every amplitude, and a number
+      that implausible is what made it visible.
+
+  - id: bio-054
+    statement: >-
+      Anchoring the head frame to the origin fixation's own eye rotation repairs
+      the fault while preserving bit-exactness at the anchor.
+    value:
+      cells_moved_17deg_azimuth: 1.000
+      world_direction_drift_deg: {max: 0.056, median: 0.027}
+      one_cell_deg: 0.082
+      identity_at_anchor: true
+      fixed_eye_control_configurations: 34
+      fixed_eye_control_divergences: 0
+    units: mixed
+    n: {configurations: 34, seeds: 2}
+    stimulus_family: analytic_fixture
+    matcher: block
+    configuration: >-
+      Reprojection through eye_rotations by the RELATIVE rotation
+      R_current.T @ R_anchor, left eye. Drift measured over the 26250 cells visible
+      at both fixations. Fixed-eye control as bio-047: every arm of exp001, exp002,
+      exp003, exp007 and exp008, two seeds each, np.array_equal on mean and var.
+    provenance:
+      cited_as: visgraf/bio-3d-vision
+      source: tests/test_head_frame_belief.py, plus the 34-configuration control script
+      experiment: null
+      run_id: null
+      measured_at_sha: a9624f0
+      environment: {python: 3.13.15, numpy: 2.5.2, scipy: 1.18.1, matplotlib: 3.11.1}
+    status: measured
+    notes: >-
+      THE ANCHOR IS WHAT LETS BOTH HOLD AT ONCE. eye_rotations at any fixation is
+      already toed in by half the vergence, so a raw head-to-eye map is not the
+      identity even at the origin and the fixed-eye control would have broken.
+      Defining the frame BY the origin fixation's orientation makes the relative
+      rotation exactly the identity there.
+      100% of cells now move under the azimuth saccade that previously moved none,
+      and each keeps viewing the same world direction to within 0.056 degrees —
+      BELOW the 0.082 degrees one cell subtends, so the residual is
+      nearest-neighbour quantisation rather than geometric error.
+      LEFT EYE, and it is a decision. The measurement is a depth field attached to
+      the left image's pixels. A single reprojection cannot be right for both eyes:
+      the rotations differ by 1.72 degrees at vergence 0.03 and 9.17 degrees at
+      0.16 — 21 px and 112 px at f = 700. That costs nothing today because the loop
+      produces one left-indexed depth field, and it becomes a per-eye belief the
+      moment anything consumes a right-eye measurement.
+
+  - id: bio-055
+    statement: >-
+      With the frame corrected, grid loss is symmetric up to the sensor's aspect
+      ratio.
+    value:
+      elevation: {1: 0.053, 2: 0.105, 5: 0.260, 8.6: 0.444, 10: 0.516, 15: 0.769}
+      azimuth: {1: 0.041, 2: 0.080, 5: 0.200, 8.6: 0.341, 10: 0.394, 15: 0.584}
+      azimuth_before_the_fix: 0.0
+      loss_ratio_elevation_over_azimuth: {5_deg: 1.30, 10_deg: 1.31}
+      field_of_view_ratio: 1.33
+    units: fraction
+    n: {amplitudes: 6}
+    stimulus_family: analytic_fixture
+    matcher: none
+    configuration: >-
+      HeadFrameBelief.reproject over the full 76800-cell grid, anchor
+      Fixation(0, 0, 0.06), 320x240 at f_px 700 — vertical field 19.6 degrees,
+      horizontal 26.2 degrees.
+    provenance:
+      cited_as: visgraf/bio-3d-vision
+      source: measured for falsifier 3 of step 17a-fix
+      experiment: null
+      run_id: null
+      measured_at_sha: a9624f0
+      environment: {python: 3.13.15, numpy: 2.5.2, scipy: 1.18.1, matplotlib: 3.11.1}
+    status: measured
+    notes: >-
+      THE RESIDUAL ASYMMETRY IS THE SENSOR'S ASPECT RATIO AND NOTHING ELSE. The
+      loss ratio is 1.30 at 5 degrees and 1.31 at 10 against a field-of-view ratio
+      of 1.33 — agreement to about 2%. Equal-angle saccades cost less in azimuth
+      because the horizontal field is wider, which is the expected and correct
+      behaviour rather than a residue of the fault.
+      Supersedes bio-052's azimuth column, which read 0.0% at every amplitude and
+      was the price of the frame being tied to the rectifier. The elevation column
+      is essentially unchanged (26.0/51.6/76.9 against 26.0/51.4/77.1), because
+      elevation was the one axis the rectifier did carry.
+
+  - id: bio-056
+    statement: >-
+      The block matcher assumes a rectified pair, and a gaze-contingent render is
+      toed in. Latent, not yet broken, and quantified.
+    value:
+      matcher_search: horizontal_1d
+      vertical_disparity_px_max:
+        parallel_az0_el0_mu0: 0.00
+        az0p15_el0p00_mu0p03: 1.03
+        az0p00_el0p10_mu0p03: 1.19
+        az0p15_el0p10_mu0p03: 1.43
+        az0p30_el0p20_mu0p03: 2.41
+      matching_window_px: 7
+      rectification_step_in_pipeline: false
+    units: px
+    n: {scene_points: 4000, fixations: 6}
+    stimulus_family: rendered_chart
+    matcher: block
+    configuration: >-
+      4000 scene points spanning the field at fixture-like depths 2.4-4.5 m,
+      projected through eye_rotations into both eyes; vertical disparity is
+      |row_L - row_R| over points imageable in both. The matcher is
+      matching.cost_volume, which shifts the right image HORIZONTALLY only.
+    provenance:
+      cited_as: visgraf/bio-3d-vision
+      source: measured for falsifier 4 of step 17a-fix; NOT fixed here
+      experiment: null
+      run_id: null
+      measured_at_sha: a9624f0
+      environment: {python: 3.13.15, numpy: 2.5.2, scipy: 1.18.1, matplotlib: 3.11.1}
+    status: measured
+    notes: >-
+      FALSIFIER 4, AND IT IS THE MOST CONSEQUENTIAL THING THIS ITERATION FOUND.
+      matching.cost_volume searches disparity by shifting the right image
+      horizontally and aggregating over a 7x7 box. That is correct only for a
+      RECTIFIED pair. scene_model.eye_camera_poses places the cameras from
+      eye_rotations, so any render at a non-zero fixation is TOED IN, and there is
+      NO RECTIFICATION STEP ANYWHERE IN THE PIPELINE — verified by search.
+      LATENT, NOT BROKEN. Vertical disparity is exactly 0.00 px at Fixation(0,0,0),
+      which is where every recorded render was made, so nothing measured so far is
+      affected. It becomes live the moment 17c renders off-axis and feeds the pair
+      to the matcher.
+      THE MAGNITUDE IS MODEST AND THAT IS THE DANGEROUS PART: 1.0-1.4 px at
+      realistic saccade amplitudes against a 7x7 window, rising to 2.4 px at
+      0.30/0.20 rad. Large enough to degrade matching, small enough that the
+      degradation would look like "the closed loop does not help" rather than like
+      a broken epipolar assumption — the exact ambiguity 17a's control was built to
+      prevent, reappearing one layer down.
+      NOT FIXED HERE, as specified. 17c must either rectify the rendered pair
+      before matching — a step that does not exist — or accept the violation, and
+      that is a decision with a measured cost rather than an oversight.
+
   # ==============================================================================
   # GAPS — measurements that were NOT made, and whose absence is load-bearing.
   # ==============================================================================
