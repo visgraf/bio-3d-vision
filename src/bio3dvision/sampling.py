@@ -231,6 +231,144 @@ class PinholeSampling:
         return ok
 
 
+class EquirectSampling:
+    """Equirectangular sampling on a sphere, with the pole ALONG THE BASELINE.
+
+    **The frame is unchanged.** Directions come back in
+    :data:`RECTIFIED_LEFT_CAMERA` — +x right along the baseline, +y down, +z
+    forward — exactly as :class:`PinholeSampling` returns them. Only the
+    index-to-direction MAP differs, which is the whole of what a projection is.
+    That is why this needed no change to the Protocol; see the step 18a findings.
+
+    **Rows are epipolar, and that is the reason for this parameterisation.**
+    With the baseline along +x the two epipoles sit at ``+/-x``, so every epipolar
+    great circle passes through them, and the family of such circles is exactly
+    the set of MERIDIANS about +x. Indexing rows by the meridian ``phi`` and
+    columns by the colatitude ``theta`` from +x therefore puts corresponding
+    points on the same row, and ``matching.cost_volume``'s horizontal shift is
+    a shift along ``theta``.
+
+        row ``r`` -> ``phi   = 2*pi*(r + 0.5)/H - pi``   (about +x)
+        col ``c`` -> ``theta = pi*(c + 0.5)/W``          (from +x)
+        ``d = (cos(theta), sin(theta)*cos(phi), sin(theta)*sin(phi))``
+
+    **The disparity is an ANGLE and the depth relation is not ``f*b/z``.** For a
+    point seen at ``theta_L`` and ``theta_R`` from the two centres, with
+    ``d = theta_R - theta_L``:
+
+        ``r_L = b * sin(theta_R) / sin(d)``     and     ``r_R = b * sin(theta_L) / sin(d)``
+
+    which is the sine rule on the triangle (left centre, right centre, point).
+    It depends on ``theta`` — the angle from the baseline — and the pinhole
+    relation has no analogue of that: at a range of 3 m the disparity is 5.8x
+    larger at ``theta = 90 deg`` than at ``theta = 10 deg``. Substituting into
+    ``f*b/z`` is wrong, not approximate. Measured in the step 18a findings and
+    checked against a render to 1e-14 relative.
+
+    **There is no "behind the sensor".** ``PinholeSampling.index`` raises for rays
+    with ``d_z <= 0`` because the pinhole inverse is undefined there; a sphere
+    samples every direction, so this ``index`` raises for no direction at all.
+    Callers that guard on ``in_eye[..., 2] > 0`` are carrying a pinhole assumption.
+
+    **The lattice is non-uniform in solid angle and COMPLETE in membership.** Rows
+    near the pole subtend far less solid angle than rows near the equator, so this
+    is a genuinely non-uniform lattice — but every in-bounds index is sampled, so
+    :meth:`contains` remains a bounds check. fc-009 provided ``contains`` for
+    lattices where membership is *not* a bounds check; this projection does not
+    exercise that half of the provision, and saying so is more useful than
+    claiming it does.
+    """
+
+    def __init__(self, shape: tuple[int, int], pole: Any = (1.0, 0.0, 0.0)) -> None:
+        h, w = int(shape[0]), int(shape[1])
+        if h <= 0 or w <= 0:
+            raise ValueError(f"shape must be positive, got {shape}")
+        axis = np.asarray(pole, dtype=np.float64)
+        if axis.shape != (3,):
+            raise ValueError(f"pole must be a (3,) vector, got shape {axis.shape}")
+        norm = float(np.linalg.norm(axis))
+        if not np.isfinite(norm) or norm == 0.0:
+            raise ValueError(f"pole must be a non-zero finite vector, got {pole!r}")
+        axis = axis / norm
+        # A right-handed triad (pole, e1, e2). The seed is whichever axis the pole
+        # is least aligned with, so the cross product is never near-degenerate.
+        seed = np.eye(3)[int(np.argmin(np.abs(axis)))]
+        e1 = np.cross(axis, seed)
+        e1 = e1 / np.linalg.norm(e1)
+        e2 = np.cross(axis, e1)
+        self._shape = (h, w)
+        self._pole = axis
+        self._e1 = e1
+        self._e2 = e2
+
+    @property
+    def shape(self) -> tuple[int, int]:
+        return self._shape
+
+    @property
+    def frame(self) -> str:
+        return RECTIFIED_LEFT_CAMERA
+
+    @property
+    def pole(self) -> FloatArray:
+        """The axis rows are meridians about. The baseline, by default."""
+        out: FloatArray = self._pole.copy()
+        return out
+
+    def direction(self, index: Any) -> FloatArray:
+        """``(..., 2)`` ``(row, col)`` -> ``(..., 3)`` unit rays, same frame as pinhole."""
+        idx = np.asarray(index, dtype=np.float64)
+        if idx.shape[-1] != 2:
+            raise ValueError(f"index must have a trailing axis of length 2, got {idx.shape}")
+        h, w = self._shape
+        phi = 2.0 * np.pi * (idx[..., 0] + 0.5) / h - np.pi
+        theta = np.pi * (idx[..., 1] + 0.5) / w
+        st = np.sin(theta)
+        out: FloatArray = (
+            np.cos(theta)[..., None] * self._pole
+            + (st * np.cos(phi))[..., None] * self._e1
+            + (st * np.sin(phi))[..., None] * self._e2
+        )
+        return out
+
+    def index(self, direction: Any) -> IntArray:
+        """``(..., 3)`` unit rays -> ``(..., 2)`` nearest ``(row, col)``.
+
+        **Raises for no direction.** Unlike the pinhole inverse there is no
+        half-space this map is undefined on, and rows wrap in ``phi``.
+        """
+        d = np.asarray(direction, dtype=np.float64)
+        if d.shape[-1] != 3:
+            raise ValueError(f"direction must have a trailing axis of length 3, got {d.shape}")
+        if not np.all(np.isfinite(d)):
+            raise ValueError("direction must be finite")
+        h, w = self._shape
+        theta = np.arccos(np.clip(d @ self._pole, -1.0, 1.0))
+        phi = np.arctan2(d @ self._e2, d @ self._e1)
+        row = h * (phi + np.pi) / (2.0 * np.pi) - 0.5
+        col = w * theta / np.pi - 0.5
+        # Rows wrap: phi is periodic, so a row rounding to h belongs at 0.
+        rows = np.mod(np.rint(row), h)
+        cols = np.clip(np.rint(col), 0, w - 1)
+        out: IntArray = np.stack([rows, cols], axis=-1).astype(np.int_)
+        return out
+
+    def contains(self, index: Any) -> BoolArray:
+        """Whether each index is sampled. Here: a bounds check, as for the pinhole.
+
+        Rows are periodic in ``phi``, so an out-of-range row is a caller error
+        rather than an unsampled direction; it is reported as not contained, which
+        is what every caller in this repository already does with the answer.
+        """
+        idx = np.asarray(index)
+        if idx.shape[-1] != 2:
+            raise ValueError(f"index must have a trailing axis of length 2, got {idx.shape}")
+        h, w = self._shape
+        row, col = idx[..., 0], idx[..., 1]
+        ok: BoolArray = (row >= 0) & (row < h) & (col >= 0) & (col < w)
+        return ok
+
+
 def route_as_direction(policy: Any, model: SamplingModel) -> Any:
     """Wrap a policy so it returns a **unit ray**, and no index, to its caller.
 
