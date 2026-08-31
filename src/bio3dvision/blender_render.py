@@ -365,6 +365,14 @@ def place_eyes_from_poses(base_cam: object, poses: dict) -> dict[str, object]:
         cam.name = f"Cam_{name}"
         bpy.context.scene.collection.objects.link(cam)
         cam.matrix_world = Matrix([list(row) for row in poses[name]["matrix_world"]])
+        # The PRINCIPAL-POINT SHIFT. A rectifying orientation has its x-axis along
+        # the baseline, which forces its forward axis to azimuth zero, so a
+        # rectified camera cannot ROTATE to an eccentric gaze. It can slide its
+        # sensor window instead: shift is a translation in the image plane and
+        # leaves the pair rectified, because both eyes take the same shift.
+        # Absent or zero keeps every earlier render reproducible.
+        cam.data.shift_x = float(poses[name].get("shift_x", 0.0))
+        cam.data.shift_y = float(poses[name].get("shift_y", 0.0))
         cams[name] = cam
     return cams
 

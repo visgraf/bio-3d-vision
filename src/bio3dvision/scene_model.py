@@ -64,7 +64,14 @@ import numpy as np
 from scipy.ndimage import gaussian_filter
 
 from bio3dvision.fixture import CameraParams, FloatArray, make_synthetic_scene
-from bio3dvision.oculomotor import K_LISTING_DEFAULT, Fixation, StereoRig, eye_rotations
+from bio3dvision.oculomotor import (
+    K_LISTING_DEFAULT,
+    Fixation,
+    StereoRig,
+    _cyclopean_direction,  # same package: the gaze ray
+    eye_rotations,
+    rectification_rotation,
+)
 
 __all__ = [
     "CAMERA_FROM_EYE",
@@ -282,6 +289,97 @@ def eye_camera_poses(
             "matrix_world": matrix.tolist(),
             "head_rotation": np.asarray(rot).tolist(),
             "centre_world": centre_world.tolist(),
+        }
+    return poses
+
+
+def gaze_shift_px(rig: StereoRig, fixation: Fixation, f_px: float) -> tuple[float, float]:
+    """Principal-point shift that puts the GAZE at the sensor centre. ``(row, col)`` px.
+
+    A rectifying orientation must have its x-axis along the baseline, which forces
+    its forward axis to azimuth zero — see :func:`rectification_rotation`, which is
+    the Helmholtz version rotation with azimuth **zeroed**. So a rectified camera
+    **cannot rotate** to an eccentric gaze. It slides its sensor window instead.
+
+    The shift is ``f * tan`` of the gaze's angle in the rectified frame, so it
+    diverges only as the gaze approaches 90 degrees from the forward axis. At the
+    policy's reach of 0.2240 rad it is 159.4 px — exactly half a 320 px width.
+
+    **The direction is centred, not the fixation point.** That is what keeps the
+    shift COMMON to both eyes, so the pair stays rectified, disparity still means
+    ``f*b/z``, and fc-010's search window is untouched. Centring the finite point
+    instead needs a per-eye shift, which adds a constant disparity offset of
+    21.0 px at vergence 0.03 and 112.2 px at 0.16 (bio-063).
+
+    **The row component is identically zero** for this rectifier member, which puts
+    the plane of regard at zero elevation in the rectified frame. It is returned
+    anyway rather than assumed: a different member would not have that property,
+    and a returned zero can be asserted where an omitted one cannot.
+
+    **KNOWN, RECORDED, AND NOT FIXED HERE (bio-065).** What lands at the sensor
+    centre is the gaze *direction*. The fixation *point* is at finite range, so it
+    images at ``+/- d/2`` about that centre — 21 px in the left eye at vergence
+    0.06 — while ``ActiveStereo``'s foveal Gaussian has ``sigma`` 34 px and is
+    centred on the pixel the policy picked. The target therefore sits off the
+    weight's peak, by 0.31 sigma at vergence 0.03 and 1.65 at 0.16. This is
+    separate from fc-009's note that the weight is defined in pixels rather than
+    on angle: an angular weight would have the same offset, because the offset
+    comes from the target being a *point*.
+    """
+    # The DIRECTION, not the point. fixation_point raises at zero vergence — the
+    # point is at infinity there — and B0 renders exactly that fixation. The
+    # direction is defined for every fixation, and using it is also what makes the
+    # shift vergence-independent rather than merely measured to be.
+    gaze = _cyclopean_direction(fixation)
+    in_rect = gaze @ np.asarray(rectification_rotation(fixation))
+    f = float(f_px)
+    return f * in_rect[1] / in_rect[2], f * in_rect[0] / in_rect[2]
+
+
+def rectified_camera_poses(
+    rig: StereoRig, fixation: Fixation, f_px: float, width: int
+) -> dict[str, dict[str, Any]]:
+    """Blender poses for a **rectified pair that follows the gaze**. **Tested, no bpy.**
+
+    Both eyes take the same orientation — :func:`rectification_rotation`, whose
+    x-axis is exactly the baseline — so the pair is rectified by construction: the
+    epipolar lines are image rows and the ported 1-D matcher is correct without a
+    warp. Both take the same principal-point shift, which is what keeps it
+    rectified while pointing the sensor at the gaze.
+
+    **This is NOT :func:`eye_camera_poses` with rectification added, and treating
+    it as such is an error the ledger already records.** The two place the eyes
+    differently: ``eye_rotations(...).left`` points half a vergence — 1.72 deg at
+    vergence 0.06 — OUTSIDE the cyclopean gaze, while a common shift centres both
+    eyes on the gaze itself. The consequence is measured: this path keeps 6.4
+    points more of the belief grid at the policy's reach (bio-063). Any experiment
+    comparing a loop built on this against one built on ``eye_camera_poses`` is
+    comparing eye alignment as well as whatever it meant to compare.
+
+    ``shift_x`` and ``shift_y`` are in units of the render's **larger** dimension,
+    which for a landscape sensor is ``width``. That is Blender's convention and it
+    is **pinned by render**, not assumed — see bio-064 and
+    ``tests/test_rectified_render.py``; the alternative units differ by 33 px and
+    the wrong sign leaves the sensor entirely.
+    """
+    rot = np.asarray(rectification_rotation(fixation))
+    _row_px, col_px = gaze_shift_px(rig, fixation, f_px)
+    half_b = float(rig.baseline) / 2.0
+    basis = WORLD_FROM_HEAD @ rot @ CAMERA_FROM_EYE
+    poses: dict[str, dict[str, Any]] = {}
+    for name, sign in (("left", -1.0), ("right", +1.0)):
+        centre_world = WORLD_FROM_HEAD @ np.array([sign * half_b, 0.0, 0.0])
+        matrix = np.eye(4)
+        matrix[:3, :3] = basis
+        matrix[:3, 3] = centre_world
+        poses[name] = {
+            "matrix_world": matrix.tolist(),
+            "head_rotation": rot.tolist(),
+            "centre_world": centre_world.tolist(),
+            "shift_x": float(col_px / float(width)),
+            # Zero for this member, and asserted rather than assumed.
+            "shift_y": 0.0,
+            "shift_col_px": float(col_px),
         }
     return poses
 

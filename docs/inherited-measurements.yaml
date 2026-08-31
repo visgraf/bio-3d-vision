@@ -3477,6 +3477,351 @@ measurements:
       The 9.5x ratio matches the 9x predicted from the band alone and the 10.2x
       predicted from slice count, so the cost is where it was expected to be; the
       wrong part of the prediction was the render it was compared against.
+  - id: bio-063
+    statement: >-
+      A principal-point shift lets a rectified camera follow the gaze. It does not
+      run out before the policy does, and it keeps MORE of the belief grid than the
+      toed-in path does.
+    value:
+      shift_px_at_policy_reach: 159.4
+      shift_x_at_policy_reach: 0.4982
+      policy_reach_deg: 12.83
+      shift_reaches_one_sensor_width_at_deg: 24.57
+      shift_diverges_at_deg: 90.0
+      belief_empties_at_deg: {RECT_shifted: 26.02, TOED: 25.74}
+      angular_field_kept: {5: 0.993, 10: 0.972, 12.84: 0.954, 15: 0.938, 20: 0.891, 30: 0.763}
+      grid_lost_by_azimuth_deg:
+        TOED:          {1: 0.041, 2: 0.080, 5: 0.200, 8.6: 0.341, 10: 0.394, 12.84: 0.500, 15: 0.584, 20: 0.773}
+        RECT_unshifted: {1: 0.070, 2: 0.070, 5: 0.070, 8.6: 0.070, 10: 0.070, 12.84: 0.070, 15: 0.070, 20: 0.070}
+        RECT_shifted:  {1: 0.033, 2: 0.011, 5: 0.127, 8.6: 0.268, 10: 0.321, 12.84: 0.436, 15: 0.524, 20: 0.730}
+      row_shift_px: 0.000000
+      shift_is_vergence_independent: true
+      oversampling_at_gaze_at_reach: 1.052
+    units: mixed
+    n: {amplitudes: 13, grid_cells: 76800}
+    stimulus_family: analytic_fixture
+    matcher: none
+    configuration: >-
+      HeadFrameBelief.from_sampling over the full 76800-cell grid, anchor
+      Fixation(0, 0, 0.06), 320x240 at f_px 700, baseline 0.065. Three camera
+      models over ONE grid: TOED is eye_rotations(...).left with the principal
+      point at the sensor centre; RECT_unshifted is rectification_rotation with
+      the same principal point; RECT_shifted is rectification_rotation with the
+      principal point moved so the GAZE DIRECTION FROM THE CYCLOPEAN ORIGIN lands
+      at the sensor centre. Pure geometry — nothing rendered.
+    provenance:
+      cited_as: visgraf/bio-3d-vision
+      source: measured for the maintainer before fc-012 was written
+      experiment: null
+      run_id: null
+      measured_at_sha: eabe31c
+      environment: {python: 3.13.15, numpy: 2.5.2, scipy: 1.18.1, matplotlib: 3.11.1}
+    status: measured
+    notes: >-
+      THE CONTROL IS THE FIRST THING TO CHECK: the TOED row reproduces bio-055's
+      azimuth column to three decimals at all six of its amplitudes. Without that
+      the other two rows are unreadable.
+      RECT_unshifted's ROW IS THE BLOCKER IN ONE LINE: 0.070 at every amplitude
+      from 1 degree to 85. Azimuth is inert, so grid loss cannot depend on it.
+      THE SHIFT DOES NOT RUN OUT BEFORE THE POLICY DOES. It is a translation,
+      f*tan(az), diverging only at 90 degrees. At the policy's reach it is exactly
+      half a sensor width; it reaches a full width at 24.57 degrees, about twice
+      the reach. The binding limit is the BELIEF emptying at 26.0 degrees, also
+      about twice the reach.
+      RECT_shifted KEEPS MORE GRID THAN TOED AT EVERY AMPLITUDE, by 6.4 points at
+      the reach. THIS IS NOT A BONUS, IT IS A DIFFERENCE IN EYE ALIGNMENT and it
+      means a rectified loop is NOT the current loop with rectification added. The
+      cause is exact: eye_rotations(...).left points 1.72 degrees OUTSIDE the
+      cyclopean gaze at vergence 0.06 — half the vergence — while a common shift
+      centres both eyes on the gaze itself. Three confirmations: TOED loss at
+      12.84 degrees falls 0.500 -> 0.460 -> 0.438 as vergence goes 0.06 -> 0.02 ->
+      0.001, converging on RECT_shifted's 0.436; RECT_shifted's MINIMUM is at az
+      1.72 degrees with loss 0.0050, exactly the half-vergence; and
+      RECT_unshifted's constant 0.070 is what bio-055 prices for 1.72 degrees of
+      misalignment.
+      THE SHIFT IS PURELY HORIZONTAL — row shift 0.000000 px at every elevation and
+      vergence tested. That is the rectifier MEMBER CHOICE working: this member
+      puts the plane of regard at zero elevation in the rectified frame. A
+      different member would need two numbers per fixation.
+      IT IS ALSO VERGENCE-INDEPENDENT, because it centres the gaze DIRECTION and
+      rectification_rotation takes neither vergence nor the rig.
+      AN ASSUMPTION, NAMED: centring the DIRECTION rather than the finite FIXATION
+      POINT is what keeps the shift COMMON to both eyes, so disparity still means
+      f*b/z and fc-010's [0, 56] window is untouched. Centring the point instead
+      needs a per-eye shift, which adds a constant disparity offset of 21.0 px at
+      vergence 0.03 and 112.2 px at 0.16 — out of that window on its own at
+      vergence 0.10 and beyond.
+
+  - id: bio-064
+    statement: >-
+      Blender's ``shift_x`` is in units of the render's LARGER dimension. Pinned by
+      render, three ways, to 0.089 px.
+    value:
+      unit: width_for_a_landscape_sensor
+      formula: shift_x = f_px * tan(azimuth) / W
+      sign: positive_moves_imaged_content_left
+      max_residual_px: 0.089
+      azimuths_deg: [0.0, 5.0, 10.0, 12.83]
+      distances_m: [1.083, 3.0, 6.0]
+      wrong_unit_delta_over_H_error_px: -33.5
+      wrong_sign_result: marker_leaves_the_sensor
+      shift_y_0p1_moves_row_px: 32.02
+    units: px
+    n: {renders: 12}
+    stimulus_family: rendered_chart
+    matcher: none
+    configuration: >-
+      One emissive marker at a known head-frame direction on a black world,
+      rendered through RECTIFIED cameras — which cannot rotate to that direction —
+      with shift_x = f*tan(az)/W. Column measured by intensity centroid. The
+      prediction carries the LEFT EYE'S PARALLAX, f*(b/2)/distance, which is not
+      part of the shift. Blender 5.2.0 LTS, Cycles, 16 samples, 320x240, f_px 700.
+    provenance:
+      cited_as: visgraf/bio-3d-vision
+      source: fc-012's only unverified link, pinned before the loop was built
+      experiment: null
+      run_id: null
+      measured_at_sha: cdd5a85
+      environment: {python: 3.13.15, numpy: 2.5.2, scipy: 1.18.1, matplotlib: 3.11.1}
+    status: measured
+    notes: >-
+      PINNED BECAUSE THE FAILURE MODE IS SILENT — the same shape as the File Output
+      node that completed successfully and wrote nothing (bio-024's neighbourhood).
+      A wrong unit here would not raise; it would render a plausible image of the
+      wrong part of the scene, and every number downstream would be about that.
+      THE UNIT IS DISCRIMINATED, NOT MERELY CONSISTENT. delta/H lands 33.5 px away,
+      and shift_y = 0.1 moves the row by 32.02 px = 0.1 * W and NOT 0.1 * H = 24,
+      so BOTH axes are in units of the width. The wrong sign leaves the sensor
+      entirely rather than landing near, so it cannot pass by luck.
+      A 7.6 px OFFSET AT 3 m IS NOT A SHIFT ERROR. It is f*(b/2)/distance, the left
+      eye's parallax on a finite-distance marker, and reading it as an error was the
+      first thing this measurement got wrong. With it in the prediction the residual
+      is 0.089 px at worst and 0.001 px at the fixation distance.
+
+  - id: bio-065
+    statement: >-
+      Under the common shift the fixation POINT images half a disparity from the
+      sensor centre, so the foveal Gaussian is aimed at the gaze DIRECTION and the
+      target sits off its peak.
+    value:
+      offset_px_by_vergence: {0.02: 7.00, 0.03: 10.50, 0.06: 21.01, 0.09: 31.52, 0.10: 35.03, 0.16: 56.12}
+      offset_in_sigma: {0.03: 0.31, 0.06: 0.62, 0.10: 1.03, 0.16: 1.65}
+      foveal_weight_at_the_target: {0.03: 0.953, 0.06: 0.826, 0.10: 0.588, 0.16: 0.256}
+      fovea_sigma_px: 34.0
+      fovea_sigma_deg: 2.78
+    units: px
+    n: {vergences: 6}
+    stimulus_family: analytic_fixture
+    matcher: none
+    configuration: >-
+      offset = f_px * baseline / (2 * fixation_distance), the half-disparity of the
+      fixation. fovea_sigma is ActiveStereo's default, 34.0 px, unchanged.
+    provenance:
+      cited_as: visgraf/bio-3d-vision
+      source: recorded for fc-012's loop, NOT FIXED
+      experiment: null
+      run_id: null
+      measured_at_sha: cdd5a85
+      environment: {python: 3.13.15, numpy: 2.5.2, scipy: 1.18.1, matplotlib: 3.11.1}
+    status: measured
+    notes: >-
+      STATED BESIDE THE EXISTING KNOWN-BROKEN NOTE AND DELIBERATELY NOT FIXED. The
+      foveal weight is a Gaussian in ROW AND COLUMN and the vergence window is a
+      square in pixels; fc-009 already records that an angular foveal weight is
+      step 17/18 work. THIS IS A SECOND, SEPARATE THING and it is new with the
+      shift: the shift centres the gaze DIRECTION, while the thing the loop is
+      looking AT is a point at finite range, which images at +/- d/2 about that
+      centre — LEFT EYE POSITIVE.
+      WHY IT IS RECORDED RATHER THAN FIXED: a misaimed foveal accumulation would
+      read as a result. At vergence 0.06 the target sits 21 px off the Gaussian's
+      peak, 0.62 sigma, and still collects 83% weight — small enough to look like
+      the loop simply not helping much, which is the exact ambiguity that has now
+      been recorded three times in this repository under different names.
+      IT IS NOT CONSTANT ACROSS THE SWEEP, WHICH IS WHAT MAKES IT DANGEROUS. At
+      vergence 0.03 the target keeps 95% of the weight; at 0.16 it keeps 26%. A
+      loop whose vergence moves therefore has a foveal weight whose aim degrades
+      with the state, so an arm that verges nearer is penalised by the apparatus
+      and not by its policy.
+      WHAT AN ANGULAR FOVEAL WEIGHT WOULD CHANGE: nothing about this. Centring on
+      the direction is correct for an angular weight too; the offset is a
+      consequence of the TARGET BEING A POINT, not of the weight being in pixels.
+      The fix is to aim the weight at the fixation's own image — centre + d/2 in the
+      left eye — which needs the vergence estimate the loop already computes.
+
+  - id: bio-066
+    statement: >-
+      A CLOSED loop beats an OPEN one on the cells both measure. The first positive
+      result for active vision in either repository.
+    value:
+      median_abs_err_m: {AT: [0.0310, 0.0171], MIDDLE: [0.0220, 0.0121], AWAY: [0.0155, 0.0110], POOLED: [0.0258, 0.0146]}
+      p90_m: {AT: [0.5003, 0.5311], MIDDLE: [0.1581, 0.0378], AWAY: [0.0545, 0.0322], POOLED: [0.3243, 0.2424]}
+      mean_diff_m: {AT_median: -0.0140, MIDDLE_median: -0.0100, AWAY_median: -0.0046, POOLED_median: -0.0112}
+      bar_m: {AT_median: 0.0146, MIDDLE_median: 0.0038, AWAY_median: 0.0011, POOLED_median: 0.0082}
+      x_bar: {AT_median: 0.96, AT_p90: 0.14, MIDDLE_median: 2.60, MIDDLE_p90: 5.70, AWAY_median: 4.26, AWAY_p90: 1.78, POOLED_median: 1.37, POOLED_p90: 0.48}
+      seeds_favouring_closed: {POOLED_median: 8, MIDDLE_median: 8, AWAY_median: 8, AT_median: 7}
+      common_cell_fraction: 0.622
+    units: m
+    n: {seeds: 8, fixations: 40, arms: 2, cells: 76800}
+    stimulus_family: rendered_chart
+    matcher: block
+    configuration: >-
+      Pairs are [OPEN, CLOSED]. Both arms render RECT+ — rectified with a
+      principal-point shift — and propose identically: argmax posterior variance
+      over the head-frame belief, restricted to cells ActiveStereo.valid can
+      measure, carried through target_to_fixation. CLOSED executes the saccade and
+      re-renders; OPEN does not. Stimulus split_cards(k=4), 8.84% left-occluded.
+      Scored as RANGE from the cyclopean origin against the anchor render's own
+      depth pass, on the intersection of the arms' measured sets. Bands are
+      exp004's. Bar is exp001's, max(sd, 0.02 * mean(OPEN)).
+    provenance:
+      cited_as: visgraf/bio-3d-vision
+      source: exp010, falsifier (a)
+      experiment: exp010_closed_loop
+      run_id: null
+      measured_at_sha: cdd5a85
+      environment: {python: 3.13.15, numpy: 2.5.2, scipy: 1.18.1, matplotlib: 3.11.1}
+    status: measured
+    notes: >-
+      OUTCOME (a), AND THE PRE-REGISTRATION PREDICTED (c) OR (d). It was wrong, and
+      wrong about the mechanism it named: fc-010's vergence estimator did not
+      wander, target_to_fixation refused nothing, and 8/8 seeds reached budget.
+      THE BENEFIT IS NOT AT DEPTH DISCONTINUITIES AND THAT IS HALF THE RESULT. AT is
+      indistinguishable on BOTH metrics, and AT p90 is the one cell where CLOSED is
+      nominally worse (+0.0308, x_bar 0.14, inside the noise). POOLED p90 is
+      indistinguishable because the AT tail dominates it. A closed loop helps on the
+      smooth interior and does not help at the edges — which is exactly where exp005
+      and exp008 both located the error.
+      IN EVERY DISTINGUISHED CELL THE BAR IS THE SEED SD, NOT THE MATERIALITY FLOOR,
+      which is 4-20x smaller throughout. Nothing here is decided by the 2% floor.
+      A CAVEAT THAT CANNOT BE SETTLED BY THIS EXPERIMENT. Neither arm's fusion
+      accounts for correlation between successive measurements, and OPEN's are far
+      more correlated: ActiveStereo.measurement recomputes Zmeas from self.d_sub,
+      which for OPEN NEVER CHANGES, so its 40 measurements come from ONE disparity
+      map and differ only in pedestal and foveal weight. CLOSED's come from 41
+      independently matched pairs. The Kalman fusion assumes independence, so OPEN
+      violates it worse, and an unknown part of CLOSED's advantage may be that
+      rather than better data. The check changes the arm definition and is a
+      different experiment: give OPEN a single fuse and see what survives.
+      bio-065 IS NOT THE EXPLANATION: the foveal peak misses the target by 3.6-21.0
+      px in CLOSED (mean 7.4) against OPEN's fixed 7.6, so the defect is essentially
+      equal between arms.
+
+  - id: bio-067
+    statement: >-
+      Re-acquiring measures 49% more of the belief in relative terms, because a
+      saccade reaches cells one viewpoint cannot measure at all.
+    value:
+      ever_measured_fraction: {OPEN: 0.622, CLOSED: 0.928}
+      common_fraction: 0.622
+      closed_only_fraction: 0.306
+      open_outside_common: 0.000
+      closed_own_set_POOLED: {median_abs_err: 0.0146, p90: 0.2417}
+      open_own_set_POOLED: {median_abs_err: 0.0258, p90: 0.3243}
+    units: fraction
+    n: {seeds: 8, fixations: 40}
+    stimulus_family: rendered_chart
+    matcher: block
+    configuration: >-
+      Fraction of the 76800-cell head-frame belief that received any measurement
+      with non-zero precision during the run. Own-set error figures are over
+      DIFFERENT cell sets and are reported separately per exp003's rule.
+    provenance:
+      cited_as: visgraf/bio-3d-vision
+      source: exp010, the excluded sets
+      experiment: exp010_closed_loop
+      run_id: null
+      measured_at_sha: cdd5a85
+      environment: {python: 3.13.15, numpy: 2.5.2, scipy: 1.18.1, matplotlib: 3.11.1}
+    status: measured
+    notes: >-
+      THE COMMON SET IS EXACTLY OPEN'S SET. OPEN measured nothing outside it
+      (0.000), so bio-066 compares the arms on every cell OPEN reached and on no
+      cell it did not — clean containment, not a negotiated intersection.
+      WHY ONE VIEWPOINT CANNOT REACH THEM: ActiveStereo.valid excludes the image
+      border and the 64-column disparity-search margin (dmax + win + 1), so from a
+      fixed camera those cells are PERMANENTLY unmeasurable. A saccade brings them
+      inside. This is a property of the ported front end, not of the scene.
+      THE TWO OWN-SET FIGURES MUST NOT BE COMPARED TO EACH OTHER. They cross
+      different cell sets; the comparable numbers are bio-066's.
+
+  - id: bio-068
+    statement: >-
+      A closed loop pays 38.5% of its belief per fixation in grid loss, keeps NO
+      cell across a whole run, and wins anyway.
+    value:
+      survived_whole_run: {OPEN: 1.000, CLOSED: 0.000}
+      visible_per_fixation_mean: {OPEN: 1.000, CLOSED: 0.615}
+      visible_per_fixation_min: {OPEN: 1.000, CLOSED: 0.247}
+      max_abs_azimuth_rad: 0.2308
+      max_abs_elevation_rad: 0.1691
+      policy_reach_rad: {azimuth: 0.2240, elevation: 0.1691}
+    units: fraction
+    n: {seeds: 8, fixations: 40}
+    stimulus_family: rendered_chart
+    matcher: block
+    configuration: >-
+      Fraction of belief cells on the sensor at a given fixation, and the fraction
+      on the sensor at EVERY fixation of the run. CLOSED's camera is RECT+ at each
+      proposed fixation; OPEN's never moves.
+    provenance:
+      cited_as: visgraf/bio-3d-vision
+      source: exp010, the grid-loss budget
+      experiment: exp010_closed_loop
+      run_id: null
+      measured_at_sha: cdd5a85
+      environment: {python: 3.13.15, numpy: 2.5.2, scipy: 1.18.1, matplotlib: 3.11.1}
+    status: measured
+    notes: >-
+      NOT ONE CELL SURVIVED ALL 40 FIXATIONS. The loop reached the policy's full
+      reach in both axes — |az| 0.2308 against a half-field of 0.2240, |el| 0.1691
+      against 0.1691 — and bio-063 prices a saccade of that size at 0.436 of the
+      grid gone at once.
+      THE FINDING IS THAT IT DOES NOT MATTER: the belief is persistent and the lost
+      cells are not the same cells each time, so a loop that never holds its whole
+      belief in view still accumulates a better one than a loop that always does.
+      17a-fix's grid-loss numbers were recorded as a cost a closed loop would pay.
+      It pays them, and they are not decisive.
+
+  - id: bio-069
+    statement: >-
+      Closing the loop costs 41x wall clock, and the render is 91% of it.
+    value:
+      renders: {OPEN: 1, CLOSED: 41}
+      render_seconds: {OPEN: 0.57, CLOSED: 23.37}
+      front_end_calls: {OPEN: 1, CLOSED: 41}
+      front_end_seconds: {OPEN: 0.05, CLOSED: 2.24}
+      measurement_seconds: {OPEN: 0.02, CLOSED: 0.02}
+      total_seconds: {OPEN: 0.62, CLOSED: 25.6}
+      ratio: 41.3
+      render_share_of_closed_cost: 0.91
+    units: s
+    n: {seeds: 8, fixations: 40}
+    stimulus_family: rendered_chart
+    matcher: block
+    configuration: >-
+      Per seed, per arm. Render is a cold Blender 5.2.0 LTS subprocess at 0.57 s
+      (bio-062). Front end is ActiveStereo's construction, which runs
+      front_end_block; measurement is ActiveStereo.measurement, which reuses the
+      existing disparity map.
+    provenance:
+      cited_as: visgraf/bio-3d-vision
+      source: exp010, the cost beside outcome (a)
+      experiment: exp010_closed_loop
+      run_id: null
+      measured_at_sha: cdd5a85
+      environment: {python: 3.13.15, numpy: 2.5.2, scipy: 1.18.1, matplotlib: 3.11.1}
+    status: measured
+    notes: >-
+      RECORDED BECAUSE THE FIRST VERSION OF THIS TABLE WAS WRONG AND FLATTERING.
+      Timing only ActiveStereo.measurement showed 0.02 s for BOTH arms, because
+      measurement reuses a disparity map that CLOSED replaces on every saccade. The
+      front-end match is where CLOSED's matcher cost is, and it was missing entirely
+      — 2.24 s against 0.05, a factor of 45 hidden inside a number that read as
+      equal.
+      THE LOOP REMAINS RENDER-BOUND, as bio-062 measured for a different question:
+      the render is 91% of CLOSED's cost, and the whole matcher — front end and
+      measurement together — is 9%.
+
   - id: gap-009
     statement: Nothing inside Blender is covered by any test, so rendered stimuli are the least-verified inputs in the record.
     value: null
