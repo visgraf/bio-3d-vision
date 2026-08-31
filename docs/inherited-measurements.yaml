@@ -4786,7 +4786,7 @@ measurements:
       source: step 18b Part A, fc-013's evidence
       experiment: null
       run_id: null
-      measured_at_sha: PLACEHOLDER_A
+      measured_at_sha: 3e77b4d
       environment: {python: 3.13.15, numpy: 2.5.2, scipy: 1.18.1, matplotlib: 3.11.1}
     status: measured
     notes: >-
