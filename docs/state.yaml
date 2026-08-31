@@ -22,7 +22,7 @@ updated_at: 2026-08-29
 # a current one", which invited exactly that comparison and would have failed
 # after every merge. Staleness is tested per half, in `sequence`, and each half
 # gets the test it can actually pass.
-updated_by_commit: 3569152   # the repository state this file describes
+updated_by_commit: e83cfc3   # the repository state this file describes
 
 # ------------------------------------------------------------------------------
 # SEQUENCE — where this project is, and what it plans next
@@ -142,6 +142,18 @@ sequence:
       12: src/bio3dvision/scene_model.py, exp004, fv-012-1..3, bio-027..bio-031
       15: src/bio3dvision/oculomotor.py, fv-016, bio-043..bio-046; fc-009's falsifier 2 answered
     out_of_sequence:
+      - what: >-
+          Step 17a, the head-frame belief with reprojection. Step 17 in the plan is
+          "Build and test the active loop"; 17a/17b/17c is a subdivision of it that
+          came from the CHAT surface and is not in the eighteen steps.
+        note: >-
+          17a is the representation only — a belief in the cyclopean head frame,
+          with measurements reprojected into it, controlled against the image-frame
+          posterior. NOTHING ROTATES AN EYE, no experiment uses it, and no
+          measurement is fused across fixations. Step 17 stays `planned`; 17b and
+          17c are where it becomes control.
+          Recorded here because a cold session finding fv-017 or bio-047..bio-049
+          would otherwise have no step to attach them to.
       - what: >-
           exp005, the stratified re-analysis of exp001 and exp002. Not a numbered
           step and not in the plan; run because exp004 raised a question about
@@ -496,8 +508,8 @@ runs:
   library:
     package: bio3dvision
     modules: [fixture, matching, loop, figure, baseline, policy, sampling, acquisition,
-              blender_render, blender_load, scene_model, oculomotor]
-    lines: 3315
+              blender_render, blender_load, scene_model, oculomotor, belief]
+    lines: 3578
     policies: [A, A_prime, B, C, D, E]
     sampling: >-
       SamplingModel Protocol with PinholeSampling; sits in front of ActiveStereo,
@@ -509,9 +521,9 @@ runs:
     note: Still flat. Zero subpackages. See fc-002 and falsifier fv-003-2.
   test_suite:
     exists: true
-    count: 172
+    count: 183
     count_note: >-
-      161 run everywhere; 11 need the optional `blender` extra and skip without it.
+      172 run everywhere; 11 need the optional `blender` extra and skip without it.
       CI installs the extra so those 8 run there — falsifier 1a is the only check
       of the render path that needs no Blender binary, and skipping it in CI would
       have left the path unverified in the one place it is always checked. THREE
@@ -669,6 +681,12 @@ runs:
         ratio was measured in. od-003 untouched, no policy changed.
 
   not_present:
+    - >-
+      A CLOSED LOOP, still. Step 17a added a head-frame belief with reprojection
+      (belief.py) and controlled it against the image-frame posterior, but nothing
+      rotates an eye, no experiment uses it, and no measurement is fused across
+      fixations. The representation exists before anything depends on it, which is
+      the point; 17b and 17c are where it becomes control.
     - >-
       Geometry IN THE LOOP, though the geometry itself now exists. Step 15
       migrated the oculomotor surface in ray form — fixation distance and point,
@@ -2550,6 +2568,78 @@ falsifier_verdicts:
       infer_depth_convention guards in the render path, arriving by a different
       door. Pinned by test_depth_is_planar_not_radial.
     verified_at_commit: 3569152
+
+  - iteration: 14
+    id: fv-017
+    falsifier: >-
+      Four directions for the head-frame belief:
+        (1) BIT-EXACT under the fixed-eye control across all five experiments —
+            the representation is sound and everything recorded stays comparable;
+        (2) NOT bit-exact, divergence LOCATED — a named operation with a named
+            magnitude, fixed in this iteration;
+        (3) NOT bit-exact, divergence NOT located — stop; it is a different model
+            and nothing after it is comparable to anything before it;
+        (4) BIT-EXACT ONLY UNDER A CHOICE THAT FORECLOSES ROTATION, e.g. a head
+            frame that is the image frame by construction. The outcome that looks
+            like success and is worthless.
+    verdict: (1) BIT-EXACT, and (4) tested separately and NOT the explanation
+    numbers:
+      configurations_checked: 34
+      divergences: 0
+      seeds_per_configuration: 2
+      rotation_test_deg: 8.59
+      cells_whose_index_moved_under_rotation: 1.0
+      max_index_shift_px: 112
+      reprojected_error_cells: 0.48
+      not_reprojected_error_cells: 101.5
+      improvement_ratio: 210
+      azimuth_only_rotation: identity
+    detail: >-
+      (1) BIT-EXACT, by np.array_equal on mean and var, over every arm of all five
+      experiments — exp001 A/A'/B/C, exp002 A'/C/D/E, exp003 W and V, exp007
+      A/A'/D/E, and exp008 A'/D/E on RENDERED stimuli at two occlusion levels.
+      34 configurations, zero divergences.
+      IT IS STRUCTURAL RATHER THAN NUMERICAL. At the origin fixation each cell
+      resolves to the index it came from, because index(direction(i)) is exact on
+      this lattice over all 76800 indices (bio-043), so the gather is the identity
+      MAP and no tolerance enters anywhere.
+      SCOPE, STATED PLAINLY: all five experiments' ARM configurations were re-run;
+      their full SEED SETS were not — two seeds each against 8 or 16. The control
+      is about the fusion path, which is seed-independent, and 34 distinct
+      scanpaths were checked. That is less than "every arm of every experiment
+      re-run" and is reported as such.
+      (4) TESTED, AND NOT THE EXPLANATION. Under an 8.6 degree elevation change
+      100% of cells resolve to a different index, by up to 112 px, and a field
+      defined as a known function of the head-frame direction is recovered to 0.48
+      of a cell against 101.5 cells for not reprojecting — a factor of 210.
+      THE HONEST QUALIFICATION: the DISCRETISATION does coincide with the image
+      lattice at the origin fixation, because cell density is the sensor's. What
+      makes this not outcome 4 is that a cell is a DIRECTION, so a rotation moves
+      samples relative to cells; were the frame the image frame, nothing would
+      move. The 100% figure is the evidence for that, not the design intent.
+      A LIMITATION FOUND WHILE TESTING IT, and a real one: rectification_rotation
+      zeroes azimuth by construction, so a purely azimuthal gaze change reprojects
+      NOTHING (bio-049). The head grid is tied to the RECTIFIED frame rather than
+      to gaze. Whether that is right is a decision 17b has to take, and it is
+      recorded so 17b confronts it rather than discovering it.
+      RESAMPLING AND VARIANCE: nearest-neighbour, so no correlation is introduced
+      and no variance correction is owed or hidden. The predecessor's finding that
+      bilinear's variance effect is estimator-sign-dependent — inflating for the
+      parabolic-curvature front end this repository uses, and DERIVED FROM
+      REASONING RATHER THAN MEASURED, filed as its issue #44 — is therefore not
+      inherited. It becomes live the moment anyone adopts bilinear, and no sign is
+      picked in advance.
+      THE FOVEAL WEIGHT REMAINS PIXEL-NATIVE. Step 15 named an angular foveal
+      weight as the change that would make the sensor genuinely optional; a
+      head-frame belief does not by itself fix it, and it is 17b/18 work. Recorded
+      at measurement() in loop.py rather than only here.
+      A GUARD CAUGHT A FALSE POSITIVE AND THE RESPONSE WAS TO RENAME, NOT TO
+      LOOSEN IT. tests/test_scaffold.py forbids the pinned-clone directory's name
+      anywhere in governed code, by substring; a dataclass field named `reference`
+      produced that string after a dot. The field is now `origin_fixation`, which
+      is a better name, and the guard is untouched.
+      NO FORECLOSURE TAKEN, the expected shape for a geom iteration.
+    verified_at_commit: e83cfc3
 
 # ------------------------------------------------------------------------------
 # STANDING CONSTRAINTS

@@ -140,6 +140,40 @@ class ActiveStereo:
         d_hi = self.f * self.I / 0.5
         return float(np.clip(d0, d_lo, d_hi))  # == fixation disparity d_fix
 
+    def measurement(self, yf: int, xf: int) -> tuple[FloatArray, PosteriorArray, float]:
+        """The measurement one fixation produces: ``(Zmeas, precision, D_fix)``.
+
+        Extracted from :meth:`step`, which now calls it — **one implementation, so
+        the two cannot drift.** A head-frame belief needs the same measurement
+        ``step`` fuses in image coordinates, and a second copy of this arithmetic
+        would make the fixed-eye control compare two computations rather than two
+        frames, which is the one thing that control must not do.
+
+        Uses no ground truth. Both returned fields are in the **image frame** at
+        this fixation; reprojecting them is the caller's business.
+
+        The precision is ``float64`` while ``Zmeas`` is ``float32`` — a promotion
+        the arithmetic performs and the annotation states rather than hides. It
+        matters: the fusion below is written against exactly these dtypes, and the
+        head-frame belief reproduces it bit-for-bit only because it inherits them.
+        """
+        d_fix = self.vergence(yf, xf)
+        D_fix = self.f * self.I / max(d_fix, 1e-3)
+        Zmeas, dZ_deta = scale_to_depth(self.d_sub, d_fix, self.f, self.I)
+        Zmeas = np.clip(Zmeas, 0.3, 10.0)  # reject absurd scaled depths
+        # Two variance sources: (i) propagated matching noise, (ii) the linearization
+        # (Taylor-remainder) error of the first-order scaling, which grows as eta^2 and
+        # confines each fixation's confident estimate to its foveal neighbourhood.
+        eta = self.d_sub - d_fix
+        sig_model = D_fix * (eta / max(d_fix, 1e-3)) ** 2
+        var_Z = (dZ_deta**2) * self.var_d + sig_model**2
+        # STILL PIXEL-NATIVE, and deliberately so. Step 15 named an angular foveal
+        # weight as the change that would make the sensor genuinely optional; a
+        # head-frame belief does not by itself fix it, and it is 17b/18 work.
+        w = self._fovea_weight(yf, xf)  # acuity falloff: precise at fovea
+        meas_prec = self.valid * w / np.maximum(var_Z, 1e-6)  # invalid/peripheral -> ~0
+        return Zmeas, meas_prec, D_fix
+
     def step(
         self,
         fixation: tuple[int, int] | None = None,
@@ -191,20 +225,8 @@ class ActiveStereo:
         self.scanpath.append((yf, xf))
 
         # (4) vergence -> absolute distance D at the fixation
-        d_fix = self.vergence(yf, xf)
-        D_fix = self.f * self.I / max(d_fix, 1e-3)
-
         # (3) foveated metric measurement + its variance
-        Zmeas, dZ_deta = scale_to_depth(self.d_sub, d_fix, self.f, self.I)
-        Zmeas = np.clip(Zmeas, 0.3, 10.0)  # reject absurd scaled depths
-        # Two variance sources: (i) propagated matching noise, (ii) the linearization
-        # (Taylor-remainder) error of the first-order scaling, which grows as eta^2 and
-        # confines each fixation's confident estimate to its foveal neighbourhood.
-        eta = self.d_sub - d_fix
-        sig_model = D_fix * (eta / max(d_fix, 1e-3)) ** 2
-        var_Z = (dZ_deta**2) * self.var_d + sig_model**2
-        w = self._fovea_weight(yf, xf)  # acuity falloff: precise at fovea
-        meas_prec = self.valid * w / np.maximum(var_Z, 1e-6)  # invalid/peripheral -> ~0
+        Zmeas, meas_prec, D_fix = self.measurement(yf, xf)
 
         # (5) scalar precision-weighted (Kalman) fusion into the running posterior
         prior_prec = 1.0 / np.maximum(self.var, 1e-6)
