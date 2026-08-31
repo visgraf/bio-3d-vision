@@ -95,6 +95,229 @@ schema:
   status: inherited | measured | gap
   notes: Optional. Caveats that travel with the value, from the source.
 
+# ------------------------------------------------------------------------------
+# CARRIED METHODS
+#
+# Added at exp012. Carried NUMBERS have had a `status` field since step 2;
+# carried METHODS had none, and the two-clause bar is what that omission cost:
+# it walked in from the predecessor with no marker and acquired the authority of
+# a repository decision, which nothing here had ever examined.
+#
+# `kind` is the whole point of this section:
+#   measurement — this repository measured it, and the measurement is cited.
+#   choice      — this repository chose it deliberately and said why, here.
+#   carried     — it walked in and has NEVER been examined here. The third
+#                 category is the finding; the count is recorded as gap-011.
+#
+# NOTHING IN THIS SECTION IS RE-DERIVED. The audit is the deliverable. A value
+# being `carried` is not an accusation that it is wrong — it is a statement that
+# nobody here knows whether it is.
+# ------------------------------------------------------------------------------
+methods:
+
+  - id: met-001
+    what: exp001's clause 1 — the effect must exceed the seed-to-seed spread, sd(d_s)
+    kind: carried
+    from: >-
+      The predecessor's own exp001 criterion, "a margin exceeding the seed-to-seed
+      spread across 5 seeds". exp001_gaze_objective/preregistration.md:155-157 says
+      so explicitly: "reused rather than invented".
+    re_derived_here: >-
+      NO, AND THAT IS WHAT IT COST. Used unexamined in exp001, exp002, exp003,
+      exp004, exp005, exp007, exp008, exp009, exp010 and exp011 — every comparison
+      this repository has ever scored. exp011 was the first iteration to notice it
+      is a SAMPLE STANDARD DEVIATION and not a standard error, and exp012 is the
+      first to measure what that costs: 45 of 96 nulls (46.9%) read differently
+      under the other bar (bio-074).
+    to_re_derive: >-
+      Nothing to derive — it is a threshold, not a quantity. What it needs is a
+      STATEMENT OF WHAT IT ASKS, which exp012 supplies: "does the effect exceed
+      scene-to-scene variation", i.e. would this reliably help on a NEW scene. That
+      is a legitimate and deliberately strict question. The defect was never the
+      bar; it was that no one had said which question it answers.
+    status: examined_at_exp012
+
+  - id: met-002
+    what: exp001's clause 2 — the 2% materiality floor, 0.02 x mean(reference arm)
+    kind: choice
+    from: >-
+      Declared in exp001_gaze_objective/preregistration.md:158-160. NO SOURCE IS
+      CITED, and clause 1 in the same list IS attributed to the predecessor, so the
+      contrast suggests it was chosen here. Nothing derives the 2%.
+    re_derived_here: >-
+      NO. Reused verbatim as MATERIALITY = 0.02 or RELATIVE_FLOOR = 0.02 in all ten
+      analysers. It is doing real work: exp012 measures it BINDING under the se bar
+      in 138 of 353 comparisons, where the two bars therefore agree by construction
+      rather than by evidence.
+    to_re_derive: >-
+      A statement of what difference in metres would change a decision about this
+      loop, which is a judgement about the application and not a measurement. It
+      cannot be derived from data at all, which is an argument for stating it as a
+      judgement rather than as a number with a percent sign.
+    status: never_examined
+
+  - id: met-003
+    what: exp004's band thresholds — AT <= 10 px, AWAY >= 24 px, discontinuity |dd| > 1.0 px
+    kind: choice
+    from: >-
+      Derived in exp004_scene_model_check/preregistration.md:20-45 FROM MEASURED
+      SCENE GEOMETRY: 1.0 px is the smallest disparity step that can expose a
+      one-pixel strip in one eye; 10 px covers the fixture's widest disparity step
+      of 8.85 px "with a margin and is rounded, not fitted"; 24 px is 2.7x that
+      strip and beyond the 7x7 window's reach. exp004 also swept both and reported
+      the sensitivity rather than tuning to it.
+    re_derived_here: >-
+      DERIVED ONCE, THEN CARRIED BY FIVE EXPERIMENTS THAT NEVER RE-CHECKED IT.
+      exp005, exp007, exp008, exp010 and exp011 all use 10 / 24 / 1.0 unchanged,
+      on stimuli exp004 did not measure — split_cards at four occlusion levels and
+      rendered scenes. The derivation rests on the widest disparity step being
+      8.85 px; whether that still holds for those stimuli was never checked.
+    to_re_derive: >-
+      Recompute the widest disparity step for each stimulus and repeat exp004's
+      argument. Cheap — it is arithmetic on the scene model — and deliberately not
+      done here.
+    status: derived_once_then_carried
+
+  - id: met-004
+    what: K_LISTING_DEFAULT = 0.25, the temporal tilt of each eye's Listing plane
+    kind: carried
+    from: The reference; ADR-0014 introduced it and ADR-0016 corrected its rationale.
+    re_derived_here: >-
+      NOT RE-DERIVED, BUT EXAMINED — and this is the shape the other carried values
+      lack. The value is distinguished in the docstring from the k = 1/2
+      plane-of-regard optimum "one line apart in the reference", the ADR-0014 ->
+      ADR-0016 correction travels WITH the parameter rather than in a document, and
+      a test pins it: test_the_default_k_is_a_quarter_not_a_half. bio-046 measured
+      the consequence at k = 0 against k = 1/2 in a render.
+    to_re_derive: >-
+      It is a modelling constant from the literature, not a measurable property of
+      this rig. What can be measured is its CONSEQUENCE, and 17b did.
+    status: carried_but_examined
+
+  - id: met-005
+    what: the ported front end's LR-consistency tolerance, tol = 1.5 px
+    kind: carried
+    from: visgraf/bioeye@e908170:active_stereo_demo.py:112-174, ported "numerically unchanged".
+    re_derived_here: >-
+      NO. It has no comment, no citation at the parameter, and no test that would
+      fail if it changed. Every valid mask in every experiment depends on it.
+    to_re_derive: >-
+      Sweep it and report the valid fraction and error against it, as exp004 did
+      for its band thresholds. Nothing here has done that for any front-end
+      parameter.
+    status: never_examined
+
+  - id: met-006
+    what: the ported front end's ratio test, distinct > 0.10
+    kind: carried
+    from: The same port, matching.py:103.
+    re_derived_here: >-
+      NO. Same standing as met-005 — no citation at the parameter, no test, and
+      every valid mask depends on it. exp009 measured that a 2-D search makes this
+      test systematically stricter, which is the closest anything has come to
+      examining it, and that was incidental.
+    to_re_derive: Sweep, as for met-005.
+    status: never_examined
+
+  - id: met-007
+    what: the matcher window, win = 7
+    kind: carried
+    from: The same port. Repeated as a default in loop.py, matching.py and acquisition.py.
+    re_derived_here: >-
+      NO. bio-056 and exp009 both REASON against it — "1.0-1.4 px of vertical
+      disparity against a 7 px window" — so it has been used as a yardstick without
+      ever being examined as a choice.
+    to_re_derive: Sweep the window and report error and valid fraction.
+    status: never_examined
+
+  - id: met-008
+    what: INHIBITION_RADIUS = 20.0 px
+    kind: carried
+    from: >-
+      visgraf/active-stereo@3f7a263:src/activestereo/policy/gaze.py:13, recorded in
+      ADR-0002's consequences item 2. Cited by repo@sha at the parameter.
+    re_derived_here: >-
+      NO, AND IT IS SAID SO AT THE PARAMETER — "Not tuned here". This is the best
+      documented of the carried values and is still unexamined: fc-007 closes IN
+      FAVOUR OF "argmax variance plus inhibition of return at the predecessor's
+      20.0 px radius", so a foreclosure names it without anything having measured it.
+    to_re_derive: >-
+      A sweep of the radius as a policy arm. RASTER_PITCH is derived from it
+      (20.0 * sqrt(pi)), so exp002's uninformed arms move with it too.
+    status: never_examined
+
+  - id: met-009
+    what: SALIENCY_SIGMA = 4.0, the port's saliency blur
+    kind: carried
+    from: ActiveStereo.step, via the port. Marked "Carried, not endorsed" at the parameter.
+    re_derived_here: >-
+      NO. It is the blur applied before every argmax this repository has taken, and
+      loop.py records DEFECT 2 against it — the blur mixes invalid pixels written
+      as 0.0 into their valid neighbours BEFORE the mask is reapplied. So a known
+      defect and an unexamined constant sit in the same operation.
+    to_re_derive: Sweep it, or fix DEFECT 2 first and then sweep it.
+    status: never_examined
+
+  - id: met-010
+    what: fovea_sigma = 34.0 px
+    kind: carried
+    from: ActiveStereo's default, via the port.
+    re_derived_here: >-
+      NO. bio-065 measured that the foveal peak sits 3.6-56 px off the target under
+      the shifted principal point and expressed the miss IN UNITS OF THIS SIGMA
+      without ever asking where 34 came from. fc-009 records that an ANGULAR foveal
+      weight is step 17/18 work, which would replace it rather than examine it.
+    to_re_derive: Sweep it; or replace it with an angular weight, which is a different task.
+    status: never_examined
+
+  - id: met-011
+    what: prior_depth = 3.0 m and prior_std = 3.0 m
+    kind: carried
+    from: ActiveStereo's defaults, via the port.
+    re_derived_here: >-
+      NO — AND exp011's HEADLINE RESULT IS DENOMINATED IN IT. bio-072's coverage
+      finding is that an open loop leaves "1.35-1.39 m of silent prior error" on
+      28-34% of the belief. That number IS prior_depth minus the true range: the
+      scene is 2.4-4.5 m and the prior is 3.0. A different carried prior would move
+      the largest effect this repository has measured.
+    to_re_derive: >-
+      State it as a modelling assumption with its consequence, or report the
+      coverage result against a prior-free baseline such as "fraction of cells
+      unmeasured" alone. Neither is done here.
+    status: never_examined
+
+  - id: met-012
+    what: the disparity search window, dmin = 0 and dmax = f*b/0.8 (0.8 m near clip) -> [0, 56]
+    kind: carried
+    from: ActiveStereo's default, via the port; loop.py:101.
+    re_derived_here: >-
+      THE WINDOW WAS EXAMINED AS A VARIABLE, THE 0.8 m NEAR CLIP WAS NOT. exp003
+      tested NARROWING it (arms N and V) and fc-010 closed that; nothing tested the
+      default itself, and no one has asked why 0.8 m. bio-057 later found the
+      deeper issue is not the bounds but the SIGN — cost_volume cannot search
+      negative disparity at all — which no sweep of the bounds would have found.
+    to_re_derive: >-
+      State the near clip as a scene assumption and check it against each
+      stimulus's actual depth range, which exp009 had to do by hand and recorded as
+      SCENE_NEAR_M / SCENE_FAR_M in its runner rather than in src/.
+    status: partly_examined
+
+  - id: met-013
+    what: CANDIDATE_STRIDE = 4, the field-integral policy's candidate grid
+    kind: measurement
+    from: >-
+      Pre-registered as 8 with a declared halving check, WHICH IT FAILED — stride 8
+      picks (128, 176) and stride 4 picks (120, 180) — so it was reduced to 4 before
+      any arm was scored, and stride 4 passes its own halving check.
+    re_derived_here: >-
+      YES. This is the one constant in this section that this repository derived,
+      by a pre-registered rule, and recorded the failure that moved it. It is
+      included as the CONTRAST CASE: it shows what the others would look like if
+      they had been examined.
+    to_re_derive: Already done; bio-013 records the ladder.
+    status: derived_here
+
+
 measurements:
   # ==============================================================================
   # exp001 — matcher baseline on random-dot stereograms
@@ -3715,6 +3938,11 @@ measurements:
       AT is distinguishable at k1 (1.60) and k8 (1.18), so "not at discontinuities"
       is not a level-independent statement and this entry should not be cited as
       one.
+      AND ANNOTATED BY bio-076, WHICH IS THE STRONGER CORRECTION: the AT effect is
+      present at EVERY level in 23-24 of 24 seeds, p = 3e-6. "Not at
+      discontinuities" was a statement about effect size relative to the AT band's
+      large seed-to-seed spread, and it was read as a statement about existence. Do
+      not cite this entry as evidence that the closed loop fails at discontinuities.
 
   - id: bio-067
     statement: >-
@@ -3945,6 +4173,11 @@ measurements:
       does not help at discontinuities" is NOT a level-independent statement, and
       exp010 happened to measure the level where the AT case is weakest. AWAY goes
       the other way and loses distinguishability at k8 (0.97).
+      SUPERSEDED AS A READING BY bio-076, THOUGH THE NUMBERS STAND. Named with the
+      sign test, the AT effect is present at ALL FOUR levels in 23-24 of 24 seeds
+      (p = 3e-6), and the k8 AWAY null is 21 of 24 (p = 2.8e-04). The x_bar column
+      here measures effect size against the band's own spread and says nothing
+      about whether the effect exists.
 
   - id: bio-072
     statement: >-
@@ -4042,6 +4275,202 @@ measurements:
       the estimator.
       THE 41x COST IS UNCHANGED FROM bio-069 and belongs beside every figure in
       bio-070..bio-072.
+
+  - id: bio-074
+    statement: >-
+      Re-scored under a standard-error bar, 45 of this repository's 96 nulls read
+      differently. No positive changed. Exactly ONE foreclosure rests on a
+      comparison that moved.
+    value:
+      comparisons: 353
+      experiments: 10
+      distinguishable_sd: 257
+      distinguishable_se: 302
+      nulls_sd: 96
+      disagreement_set: 45
+      nulls_that_flip_fraction: 0.469
+      agreement_fraction: 0.873
+      positives_that_flipped: 0
+      recorded_verdict_mismatches: 0
+      materiality_binds_under_se: 138
+      flips_by_experiment: {exp001: 5, exp002: 1, exp003: 4, exp004: 4, exp005: 13, exp007: 5, exp008: 7, exp009: 1, exp010: 2, exp011: 3}
+      foreclosures_affected: [fc-007]
+      foreclosures_checked_and_unaffected: [fc-008, fc-010]
+    units: count
+    n: {comparisons: 353, experiments: 10}
+    stimulus_family: none
+    matcher: none
+    configuration: >-
+      Every pairwise comparison in exp001-exp005 and exp007-exp011, from the
+      results.json files on disk. No re-runs, no renders. Each experiment's OWN
+      compare() supplies the floor, the spread and the recorded verdict; only the
+      per-seed difference vector is rebuilt, and it is asserted against that
+      experiment's own mean_diff, spread and bar to 1e-9 before use. The se bar is
+      max(sd/sqrt(n), floor): the materiality floor is NOT divided by sqrt(n),
+      because clause 2 is a judgement about practical significance and nothing
+      about it scales with sample size.
+    provenance:
+      cited_as: visgraf/bio-3d-vision
+      source: exp012 Part A
+      experiment: exp012_bar_reanalysis
+      run_id: null
+      measured_at_sha: 42d5909
+      environment: {python: 3.13.15, numpy: 2.5.2, scipy: 1.18.1, matplotlib: 3.11.1}
+    status: measured
+    notes: >-
+      OUTCOME (c), NARROWLY — AND (d) DID NOT OCCUR, WHICH IS ALGEBRA RATHER THAN
+      LUCK. max(sd, floor) >= max(sd/sqrt(n), floor), so a positive under the sd
+      bar is a positive under the se bar always. Asserted per comparison; 0 flips.
+      A second guard rebuilt every comparison from stored per-seed values and
+      asserted agreement with what each experiment recorded: 0 mismatches in 353.
+      THE TWO BARS AGREE ON 87.3% OF COMPARISONS. Where they agree the answer is
+      the same whichever question you were asking, and 138 of the agreements are
+      by CONSTRUCTION — the materiality floor binds under the se bar, so clause 2
+      decides and clause 1 never gets a vote.
+      ONLY fc-007 IS AFFECTED, AND ONLY ON ONE OF ITS TWO PRIMARY METRICS. fc-008
+      and fc-010 were checked comparison by comparison against their own stated
+      evidence and every one of those is a positive under BOTH bars. The concern
+      that foreclosures rest on evidence of absence the criterion could not produce
+      is true of exactly one of the three candidates.
+      THE FLIPS ARE CONCENTRATED IN THE NULL-HEAVY EXPERIMENTS: exp005, whose band
+      results are nulls throughout, contributes 13 of the 45.
+
+  - id: bio-075
+    statement: >-
+      Of thirteen audited methods and constants, EIGHT have never been examined in
+      this repository and ten were carried in from elsewhere. One was derived here.
+    value:
+      audited: 13
+      kind: {carried: 10, choice: 2, measurement: 1}
+      never_examined: 8
+      carried_and_never_examined: 7
+      chosen_here_but_never_derived: 1
+      carried_but_examined: 1
+      derived_once_then_carried: 1
+      partly_examined: 1
+      derived_here: 1
+      never_examined_ids: [met-002, met-005, met-006, met-007, met-008, met-009, met-010, met-011]
+    units: count
+    n: {methods: 13}
+    stimulus_family: none
+    matcher: none
+    configuration: >-
+      docs/inherited-measurements.yaml `methods`, added at exp012. Classification
+      is by what the repository can show: `measurement` needs a citation to a
+      measurement made here, `choice` needs a stated reason here, and everything
+      else is `carried`. NOTHING WAS RE-DERIVED — the audit is the deliverable.
+    provenance:
+      cited_as: visgraf/bio-3d-vision
+      source: exp012 Part C
+      experiment: exp012_bar_reanalysis
+      run_id: null
+      measured_at_sha: 42d5909
+      environment: {python: 3.13.15, numpy: 2.5.2, scipy: 1.18.1, matplotlib: 3.11.1}
+    status: measured
+    notes: >-
+      THE COUNT IS THE FINDING AND IT IS EIGHT. Carried numbers have had a `status`
+      field since step 2; carried METHODS had none, and the two-clause bar is what
+      that omission cost — it acquired the authority of a repository decision
+      without anyone deciding it.
+      THREE OF THE EIGHT ARE LOAD-BEARING IN WAYS ALREADY ON RECORD. met-008,
+      INHIBITION_RADIUS = 20.0: fc-007 closes IN FAVOUR OF a policy that names it,
+      so a foreclosure cites a constant nothing has measured. met-011, prior_depth
+      = 3.0: bio-072's coverage headline IS 3.0 minus the true range, so the
+      largest effect this repository has measured is denominated in a carried
+      default. met-010, fovea_sigma = 34.0: bio-065 expresses the foveal miss in
+      units of it without asking where it came from.
+      met-013 IS INCLUDED AS THE CONTRAST CASE. CANDIDATE_STRIDE was pre-registered
+      at 8 with a halving check, FAILED IT, and was moved to 4 before any arm was
+      scored. It is what the other twelve would look like if they had been examined.
+      NOT AN ACCUSATION THAT ANY VALUE IS WRONG. `carried` says nobody here knows
+      whether it is.
+
+  - id: gap-011
+    statement: >-
+      Eight of thirteen audited methods and constants have never been examined in
+      this repository, three of them load-bearing.
+    kind: gap
+    value:
+      never_examined: 8
+      of_audited: 13
+      load_bearing_unexamined: [met-008, met-010, met-011]
+    units: count
+    n: {methods: 13}
+    stimulus_family: none
+    matcher: none
+    configuration: See docs/inherited-measurements.yaml `methods`, met-001..met-013.
+    provenance:
+      cited_as: visgraf/bio-3d-vision
+      source: exp012 Part C
+      experiment: exp012_bar_reanalysis
+      run_id: null
+      measured_at_sha: 42d5909
+      environment: {python: 3.13.15, numpy: 2.5.2, scipy: 1.18.1, matplotlib: 3.11.1}
+    status: gap
+    notes: >-
+      RECORDED AS A GAP RATHER THAN A TASK, because closing it is thirteen sweeps
+      and nobody has asked for them. What it changes is CITATION PRACTICE: a
+      foreclosure that names a carried constant should say so, and fc-007 currently
+      names INHIBITION_RADIUS without it.
+      THE CHEAPEST TWO ARE NAMED SO THE GAP HAS A FIRST STEP. met-003's band
+      thresholds need only arithmetic on each stimulus's widest disparity step —
+      exp004's own argument, repeated on the four occlusion levels that inherited
+      it. met-011's prior needs only that bio-072's coverage figure be restated
+      against a prior-free baseline.
+
+  - id: bio-076
+    statement: >-
+      Closing the loop helps at depth discontinuities at EVERY occlusion level, in
+      23-24 of 24 seeds. Two of the four levels recorded it as "indistinguishable".
+    value:
+      band: AT
+      by_level:
+        k1: {mean_diff_m: -0.00824, x_bar_sd: 1.60, seeds: "24/24", sign_test_p: 1.19e-07, recorded: distinguishable}
+        k2: {mean_diff_m: -0.00670, x_bar_sd: 0.80, seeds: "23/24", sign_test_p: 2.98e-06, recorded: INDISTINGUISHABLE}
+        k4: {mean_diff_m: -0.01864, x_bar_sd: 0.91, seeds: "23/24", sign_test_p: 2.98e-06, recorded: INDISTINGUISHABLE}
+        k8: {mean_diff_m: -0.01856, x_bar_sd: 1.18, seeds: "23/24", sign_test_p: 2.98e-06, recorded: distinguishable}
+      direction_consistent_at_every_level: true
+      also_AWAY_k8: {x_bar_sd: 0.97, seeds: "21/24", sign_test_p: 2.77e-04, recorded: INDISTINGUISHABLE}
+    units: m
+    n: {seeds: 24, levels: 4}
+    stimulus_family: rendered_chart
+    matcher: block
+    configuration: >-
+      exp011's stored per-seed differences, CLOSED minus OPEN on the common cell
+      set, AT band (<=10 px of a depth discontinuity, exp004's threshold). Sign
+      test is exact two-sided binomial on the per-seed differences. No re-run.
+    provenance:
+      cited_as: visgraf/bio-3d-vision
+      source: exp012, re-reading exp011 with the sign test named
+      experiment: exp012_bar_reanalysis
+      run_id: null
+      measured_at_sha: 83978d1
+      environment: {python: 3.13.15, numpy: 2.5.2, scipy: 1.18.1, matplotlib: 3.11.1}
+    status: measured
+    notes: >-
+      THIS IS THE LOAD-BEARING NULL THAT ACTUALLY MOVED, AND IT IS NOT fc-007.
+      exp011's AT band was recorded as "indistinguishable" at k2 and k4 and read as
+      "the closed loop does not help at discontinuities". THE DIRECTION IS
+      CONSISTENT AT EVERY ONE OF THE FOUR LEVELS, 23-24 seeds of 24, p = 3e-6.
+      WHAT THE NULL ACTUALLY SAID: the effect at k2 and k4 is smaller than the
+      seed-to-seed spread of the AT band, whose sd is 3.8x MIDDLE's and 13.5x
+      AWAY's (bio-070). That is a statement about EFFECT SIZE RELATIVE TO SCENE
+      VARIATION. It was read as a statement about EXISTENCE, and those differ.
+      IT MATTERS BECAUSE IT IS THE FRAMEWORK'S ORIGINAL MOTIVATION. Active vision
+      was expected to help most where the geometry is hardest — at occlusion
+      boundaries. bio-066 and bio-071 both report "not at discontinuities", and
+      bio-071 already qualified it as not level-independent. The sign test says the
+      help is there at every level; only its size relative to AT's spread varies.
+      NOT A REVERSAL OF bio-066 OR bio-071. Their verdicts were correct under the
+      criterion in force and remain on record. What changes is the READING, and
+      both entries are annotated rather than rewritten.
+      THE AWAY BAND AT k8 IS THE SAME SHAPE: 21 of 24 seeds, p = 2.8e-04, recorded
+      as indistinguishable at 0.97x.
+      SHA CORRECTED FORWARD. This entry first recorded c02369c, which `git commit
+      --amend` orphaned before it was pushed — the amend was a mistake, CLAUDE.md
+      forbids rewriting history, and a follow-up commit is what the rule requires
+      instead. 83978d1 is the commit that contains the work. Corrected here rather
+      than by a second amend, for the same reason exp010's sha was.
 
   - id: gap-009
     statement: Nothing inside Blender is covered by any test, so rendered stimuli are the least-verified inputs in the record.
