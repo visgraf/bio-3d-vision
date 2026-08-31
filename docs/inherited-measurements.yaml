@@ -3195,6 +3195,288 @@ measurements:
       uncalibrated coefficient sits underneath every foveal number in this record —
       including as-exp001-foveal-mae, the entry that has no recoverable SHA.
 
+  - id: bio-057
+    statement: >-
+      A THIRD latent assumption, beside bio-056's: the block matcher assumes a
+      PARALLEL pair, not merely a rectified one. It cannot search negative
+      disparity at all.
+    value:
+      cost_volume_shifts_right_image_for_d_le_0: false
+      true_disparity_range_px_at_vergence_0p06: [-34.2, -23.0]
+      inherited_search_window_px: [0, 56]
+      overlap_between_them_px: 0
+      fixation_distance_m: 1.08
+      scene_depth_range_m: [2.4, 4.5]
+    units: px
+    n: {fixations: 5, seeds: 4}
+    stimulus_family: rendered_chart
+    matcher: block
+    configuration: >-
+      matching.cost_volume builds its shifted right image as `if d > 0: shift;
+      else: rs[:] = right`, so every d <= 0 compares against the UNSHIFTED right
+      image. A rectified pair may still be converged, and a converged pair puts
+      every point beyond the fixation distance at negative disparity. Measured on
+      exp009's fixture renders at vergence 0.06 rad, baseline 0.065 m, f 700 px.
+    provenance:
+      cited_as: visgraf/bio-3d-vision
+      source: exp009, found while repairing the runner; NOT fixed in src/
+      experiment: exp009_epipolar_cost
+      run_id: null
+      measured_at_sha: 1508ce0
+      environment: {python: 3.13.15, numpy: 2.5.2, scipy: 1.18.1, matplotlib: 3.11.1}
+    status: measured
+    notes: >-
+      NOT A RESULT ABOUT THE EXPERIMENT — A FINDING ABOUT src/matching.py, and the
+      most consequential thing exp009 turned up. bio-056 recorded that the matcher
+      assumes a RECTIFIED pair. This is stronger and was not visible then: it
+      assumes a PARALLEL one. Rectification is what makes a pair parallel, so the
+      two assumptions are only distinguishable once something renders a converged
+      pair and matches it without rectifying, which exp009 is the first thing to do.
+      IT DOES NOT FAIL. It returns confident garbage: the first complete exp009 run
+      reported TOED valid fractions of 0.019 and range errors of 3.8-17 m on a
+      2.4-4.5 m scene, and those numbers were briefly written down as a result.
+      matching.lr_consistency inherits it — it mirrors the pair and calls
+      cost_volume, so on a converged pair every cost slice is identical and the
+      argmin is whichever index comes first. That alone drove the valid fraction
+      to 0.009.
+      NOT FIXED IN src/. exp009 works around it in the experiment with a signed
+      cost volume and a signed right-referenced consistency pass. Whether src/
+      should carry a signed matcher is a decision, not a repair, and it belongs
+      with the rectify-or-not decision this experiment measured for.
+
+  - id: bio-058
+    statement: >-
+      Maximum vertical disparity over the field at vergence 0.06 is NOT monotone in
+      saccade amplitude, and is largest ON AXIS.
+    value:
+      max_abs_dv_px:
+        az0p00_el0p00: 1.71
+        az0p08_el0p05: 1.24
+        az0p15_el0p10: 1.08
+        az0p20_el0p15: 1.07
+        az0p30_el0p20: 1.38
+      search_band_px: 4
+      band_headroom_factor: 2.34
+    units: px
+    n: {fixations: 5, seeds: 4, pixels_per_render: 76800}
+    stimulus_family: rendered_chart
+    matcher: block
+    configuration: >-
+      Per-pixel geometric prediction f * (y_L/z_L - y_R/z_R) from eye_rotations,
+      over every finite pixel of the arm's own rendered Z pass, vergence 0.06,
+      baseline 0.065 m, f 700 px, 320x240. Maximum over the field, not at the
+      fixation point.
+    provenance:
+      cited_as: visgraf/bio-3d-vision
+      source: exp009, measurement 2 apparatus
+      experiment: exp009_epipolar_cost
+      run_id: null
+      measured_at_sha: 1508ce0
+      environment: {python: 3.13.15, numpy: 2.5.2, scipy: 1.18.1, matplotlib: 3.11.1}
+    status: measured
+    notes: >-
+      CORRECTS A PREDICTION IN exp009'S OWN PREREGISTRATION, which gave 0.00 px at
+      az 0.00. That figure came from bio-056's `parallel_az0_el0_mu0` row - a
+      PARALLEL rig at vergence ZERO - carried into a converged-rig table. Symmetric
+      convergence alone produces vertical disparity off the horizontal meridian,
+      growing with |x.y|/z^2, and it is largest exactly when the field is symmetric
+      about the gaze. So the on-axis case was understated to zero.
+      CONSEQUENCE: d_v does not grow with amplitude, and the preregistration's
+      extrapolation that the +/-4 px band fails "beyond az = 0.5 rad" rests on a
+      trend that does not exist. The band is comfortable everywhere here (1.71 px
+      against 4), for a different reason than the one given.
+      NOT COMPARABLE TO bio-056 ROW BY ROW: bio-056 was measured at vergence 0.03,
+      these at 0.06.
+
+  - id: bio-059
+    statement: >-
+      The epipolar violation costs 1.7-10.9 mm of median range error on a 2.4-4.5 m
+      scene - detectable by exp001's bar at every fixation, and small.
+    value:
+      median_range_error_m:
+        az0p00_el0p00: {ALL: [0.0103, 0.0121], AT: [0.0124, 0.0145], AWAY: [0.0092, 0.0109]}
+        az0p08_el0p05: {ALL: [0.0076, 0.0110], AT: [0.0109, 0.0156], AWAY: [0.0056, 0.0074]}
+        az0p15_el0p10: {ALL: [0.0072, 0.0128], AT: [0.0106, 0.0190], AWAY: [0.0043, 0.0069]}
+        az0p20_el0p15: {ALL: [0.0058, 0.0107], AT: [0.0087, 0.0195], AWAY: [0.0038, 0.0055]}
+        az0p30_el0p20: {ALL: [0.0069, 0.0110], AT: [0.0099, 0.0198], AWAY: [0.0045, 0.0051]}
+      ratio_toed_over_rect: {AT: [1.16, 1.42, 1.79, 2.26, 2.00], AWAY: [1.18, 1.34, 1.60, 1.46, 1.14]}
+      seed_sd_m: [0.0001, 0.0016]
+      worst_penalty_as_fraction_of_range: 0.004
+      distinguishable_by_exp001_bar: all_15_cells
+    units: m
+    n: {fixations: 5, seeds: 4, arms: 2}
+    stimulus_family: rendered_chart
+    matcher: block
+    configuration: >-
+      Each pair is [RECT, TOED]. RECT renders both eyes at
+      rectification_rotation(fixation) - a parallel pair - and searches 1-D. TOED
+      renders eye_camera_poses and searches 2-D over a +/-4 px vertical band. Both
+      are scored as RANGE FROM THE CYCLOPEAN ORIGIN against their OWN rendered Z
+      pass, and compared only over head-frame directions BOTH arms see, on a
+      head-anchored pinhole lattice at sensor resolution and double field. Depth
+      comes from triangulating the two rays, not from f*b/d, which is wrong for a
+      converged pair. Bands are exp004's, computed in each arm's own left image.
+    provenance:
+      cited_as: visgraf/bio-3d-vision
+      source: exp009 measurement 1
+      experiment: exp009_epipolar_cost
+      run_id: null
+      measured_at_sha: 1508ce0
+      environment: {python: 3.13.15, numpy: 2.5.2, scipy: 1.18.1, matplotlib: 3.11.1}
+    status: measured
+    notes: >-
+      OUTCOME (b) AT EVERY FIXATION AND IN EVERY BAND, INCLUDING az 0.00, where the
+      preregistration expected (a). The bar and the magnitude say different things
+      and both are true: the difference clears the bar everywhere because it is
+      extremely reproducible (seed sd 0.1-1.6 mm), and in absolute terms it is at
+      worst 0.4% of range.
+      THE PENALTY CONCENTRATES AT DISCONTINUITIES: AT-band ratios reach 2.26 while
+      AWAY stays in 1.14-1.60. Expected shape - a 2-D search has 9x the candidates,
+      so where the local surface gives the cost volume little to discriminate on,
+      the extra freedom is extra opportunity to land wrong.
+      OUTCOME (d) IS NOT SUPPORTED AND THE REASON MATTERS. RECT's absolute error
+      FALLS off axis (0.0103 -> 0.0058). That is not the matcher improving: the
+      surviving pixel set changes from 93% of the frame to 44%. Absolute error is
+      NOT comparable across fixations here; only the within-fixation difference is.
+      FIVE APPARATUS FAULTS PRECEDED THIS NUMBER, all mine, all producing plausible
+      output. See exp009's findings.md; bio-057 is the one that is about src/.
+
+  - id: bio-060
+    statement: >-
+      TOED's collapse in valid fraction is the fixture's finite extent, not the
+      matcher. Conditional on a direction both arms see, TOED gives up 8-9 points.
+    value:
+      valid_fraction_rect: [0.933, 0.845, 0.711, 0.575, 0.440]
+      valid_fraction_toed: [0.820, 0.650, 0.417, 0.283, 0.136]
+      common_direction_fraction: [0.925, 0.663, 0.437, 0.287, 0.118]
+      conditional_valid_rect: [0.960, 0.965, 0.958, 0.980, 0.991]
+      conditional_valid_toed: [0.881, 0.919, 0.876, 0.889, 0.970]
+    units: fraction
+    n: {fixations: 5, seeds: 4}
+    stimulus_family: rendered_chart
+    matcher: block
+    configuration: >-
+      Columns are fixations az/el 0.00/0.00, 0.08/0.05, 0.15/0.10, 0.20/0.15,
+      0.30/0.20 at vergence 0.06. valid_fraction is over the whole left image;
+      common_direction_fraction is the share of an arm's pixels whose true
+      head-frame direction is also seen by the other arm; conditional_valid is
+      scored/common.
+    provenance:
+      cited_as: visgraf/bio-3d-vision
+      source: exp009, coverage
+      experiment: exp009_epipolar_cost
+      run_id: null
+      measured_at_sha: 1508ce0
+      environment: {python: 3.13.15, numpy: 2.5.2, scipy: 1.18.1, matplotlib: 3.11.1}
+    status: measured
+    notes: >-
+      THE MOST MISREADABLE NUMBER IN THE EXPERIMENT. Read raw, TOED's valid fraction
+      falls 6x across the sweep and RECT's only 2x, which reads as the epipolar
+      violation destroying the matcher. It is not. The fixture's cards are FIXED IN
+      THE HEAD FRAME and span the canonical field; as gaze moves off axis both arms
+      look past them at empty space, and RECT - pinned at azimuth zero by the
+      geometry of any rectifier - looks less far past them. Conditional on a
+      direction both arms actually see, TOED gives up 8-9 percentage points.
+      common_direction_fraction IS THE MEASURED FORM OF A GEOMETRIC CLAIM. A
+      rectifying orientation must have its x-axis along the baseline, which forces
+      its forward axis to azimuth zero, so the two arms image different regions at
+      eccentric gaze. At the policy's own maximum reach (0.225/0.170 rad) they share
+      under 29% of directions; at 0.30/0.20, 12%.
+      THIS STIMULUS EXAGGERATES THE COVERAGE COST. A scene that filled the field
+      would separate the rectifier's azimuth-zero constraint from the fixture's
+      finite extent; this one cannot.
+
+  - id: bio-061
+    statement: >-
+      Vertical disparity is recoverable on axis and away from discontinuities, and
+      degrades to noise with eccentricity. The residual sits at the integer
+      quantisation floor.
+    value:
+      corr_at_band: [0.757, 0.416, 0.294, 0.269, 0.435]
+      corr_away_band: [0.878, 0.796, 0.650, 0.344, null]
+      residual_rms_away_px: [0.261, 0.277, 0.286, 0.427, 0.138]
+      pred_rms_away_px: [0.531, 0.362, 0.316, 0.423, 0.878]
+      mean_offset_px: [-0.270, 0.141]
+      quantisation_floor_px: 0.289
+      estimator_resolution: integer
+    units: px
+    n: {fixations: 5, seeds: 4, pixels_per_cell: [1710, 21757]}
+    stimulus_family: rendered_chart
+    matcher: block
+    configuration: >-
+      TOED's 2-D argmin vertical offset against the per-pixel geometric prediction
+      from eye_rotations, over valid pixels in the common directions, split AT
+      (<=10 px) and AWAY (>=24 px) from depth discontinuities per exp004. Columns
+      are the five fixations in order.
+    provenance:
+      cited_as: visgraf/bio-3d-vision
+      source: exp009 measurement 2
+      experiment: exp009_epipolar_cost
+      run_id: null
+      measured_at_sha: 1508ce0
+      environment: {python: 3.13.15, numpy: 2.5.2, scipy: 1.18.1, matplotlib: 3.11.1}
+    status: measured
+    notes: >-
+      (e) HOLDS AWAY at az 0.00 and 0.08, and AT at az 0.00 only. (f) HOLDS AT from
+      az 0.08 onward and AWAY from az 0.20 onward. The declared prediction - "(f)
+      AT, (e) AWAY" - is HALF RIGHT: it did not anticipate that AT would carry
+      signal on axis (+0.757), nor that AWAY would lose it by az 0.20. NO (g):
+      systematic offsets run -0.27 to +0.14 px, well under the residual.
+      THE az 0.30 AWAY CELL IS NULL BECAUSE THE CORRELATION IS UNDEFINED, NOT
+      MISSING. est_sd is 0.0000 in all four seeds - the estimate is the constant
+      1 px over every surviving pixel. Its residual of 0.138 px is the best in the
+      table and means nothing: a constant cannot correlate, and the residual is
+      small only because the prediction happens to sit near 1 px there. est_sd is
+      recorded in results.json so this cell cannot be read as a success; pooled
+      with its AT sibling it would have been.
+      THE RESIDUAL IS QUANTISATION-LIMITED, NOT SIGNAL-LIMITED, SO THESE
+      CORRELATIONS ARE A LOWER BOUND. The estimate is an INTEGER in {-4..4}; the
+      sub-pixel parabola is fitted along d_h only. Uniform 1 px quantisation has sd
+      1/sqrt(12) = 0.289, and three of the four defined AWAY residuals sit at that
+      floor. AN OBSERVATION, NOT A CLAIM. The check that settles it: fit the
+      parabola along d_v as well and see whether the residual falls below 0.289.
+      Not run - this iteration measures what the EXISTING matcher does.
+      THIS IS NOT A TEST OF WHETHER d_v IS A USEFUL CUE. Nothing here consumes it.
+
+  - id: bio-062
+    statement: >-
+      A 2-D search at a +/-4 px band leaves the loop RENDER-bound, not matcher-bound.
+    value:
+      rect_matcher_seconds: 0.020
+      toed_matcher_seconds: 0.188
+      ratio: 9.5
+      blender_render_seconds: 0.57
+      matcher_as_fraction_of_render: 0.33
+      rect_slices: 44
+      toed_slices: 450
+    units: s
+    n: {matcher_calls_per_arm: 20, render_calls_timed: 3}
+    stimulus_family: rendered_chart
+    matcher: block
+    configuration: >-
+      Wall-clock of the front-end block alone, 320x240, 7x7 window. RECT is 22
+      disparities plus its LR pass; TOED is 25 disparities x 9 vertical offsets,
+      plus a full right-referenced 2-D pass of the same size. Render is a cold
+      Blender 5.2.0 LTS subprocess including startup, Cycles, 1 sample, measured
+      three times at 0.57 s each.
+    provenance:
+      cited_as: visgraf/bio-3d-vision
+      source: exp009, "what is also measured"
+      experiment: exp009_epipolar_cost
+      run_id: null
+      measured_at_sha: 1508ce0
+      environment: {python: 3.13.15, numpy: 2.5.2, scipy: 1.18.1, matplotlib: 3.11.1}
+    status: measured
+    notes: >-
+      FALSIFIES A PREDICTION CARRIED INTO THE PREREGISTRATION FROM CHAT: that a
+      +/-2 px band "makes the loop matcher-bound rather than render-bound,
+      inverting 17b's conclusion". At +/-4 - twice that band, with the
+      right-referenced pass doubling the cost again - the matcher is 0.188 s
+      against a 0.57 s render, 33% of it. The loop stays render-bound and 17b's
+      conclusion is not inverted.
+      The 9.5x ratio matches the 9x predicted from the band alone and the 10.2x
+      predicted from slice count, so the cost is where it was expected to be; the
+      wrong part of the prediction was the render it was compared against.
   - id: gap-009
     statement: Nothing inside Blender is covered by any test, so rendered stimuli are the least-verified inputs in the record.
     value: null
@@ -3284,3 +3566,4 @@ measurements:
       posterior std ranks error positively here (+0.42), and it would be a
       straightforward misreading to cite that as evidence against the
       anti-calibration. It is not evidence either way.
+
