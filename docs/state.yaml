@@ -159,6 +159,9 @@ sequence:
           cost. No foreclosure taken by the experiment itself; od-002 and od-003
           untouched. Recorded here because a cold session finding fv-020 or
           bio-063..bio-069 would otherwise have no step to attach them to.
+          STEP 17 IS SUBSTANTIALLY SATISFIED BY THIS AND IS STILL NOT `complete`.
+          See am-008 for what was done and the three things that remain, one of
+          which — the angular foveal weight — step 15 named as step 17's own work.
       - what: >-
           exp009, the cost of the epipolar violation. INSERTED BEFORE 17c, and not
           a numbered step. Run because 17a-fix surfaced bio-056 — the matcher
@@ -382,7 +385,24 @@ sequence:
       - stage: 4
         name: The loop
         steps:
-          - {n: 17, title: Build and test the active loop, altitude: fw, status: planned}
+          - n: 17
+            title: Build and test the active loop
+            altitude: fw
+            status: planned
+            status_note: >-
+              LEFT `planned` DELIBERATELY, AND IT IS NOT UNSTARTED. Built and
+              tested across 17a (the head-frame belief), 17a-fix (its frame),
+              17b (gaze-contingent rendering) and 17c (rectify in the camera,
+              then close the loop), all merged, with exp010 measuring the closed
+              loop against a matched open arm. See am-008 for what was done and
+              what remains; the remainder is why this is not `complete`.
+            outcome: >-
+              THE LOOP RUNS. exp010 moves the eye, re-renders at each fixation and
+              fuses across saccades into a persistent head-frame belief — the first
+              time in either repository that an action changes the sensory data.
+              Outcome (a): CLOSED beats OPEN in 8/8 seeds on the cells both measure
+              (fv-020, bio-066..bio-069), and NOT at depth discontinuities.
+              Preceded by fc-012, taken alone before anything was built.
           - {n: 18, title: Prototype the omnidirectional rig in Blender, altitude: fw, status: planned}
 
     amendments:
@@ -576,6 +596,58 @@ sequence:
           with its cost, and the cost that surfaced was a wrong answer. Recorded so
           a later session reading 17a's confident docstring finds the correction
           attached to it.
+
+      - id: am-008
+        moved: step 17, Build and test the active loop
+        from: planned, the centrepiece of Stage 4
+        to: substantially satisfied by 17a, 17a-fix, 17b, 17c and exp010, with a remainder stated
+        origin: >-
+          THE CHAT SURFACE. The 17a/17b/17c subdivision is not one of the eighteen
+          steps and is recorded in `position.out_of_sequence`, not here.
+        reason: >-
+          Step 17 is "build and test the active loop". It is built: belief.py holds
+          a head-frame belief with reprojection, scene_model.rectified_camera_poses
+          renders a rectified pair that follows the gaze, and
+          experiments/exp010_closed_loop/run.py runs the loop — choose from the
+          belief, saccade, re-render, re-match, fuse, repeat. It is tested: B0 is
+          bit-identical at Fixation(0, 0, 0), the azimuth falsifier B0 could not
+          catch is carried beside it, and exp010 measures the closed arm against a
+          matched open one over 8 seeds and 40 fixations.
+          RECONCILED BECAUSE THE PLAN'S CENTREPIECE READ `planned` WHILE THE LOOP
+          RAN. A cold session deriving position from the plan half would have taken
+          the thing this project exists to do as unstarted.
+        what_remains: >-
+          NOT MARKED COMPLETE BY ASSERTION, because three things have not been done
+          and one of them was named as step 17's own work.
+          THE ANGULAR FOVEAL WEIGHT, which is the named one. Step 15 recorded that
+          eliminating the sample index "needs a foveal weight defined on ANGLE.
+          That is step 17/18 work." It was not built at 17a — fc-009's note says so
+          — and exp010 confirms it is still pixel-native at 17c:
+          ActiveStereo._fovea_weight is a Gaussian in row and column and
+          ActiveStereo.vergence takes a median over a square pixel window. So a ray
+          still cannot drive the loop without a sensor to land it on, which is the
+          exact property step 15 predicted step 17 would remove.
+          NOTHING IN src/ CLOSES THE LOOP. The only code that fuses across fixations
+          is experiments/exp010_closed_loop/run.py — verified by search: `.fuse(`
+          appears there, in two tests, and nowhere in src/. run_baseline still runs
+          the open loop on the fixture, ActiveStereo.run is the open loop, and
+          HeadFrameBelief is exported but used by no library code. This is the same
+          shape as am-005's step-13 remainder and is recorded the same way.
+          THE FRAME CONVERSION LIVES IN THE RUNNER TOO. ActiveStereo returns planar
+          z in the rectified frame AT THE MEASURING FIXATION, which is
+          fixation-dependent, so fusing it across fixations fuses different
+          quantities. exp010 converts to range from the cyclopean origin before
+          fusing; HeadFrameBelief itself was NOT changed and still fuses whatever it
+          is handed. Any future caller that fuses ActiveStereo's output directly
+          across fixations reintroduces the defect.
+        status_left_as: >-
+          `planned` in the plan half, with a status_note and an outcome attached.
+          position.complete is UNCHANGED and does not gain 17: that half claims to
+          be derivable from the ledger, and 17 is not complete. Position clause (2)
+          is unaffected — `next` is still 13, the lowest step that is neither
+          complete nor deferred.
+          The work itself is recorded in position.out_of_sequence, which is where a
+          cold session finding fv-017..fv-020 or bio-047..bio-069 is told to look.
 
 # ------------------------------------------------------------------------------
 # WHAT RUNS
