@@ -96,6 +96,11 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
         help="build a single flat wall at this distance: the convention calibration render",
     )
     parser.add_argument(
+        "--markers",
+        default=None,
+        help="JSON file of world-frame marker positions and eye poses; geometry apparatus",
+    )
+    parser.add_argument(
         "--scene",
         default=None,
         help="build the scene written by bio3dvision.scene_model.write_scene, from this directory",
@@ -295,6 +300,73 @@ def _emission_material(plane: object, level: float, index: int) -> None:
     output = nodes.new("ShaderNodeOutputMaterial")
     material.node_tree.links.new(emission.outputs["Emission"], output.inputs["Surface"])
     plane.data.materials.append(material)
+
+
+def build_marker_scene(spec: dict) -> None:
+    """Emissive point markers on a black world. **Geometry apparatus, not a stimulus.**
+
+    Exists so the gaze-contingent falsifiers can be answered by MEASURING WHERE A
+    KNOWN POINT LANDS rather than by looking at a render. A marker at the fixation
+    point must image at the principal point in both eyes; markers along the plane
+    of regard must image on one row. Neither question is answerable from a
+    textured scene, and "it looks right" is exactly the evidence a wrong basis
+    change survives.
+
+    ``spec["markers"]`` are WORLD-frame positions, converted outside Blender by
+    ``scene_model.WORLD_FROM_HEAD`` — this module cannot import that.
+    """
+    for obj in list(bpy.data.objects):
+        bpy.data.objects.remove(obj, do_unlink=True)
+    world = bpy.context.scene.world or bpy.data.worlds.new("World")
+    bpy.context.scene.world = world
+    world.use_nodes = True
+    for node in world.node_tree.nodes:
+        if node.type == "BACKGROUND":
+            node.inputs["Color"].default_value = (0.0, 0.0, 0.0, 1.0)
+            node.inputs["Strength"].default_value = 0.0
+
+    data = bpy.data.cameras.new("Cam")
+    cam = bpy.data.objects.new("Cam", data)
+    bpy.context.scene.collection.objects.link(cam)
+    bpy.context.scene.camera = cam
+
+    radius = float(spec.get("marker_radius", 0.004))
+    for i, position in enumerate(spec["markers"]):
+        bpy.ops.mesh.primitive_uv_sphere_add(radius=radius, location=tuple(position))
+        sphere = bpy.context.active_object
+        sphere.name = f"marker_{i}"
+        _emission_material(sphere, 1.0, 1000 + i)
+
+
+def place_eyes_from_poses(base_cam: object, poses: dict) -> dict[str, object]:
+    """Two cameras whose world matrices are given explicitly. **Gaze-contingent.**
+
+    The matrices come from ``scene_model.eye_camera_poses``, which computes them
+    outside Blender because this module may import nothing but the standard
+    library and ``bpy``. That constraint is why the basis change — the part most
+    likely to be wrong — is testable without a renderer.
+
+    **Blender's native toe-in is not used and must not be.** It is yaw-only and
+    zero-torsion, so it is correct only for a symmetric horizontal fixation, which
+    is precisely the case that cannot detect a torsion error. Each matrix is set
+    whole, torsion included.
+
+    The base camera's own orientation is DISCARDED here rather than composed with:
+    the poses are already complete world matrices in the scene's frame, and
+    multiplying by whatever the .blend happened to have would silently add a
+    rotation nobody asked for.
+    """
+    from mathutils import Matrix  # type: ignore[import-not-found]  # Blender-only
+
+    cams: dict[str, object] = {}
+    for name in ("left", "right"):
+        cam = base_cam.copy()
+        cam.data = base_cam.data.copy()
+        cam.name = f"Cam_{name}"
+        bpy.context.scene.collection.objects.link(cam)
+        cam.matrix_world = Matrix([list(row) for row in poses[name]["matrix_world"]])
+        cams[name] = cam
+    return cams
 
 
 def make_stereo_cameras(base_cam: object, baseline: float) -> dict[str, object]:
@@ -530,8 +602,15 @@ def render_stereo(
     res: tuple[int, int] = (320, 240),
     samples: int = 32,
     lens: float | None = None,
+    eye_poses: dict | None = None,
 ) -> dict[str, object]:
-    """Render the pair and the left depth pass, and write the contract."""
+    """Render the pair and the left depth pass, and write the contract.
+
+    ``eye_poses`` makes the render **gaze-contingent**: each camera's world matrix
+    is set from the oculomotor geometry rather than copied from the base camera.
+    ``None`` keeps the rectified-parallel path exactly as it was, which is what
+    lets every render made before this step still be reproduced.
+    """
     out = os.path.abspath(out)
     os.makedirs(out, exist_ok=True)
 
@@ -541,7 +620,11 @@ def render_stereo(
         base.data.lens = lens
 
     configure_render(scene, res, samples)
-    cams = make_stereo_cameras(base, baseline)
+    cams = (
+        make_stereo_cameras(base, baseline)
+        if eye_poses is None
+        else place_eyes_from_poses(base, eye_poses)
+    )
     _, depth_node, _image_node = setup_outputs(scene, out)
 
     for name in ("left", "right"):
@@ -571,7 +654,7 @@ def render_stereo(
         "engine": scene.render.engine,
         "samples": samples,
         "denoising": False,
-        "geometry": "rectified_parallel",
+        "geometry": ("rectified_parallel" if eye_poses is None else "gaze_contingent"),
         "depth_pass": "Z",
         # Not inferred here. infer_depth_convention() answers it, and only on a
         # fronto-parallel calibration render; establish it per Blender version.
@@ -597,8 +680,18 @@ def main() -> None:
         raise SystemExit(f"{', '.join(chosen)} build different scenes; pass one")
 
     baseline, lens = args.baseline, args.lens
-    if args.scene:
+    eye_poses = None
+    if args.markers:
+        with open(args.markers) as handle:
+            spec = json.load(handle)
+        build_marker_scene(spec)
+        eye_poses = spec["eye_poses"]
+        res = (int(spec["W"]), int(spec["H"]))
+        baseline = float(spec["baseline"])
+        lens = float(spec["f_px"]) * SENSOR_WIDTH_MM / res[0]
+    elif args.scene:
         spec = build_scene_from_model(args.scene)
+        eye_poses = spec.get("eye_poses")
         params = spec["params"]
         res = (int(params["W"]), int(params["H"]))
         baseline = float(params["baseline"])
@@ -611,7 +704,7 @@ def main() -> None:
     elif args.wall is not None:
         build_wall_scene(float(args.wall), res)
 
-    render_stereo(args.out, baseline, res, args.samples, lens)
+    render_stereo(args.out, baseline, res, args.samples, lens, eye_poses)
 
 
 if __name__ == "__main__":

@@ -22,7 +22,7 @@ updated_at: 2026-08-29
 # a current one", which invited exactly that comparison and would have failed
 # after every merge. Staleness is tested per half, in `sequence`, and each half
 # gets the test it can actually pass.
-updated_by_commit: e83cfc3   # the repository state this file describes
+updated_by_commit: a2aba67   # the repository state this file describes
 
 # ------------------------------------------------------------------------------
 # SEQUENCE — where this project is, and what it plans next
@@ -142,6 +142,19 @@ sequence:
       12: src/bio3dvision/scene_model.py, exp004, fv-012-1..3, bio-027..bio-031
       15: src/bio3dvision/oculomotor.py, fv-016, bio-043..bio-046; fc-009's falsifier 2 answered
     out_of_sequence:
+      - what: >-
+          Step 17b, gaze-contingent rendering. Renders a stereo pair at an
+          arbitrary fixation with per-eye orientations from eye_rotations. Not one
+          of the eighteen steps; 17a/17b/17c subdivides step 17, from the Chat
+          surface.
+        note: >-
+          NO LOOP, no re-rendering across fixations, no belief update, no
+          experiment, no policy change. The basis change lives in
+          scene_model.eye_camera_poses — outside Blender, because blender_render
+          may import only the standard library and bpy, and that constraint is what
+          makes the trap testable.
+          Recorded here because a cold session finding fv-018 or bio-050..bio-052
+          would otherwise have no step to attach them to.
       - what: >-
           Step 17a, the head-frame belief with reprojection. Step 17 in the plan is
           "Build and test the active loop"; 17a/17b/17c is a subdivision of it that
@@ -509,7 +522,7 @@ runs:
     package: bio3dvision
     modules: [fixture, matching, loop, figure, baseline, policy, sampling, acquisition,
               blender_render, blender_load, scene_model, oculomotor, belief]
-    lines: 3578
+    lines: 3771
     policies: [A, A_prime, B, C, D, E]
     sampling: >-
       SamplingModel Protocol with PinholeSampling; sits in front of ActiveStereo,
@@ -521,9 +534,9 @@ runs:
     note: Still flat. Zero subpackages. See fc-002 and falsifier fv-003-2.
   test_suite:
     exists: true
-    count: 183
+    count: 205
     count_note: >-
-      172 run everywhere; 11 need the optional `blender` extra and skip without it.
+      189 run everywhere; 16 need the optional `blender` extra and skip without it.
       CI installs the extra so those 8 run there — falsifier 1a is the only check
       of the render path that needs no Blender binary, and skipping it in CI would
       have left the path unverified in the one place it is always checked. THREE
@@ -682,7 +695,11 @@ runs:
 
   not_present:
     - >-
-      A CLOSED LOOP, still. Step 17a added a head-frame belief with reprojection
+      A CLOSED LOOP, still. Step 17b can now render a stereo pair at an arbitrary
+      fixation with per-eye orientations from the oculomotor geometry, and 17a can
+      hold a belief in the head frame — but nothing connects them. No experiment
+      moves an eye, nothing re-renders across fixations, and no measurement is
+      fused after a saccade. 17c is the loop. Step 17a added a head-frame belief with reprojection
       (belief.py) and controlled it against the image-frame posterior, but nothing
       rotates an eye, no experiment uses it, and no measurement is fused across
       fixations. The representation exists before anything depends on it, which is
@@ -2640,6 +2657,71 @@ falsifier_verdicts:
       is a better name, and the guard is untouched.
       NO FORECLOSURE TAKEN, the expected shape for a geom iteration.
     verified_at_commit: e83cfc3
+
+  - iteration: 15
+    id: fv-018
+    falsifier: >-
+      Four, geometric rather than visual:
+        (1) the fixation point images at the PRINCIPAL POINT in both eyes — that
+            is what fixation means, and a wrong sign, basis or composition factor
+            each fail it;
+        (2) torsion is correct, which only an ECCENTRIC fixation can test: at
+            k = 1/2 the plane of regard images on each eye's own zero-elevation
+            meridian, and this must be reproduced IN A RENDER;
+        (3) the k control — the same eccentric fixation at k = 1/2 and k = 0 must
+            differ, with the magnitude reported, or falsifier 2 passed for the
+            wrong reason;
+        (4) the rectified-parallel case must be BIT-IDENTICAL to exp004's and
+            exp007's renders.
+    verdict: ALL FOUR PASS, all four measured against a real Blender 5.2.0 LTS
+    numbers:
+      f1_max_error_px: 0.033
+      f1_fixations: 3
+      f2_eccentric_k_half_px: 0.0397
+      f2_eccentric_k_zero_px: 1.1649
+      f2_analytic_agreement_px: {max: 0.0464, min: 0.0063}
+      f3_ratio_k0_over_k_half: 29.3
+      f3_rotation_difference_deg: 0.405
+      f4_arrays_equal: {left: true, right: true, depth: true, params: true}
+      seconds_per_render: 0.57
+      grid_lost_at_10_deg: {elevation: 0.514, azimuth: 0.0}
+    detail: >-
+      (1) The fixation point lands at the principal point to 0.007-0.033 px across
+      three fixations, two of them eccentric in BOTH azimuth and elevation. Measured
+      by intensity centroid of an emissive marker on a black world, not looked at.
+      (2) AND (3) TOGETHER, because neither means anything alone. At the eccentric
+      fixation vertical disparity in the plane of regard is 0.0397 px at k = 1/2
+      and 1.1649 px at k = 0 — a factor of 29 — so torsion demonstrably reaches the
+      camera. THE RENDER IS CHECKED AGAINST THE ANALYTIC PREDICTION rather than a
+      threshold, and agrees to 0.006-0.046 px at both k values and at both sagittal
+      and eccentric gaze. That is what makes the verdict geometric.
+      A MEASUREMENT ERROR CORRECTED ALONG THE WAY: the observable was first taken
+      as each marker's ABSOLUTE ROW, whose spread is dominated by marker size and
+      shows nothing. The invariant oculomotor.py pins is the DISPARITY between the
+      eyes; the rows are not constant at k = 1/2 and were never supposed to be. The
+      first number was wrong and looked plausible, which is the reason to record it.
+      (4) BIT-IDENTICAL. left, right and depth all array_equal against the
+      rectified-parallel path, and the params identical. It holds because the two
+      paths agree AS MATRICES at Fixation(0,0,0) — the gaze-contingent pose is
+      exactly the identity rotation offset along X — so the renderer is doing the
+      same thing rather than something numerically close.
+      THE BASIS CHANGE IS THE TRAP AND IT IS TESTED WITHOUT A RENDERER.
+      blender_render may import only the standard library and bpy, so it cannot
+      compute the conversion; it applies a matrix handed to it by
+      scene_model.eye_camera_poses. The two flips are stated as SEPARATE constants
+      — WORLD_FROM_HEAD and CAMERA_FROM_EYE — although they are numerically equal,
+      because collapsing them is how a basis change stops being checkable.
+      Blender's native toe-in is not used and a test asserts its absence: it is
+      yaw-only and zero-torsion, correct only for the symmetric horizontal case
+      that cannot detect a torsion error.
+      MEASURED FOR 17c: 0.57 s per render, so 18 fixations x 8 seeds is 1.4 minutes
+      per arm — 17c is not render-bound. The real constraint is grid loss, and it
+      is wildly asymmetric: a 10 degree ELEVATION saccade costs half the belief
+      grid, a 10 degree AZIMUTH saccade costs NOTHING. That follows from bio-049 —
+      the rectified frame is azimuth-invariant by construction — and 17c must
+      confront it rather than discover it.
+      NO FORECLOSURE TAKEN, the expected shape for a geom iteration.
+    verified_at_commit: a2aba67
 
 # ------------------------------------------------------------------------------
 # STANDING CONSTRAINTS
