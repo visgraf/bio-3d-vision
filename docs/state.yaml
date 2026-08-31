@@ -22,7 +22,7 @@ updated_at: 2026-08-29
 # a current one", which invited exactly that comparison and would have failed
 # after every merge. Staleness is tested per half, in `sequence`, and each half
 # gets the test it can actually pass.
-updated_by_commit: aa87d14   # the repository state this file describes
+updated_by_commit: 7dcaac7   # the repository state this file describes
 
 # ------------------------------------------------------------------------------
 # SEQUENCE — where this project is, and what it plans next
@@ -432,6 +432,43 @@ sequence:
           complete. The plan is intent and this amendment is a record of what the
           intent now looks like against what exists.
 
+      - id: am-006
+        moved: step 15, Migrate the active-stereo geometry in ray form
+        from: the next numbered work after step 12
+        to: displaced by exp008, an occlusion sweep that is not one of the eighteen steps
+        origin: >-
+          THE CHAT SURFACE, not this repository. exp008 was specified there and is
+          not derivable from the plan; recorded as such so a cold session does not
+          look for it among the steps.
+        reason: >-
+          exp007 measured E-vs-A' at 9.04x bar on p90 on a stimulus with ~2%
+          occluded surface, against the fixture's pooled 1.85x. Occlusion fraction
+          was therefore a live variable that had never been swept, and every
+          question after this one — acquisition, the closed loop, the contrast
+          axis — would be asked on some stimulus whose occlusion fraction nobody
+          had characterised.
+        the_counter_case_argued_and_set_aside: >-
+          BUILD THE LOOP RATHER THAN MEASURE THE STIMULUS FURTHER. Four iterations
+          in a row had by then gone to the stimulus — exp004 built the scene model,
+          exp005 re-scored the fixture, exp007 swept policies on rendered data, and
+          exp008 sweeps geometry. None of them ran a closed loop, which is what
+          this project exists to do and what its predecessors never did. The
+          counter-case is that a fifth stimulus iteration is exactly the failure
+          fc-005 names: perfect components accumulating around a loop that has
+          never run.
+          It was set aside on the argument that asking a more expensive question on
+          an uncalibrated stimulus would repeat the previous four iterations'
+          discovery at higher cost.
+          THE COUNTER-CASE IS RECORDED BECAUSE IT MAY HAVE BEEN RIGHT. exp008's
+          answer — an optimum near 9% and saturation by 17% — is useful, but it is
+          a fact about stimuli, and the fifth consecutive iteration to produce one.
+          A cold session should see the fork, not only the path taken.
+        consequence: >-
+          Step 15 remains `planned` and is now the longest-deferred numbered work.
+          fc-009 records that its cost estimate is UNTESTED and will be tested by
+          the first commit in which a geometry layer consumes a ray directly. That
+          commit has still not happened.
+
 # ------------------------------------------------------------------------------
 # WHAT RUNS
 # ------------------------------------------------------------------------------
@@ -465,9 +502,9 @@ runs:
     note: Still flat. Zero subpackages. See fc-002 and falsifier fv-003-2.
   test_suite:
     exists: true
-    count: 105
+    count: 117
     count_note: >-
-      94 run everywhere; 11 need the optional `blender` extra and skip without it.
+      106 run everywhere; 11 need the optional `blender` extra and skip without it.
       CI installs the extra so those 8 run there — falsifier 1a is the only check
       of the render path that needs no Blender binary, and skipping it in CI would
       have left the path unverified in the one place it is always checked. THREE
@@ -599,6 +636,30 @@ runs:
         untested on rendered data), fc-010 annotated (survives its first
         independent test), fc-011 annotated (unaffected — V-vs-W did not reverse).
         gap-010 not lifted, od-002 and od-003 not touched.
+
+    - id: exp008_occlusion_sweep
+      question: >-
+        Does the value of variance-driven allocation scale with the fraction of
+        geometrically unmeasurable surface?
+      answer: >-
+        NOT AS A SLOPE. Outcome (d): non-monotone, with an OPTIMUM near 8.84%
+        occluded surface and a COLLAPSE by 17.16%, where a blind raster and a
+        variance-driven policy read p90 within 0.0165 m of each other. The common
+        value ~1.49 m is the prior — 3.0 m against a 4.5 m background — so every
+        policy leaves most of the frame unmeasured and none can distinguish itself.
+        D-versus-E is the one monotone series and it DECREASES: the validity mask's
+        worth falls as occlusion rises.
+      pre_registered: 96e8e45, committed alone before the runner existed
+      is_instrument_calibration: >-
+        The result sizes future stimuli rather than answering a question about
+        vision. It also corrected exp007's headline: the 5.09% "lateral overlap"
+        there is about 61% frame border, and genuine occlusion in that stimulus is
+        1.97% (bio-040).
+      changed_no_foreclosure: >-
+        gap-010 annotated with the occlusion fraction a rendered stimulus needs,
+        not closed. od-002's stale why_not_scheduled corrected — both conditions it
+        named had been met. fc-008 annotated via bio-042 as to the range its 65:1
+        ratio was measured in. od-003 untouched, no policy changed.
 
   not_present:
     - >-
@@ -798,9 +859,23 @@ open_decisions:
       all — the commitment has been made and never exercised. Attaching the first
       experiment to it sets the precedent for what renders are used to answer.
     why_not_scheduled: >-
-      The repository does not run yet, and od-001 has not been implemented. Recording it
-      here is the point: gap-001 otherwise names a question with no identified
-      instrument, which reads as unanswerable rather than as unscheduled.
+      CORRECTED AT exp008. This previously read "the repository does not run yet,
+      and od-001 has not been implemented". BOTH CONDITIONS HAVE BEEN MET and had
+      been for some time: the loop runs on two stimuli, and od-001 closed at
+      fc-009. The clause was stale and is replaced rather than edited silently.
+      The reason it is still not scheduled is now different, and better. Its
+      subject is CONTRAST at occlusion boundaries, which needs material changes
+      rather than geometry — every scene this repository can build is
+      emission-shaded, so a contrast axis is new machinery, not a new arrangement
+      of the machinery there is.
+      And it should be asked at an occlusion fraction that makes the regime
+      visible. exp008 measured that: allocation effects peak near 8.84% occluded
+      surface and vanish by 17.16%, where every policy saturates at the prior
+      (bio-041). Asking a contrast question at an arbitrary occlusion fraction
+      would have risked asking it where nothing is measurable.
+      Recording it here is still the point: gap-001 otherwise names a question with
+      no identified instrument, which reads as unanswerable rather than as
+      unscheduled.
     depends_on: [gap-001, gap-010, fc-003]
 
   - id: od-003
@@ -2282,6 +2357,65 @@ falsifier_verdicts:
       NO FORECLOSURE REVERSED. fc-007, fc-008, fc-010 and fc-011 are each
       annotated; every closure stands.
     verified_at_commit: aa87d14
+
+  - iteration: 12
+    id: fv-015
+    falsifier: >-
+      Four directions enumerated in advance for the occlusion sweep:
+        (a) MONOTONE INCREASE — effect size grows with occluded fraction, the
+            hypothesis; report the slope;
+        (b) FLAT — effect size independent of occlusion in this range, which would
+            redirect the next iteration toward the loop rather than the stimulus;
+        (c) MONOTONE DECREASE — allocation matters less where surface is
+            unmeasurable, the most interesting outcome available;
+        (d) NON-MONOTONE — a peak or threshold; report where, since an optimum
+            occlusion fraction would size every stimulus after this one.
+    verdict: (d) FOR E-vs-A', (c) FOR D-vs-E ON MEDIAN
+    outcome: an optimum near 8.84% occlusion and saturation by 17.16%
+    numbers:
+      x_axis_left_occluded_fraction: [0.0197, 0.0426, 0.0884, 0.1716]
+      E_over_A_prime_p90_arm_ratio: [1.27, 1.16, 3.10, 1.01]
+      E_vs_A_prime_p90_x_bar: [9.04, 2.20, 15.83, 0.56]
+      E_vs_A_prime_median_x_bar: [1.18, 0.64, 17.45, 0.63]
+      D_vs_E_median_x_bar: [41.96, 22.42, 3.83, 1.79]
+      D_vs_E_median_shape: {trend: monotone_decrease, r2: 0.724, log_log_exponent: -1.55}
+      arm_p90_spread: {at_optimum: 0.5075, at_saturation: 0.0165}
+      arm_p90_at_saturation: {A_prime: 1.4792, D: 1.4828, E: 1.4957}
+      bar_growth_across_sweep: {E_median: 25, E_p90: 30, D_median: 34}
+      at_band_pixels: [25985, 33691, 48147, 48400]
+    detail: >-
+      NO SLOPE. AN OPTIMUM AND A CEILING, which the specification correctly named
+      as the stronger claim because it sizes every stimulus after this one.
+      E-versus-A' peaks at 8.84% occluded surface and collapses by 17.16%. THE
+      COLLAPSE IS SATURATION AND ITS VALUE IS NOT ARBITRARY: at the top level a
+      blind raster and a variance-driven policy read p90 within 0.0165 m of each
+      other, against 0.5075 m at the optimum, and the common value ~1.49 m is the
+      PRIOR — 3.0 m against a 4.5 m background is exactly 1.5 m of error. Every
+      policy leaves most of the frame unmeasured and none can distinguish itself.
+      It is the same value exp005 measured as the fixture's AT-band floor, reached
+      here by making an honest stimulus degenerate rather than by scoring a
+      degenerate one.
+      D-VERSUS-E IS OUTCOME (c) AND THE ONLY MONOTONE SERIES: the validity mask's
+      worth FALLS as occlusion rises, r2 0.724. Knowing where the data is matters
+      less when there is less data anywhere.
+      WHY x_bar ALONE WOULD HAVE MISLED, and why the specification was right to
+      demand mean_diff and bar separately: the bar grows 25-34x across the sweep,
+      so a falling x_bar is ambiguous between a shrinking effect and growing noise.
+      The arm-mean ratio is not, and it says the arms genuinely converge.
+      AN INDEPENDENT SIGN OF THE SAME SATURATION: the AT band grows 48147 to 48400
+      between the last two levels — 0.5% for a 94% rise in occlusion — because
+      nearly the whole frame is then within 10 px of a discontinuity. The band
+      stratification stops discriminating at the same place the policies do.
+      LIMITS, AND THEY ARE SUBSTANTIAL. Four points: linear and saturating are not
+      distinguishable, and the k=2 dip is unexplained. The peak is the largest of
+      four measured points, not an established maximum of a smooth curve. Card
+      area falls monotonically with occlusion and is a declared confound. One
+      geometry family. And the ceiling is a property of the PRIOR, not of
+      occlusion — a different prior would move it and probably the optimum with it,
+      and nothing here sweeps that.
+      gap-010 ANNOTATED, NOT CLOSED. od-002 stays open with its stale
+      why_not_scheduled corrected. No policy changed, no foreclosure reversed.
+    verified_at_commit: 7dcaac7
 
 # ------------------------------------------------------------------------------
 # STANDING CONSTRAINTS

@@ -2277,6 +2277,125 @@ measurements:
       whether a mechanical plant is testable is untouched; fc-011's framing —
       untested, not refuted — stands as written, and od-003 is not touched.
 
+  - id: bio-040
+    statement: >-
+      Occlusion fraction achieved by each level of the sweep, and the constant
+      frame-border component that exp007's headline figure conflated with it.
+    value:
+      left_occluded_fraction: {k1: 0.0197, k2: 0.0426, k4: 0.0884, k8: 0.1716}
+      right_unmatched_fraction: {k1: 0.0509, k2: 0.0738, k4: 0.1197, k8: 0.2029}
+      border_fraction: 0.0312
+      card_area_fraction: {k1: 0.460, k2: 0.302, k4: 0.265, k8: 0.246}
+      at_band_pixels: {k1: 25985, k2: 33691, k4: 48147, k8: 48400}
+    units: fraction
+    n: {levels: 4, seed: 0}
+    stimulus_family: rendered_chart
+    matcher: none
+    configuration: >-
+      bio3dvision.scene_model.occlusion_fractions on split_cards(scene_from_fixture(0), k).
+      Computed from the model's step-edge geometry, so it needs no render.
+    provenance:
+      cited_as: visgraf/bio-3d-vision
+      source: tests/test_occlusion_sweep_geometry.py
+      experiment: exp008
+      run_id: null
+      measured_at_sha: 7dcaac7
+      environment: {python: 3.13.15, numpy: 2.5.2, scipy: 1.18.1, matplotlib: 3.11.1, blender: 5.2.0 LTS (fbe6228777e7)}
+    status: measured
+    notes: >-
+      A CORRECTION TO exp007's HEADLINE NUMBER. exp007 reported 5.09% lateral
+      overlap for the fixture's geometry (bio-038). That figure is about 61% FRAME
+      BORDER: the gap between the two overlap measures is a constant 0.0312
+      whatever the geometry — measured across card heights from 15% to 100% and
+      split counts from 1 to 8 — and it is left pixels whose correspondent falls
+      outside the right image because the right camera sits a baseline to the side.
+      A property of the camera, not the scene. GENUINE OCCLUSION IN exp007's
+      STIMULUS IS 1.97%.
+      bio-038 is not wrong about what it measured; it is the right_unmatched
+      figure. It is easy to read as occlusion and it is mostly not.
+      The AT band SATURATES between the last two levels — 48147 to 48400, a 0.5%
+      rise for a 94% rise in occlusion — because nearly the whole frame is then
+      within 10 px of a discontinuity. An independent sign of the saturation
+      bio-041 measures.
+      k = 10 was measured and rejected: occlusion falls below k = 8 because strips
+      narrow past the 8.85 px disparity step. Pinned as a test.
+
+  - id: bio-041
+    statement: >-
+      The value of variance-driven allocation peaks at about 9% occluded surface
+      and vanishes by 17%, where every policy saturates at the prior.
+    value:
+      E_over_A_prime_p90_arm_ratio: {f0197: 1.27, f0426: 1.16, f0884: 3.10, f1716: 1.01}
+      E_vs_A_prime_p90_x_bar: {f0197: 9.04, f0426: 2.20, f0884: 15.83, f1716: 0.56}
+      arm_p90_at_saturation: {A_prime: 1.4792, D: 1.4828, E: 1.4957, spread: 0.0165}
+      arm_p90_at_optimum: {A_prime: 0.1470, D: 0.6545, E: 0.4563, spread: 0.5075}
+      bar_growth_across_sweep: {E_vs_A_prime_median: 25, E_vs_A_prime_p90: 30, D_vs_E_median: 34}
+    units: mixed
+    n: {levels: 4, seeds: 8, budget: 40}
+    stimulus_family: rendered_chart
+    matcher: block
+    configuration: >-
+      exp008, four occlusion levels by splitting each card into k vertical strips (k = 1, 2, 4, 8) within its own extent; depths, texture, seeds, materials and camera held fixed; arms A'/D/E at budget 40, seeds 0-7; exp001's two-clause bar within each level; bands inherited from exp004 and recomputed per level.
+    provenance:
+      cited_as: visgraf/bio-3d-vision
+      source: experiments/exp008_occlusion_sweep/verdicts.json
+      experiment: exp008
+      run_id: null
+      measured_at_sha: 7dcaac7
+      environment: {python: 3.13.15, numpy: 2.5.2, scipy: 1.18.1, matplotlib: 3.11.1, blender: 5.2.0 LTS (fbe6228777e7)}
+    status: measured
+    notes: >-
+      OUTCOME (d): NON-MONOTONE, WITH A PEAK AND A CEILING. The sweep produced no
+      slope. It produced an optimum at 8.84% occlusion and a collapse at 17.16%.
+      THE COLLAPSE IS SATURATION AND ITS VALUE IS NOT ARBITRARY. At 17.16% a blind
+      raster and a variance-driven policy read p90 within 0.0165 m of each other,
+      against 0.5075 m at the optimum. The common value ~1.49 m is the PRIOR: 3.0 m
+      against a 4.5 m background is exactly 1.5 m of error, so every policy leaves
+      most of the frame unmeasured and none can distinguish itself. It is the same
+      value exp005 measured as the fixture's AT-band floor, reached by making an
+      honest stimulus degenerate rather than by scoring a degenerate one.
+      READ THE ARM RATIO, NOT ONLY x_bar. The bar grows 25-34x across the sweep, so
+      a falling x_bar is ambiguous between a shrinking effect and growing noise.
+      The arm-mean ratio is not: it says the arms genuinely converge.
+      LIMITS. Four points; linear and saturating are indistinguishable and the k=2
+      dip is unexplained. The peak is the largest of four measured points, not an
+      established maximum. Card area falls monotonically with occlusion (bio-040)
+      and is a declared confound. The ceiling is a property of the PRIOR, not of
+      occlusion, and nothing here sweeps that.
+
+  - id: bio-042
+    statement: >-
+      The validity mask's worth FALLS as occlusion rises, monotonically.
+    value:
+      D_vs_E_median_x_bar: {f0197: 41.96, f0426: 22.42, f0884: 3.83, f1716: 1.79}
+      linear_r2: 0.724
+      log_log_exponent: -1.55
+      D_vs_E_p90_at_saturation: {x_bar: 0.43, direction: D_better, distinguishable: false}
+    units: ratio
+    n: {levels: 4, seeds: 8, budget: 40}
+    stimulus_family: rendered_chart
+    matcher: block
+    configuration: >-
+      exp008, four occlusion levels by splitting each card into k vertical strips (k = 1, 2, 4, 8) within its own extent; depths, texture, seeds, materials and camera held fixed; arms A'/D/E at budget 40, seeds 0-7; exp001's two-clause bar within each level; bands inherited from exp004 and recomputed per level.
+    provenance:
+      cited_as: visgraf/bio-3d-vision
+      source: experiments/exp008_occlusion_sweep/verdicts.json trend
+      experiment: exp008
+      run_id: null
+      measured_at_sha: 7dcaac7
+      environment: {python: 3.13.15, numpy: 2.5.2, scipy: 1.18.1, matplotlib: 3.11.1, blender: 5.2.0 LTS (fbe6228777e7)}
+    status: measured
+    notes: >-
+      OUTCOME (c) FOR THIS COMPARISON, and the only monotone series in the sweep.
+      Knowing WHERE THE DATA IS matters less when there is less data anywhere. At
+      17.16% occlusion D is nominally better than E on p90, indistinguishably.
+      BEARS ON fc-008's 65:1 RATIO WITHOUT REVERSING IT. That ratio was measured at
+      effectively zero occlusion on the analytic fixture. This says it is a
+      property of a nearly-unoccluded stimulus rather than a constant of the
+      framework. fc-008 is annotated, not reopened: exp008 did not pre-register a
+      re-test of it and one measured trend across four geometry levels is not the
+      pre-registered experiment that would.
+
   # ==============================================================================
   # GAPS — measurements that were NOT made, and whose absence is load-bearing.
   # ==============================================================================
@@ -2579,6 +2698,16 @@ measurements:
       occluded/matched variance ratio. The fixture cannot even pose gap-001's
       question, let alone answer it — which is why closing gap-001 needs a rendered
       stimulus (od-002 in docs/state.yaml).
+      ANNOTATED AT exp008, NOT CLOSED. This gap is about the FIXTURE having no true
+      half-occlusions, and that is unchanged. What exp008 adds is on the other
+      side of the question: how much occlusion a RENDERED stimulus needs before the
+      allocation regime is visible. Measured at about 8.84% occluded surface, with
+      the effect gone by 17.16% where every policy saturates at the prior
+      (bio-041). So a rendered stimulus built to lift this gap now has a target
+      rather than a guess.
+      Lifting the gap still needs what it always needed: a rendered occlusion
+      experiment with a controlled contrast axis, which is od-002's subject and
+      od-002 is open.
       This reinforces fc-004 concretely: the fixture is a TEST FIXTURE, and a
       finding that rests on it has misused it. bio-008 is the live example — the
       posterior std ranks error positively here (+0.42), and it would be a

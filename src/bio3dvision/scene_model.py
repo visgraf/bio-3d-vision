@@ -69,7 +69,9 @@ __all__ = [
     "SceneModel",
     "Surface",
     "rasterise_depth",
+    "occlusion_fractions",
     "scene_from_fixture",
+    "split_cards",
     "write_scene",
 ]
 
@@ -235,6 +237,113 @@ def scene_from_fixture(seed: int = 0, H: int = 240, W: int = 320) -> SceneModel:
         Surface(depth_m=2.4, rows=(120, 220), cols=(160, 290)),
     )
     return SceneModel(surfaces=surfaces, params=params, texture=np.asarray(left, dtype=np.float64))
+
+
+def split_cards(model: SceneModel, k: int) -> SceneModel:
+    """Cut every non-background surface into ``k`` vertical strips. Returns a new model.
+
+    A transformation on a scene rather than a new scene family: depths, texture,
+    camera and materials are untouched, and only the lateral extent of the
+    existing surfaces changes. The first surface is treated as background and left
+    alone — it is the one that covers the frame.
+
+    **This is a lever on OCCLUSION, and occlusion is what comes out, not what goes
+    in.** Occluded area is the sum over vertical depth edges of (edge height ×
+    disparity step), so cutting a card into strips multiplies its edges and raises
+    occlusion. How much is a measured outcome of the geometry: ``k`` of 1, 2, 4, 8
+    yields 1.97%, 4.26%, 8.84% and 17.16% of left pixels occluded on the fixture's
+    geometry, and ``k = 10`` yields LESS than ``k = 8`` because strips narrow past
+    the 8.85 px disparity step and the geometry degenerates. Do not read ``k`` as a
+    quantity of occlusion.
+
+    Each card becomes ``k`` strips with ``k - 1`` gaps of equal width, inside the
+    card's original columns. Total card area therefore falls as ``k`` rises — from
+    46.0% of the frame at ``k = 1`` to 24.6% at ``k = 8`` — which is a covariate of
+    any sweep over ``k`` and cannot be separated from it within one frame. Holding
+    area fixed would need the strips spread wider than the original extent, which
+    does not fit.
+    """
+    if k < 1:
+        raise ValueError(f"k must be at least 1, got {k}")
+    if k == 1:
+        return model
+
+    background, *cards = model.surfaces
+    strips: list[Surface] = []
+    for card in cards:
+        c0, c1 = card.cols
+        width = (c1 - c0) / (2 * k - 1)  # k strips and k-1 gaps, all equal
+        for i in range(k):
+            lo = int(round(c0 + 2 * i * width))
+            hi = int(round(c0 + (2 * i + 1) * width))
+            if hi > lo:
+                strips.append(Surface(depth_m=card.depth_m, rows=card.rows, cols=(lo, hi)))
+    return SceneModel(
+        surfaces=(background, *strips),
+        params=model.params,
+        texture=model.texture,
+        smoothing_sigma=model.smoothing_sigma,
+    )
+
+
+def occlusion_fractions(model: SceneModel) -> dict[str, float]:
+    """How much of the frame is geometrically unmeasurable, both ways round.
+
+    ``left_occluded_fraction`` is the one to use as a measure of OCCLUSION: a left
+    pixel whose correspondent is hidden by a nearer surface. ``right_unmatched_
+    fraction`` counts right-image pixels no left pixel maps to, and it includes a
+    contribution that is not occlusion at all.
+
+    **The two differ by a constant 3.12% on this camera, whatever the geometry** —
+    measured across card heights from 15% to 100% and split counts from 1 to 8.
+    That constant is the FRAME BORDER: the right camera sits a baseline to the
+    side, so a strip of left pixels maps outside the right image entirely. exp007
+    reported 5.09% "lateral overlap" for the fixture's geometry, of which 3.12%
+    is border and 1.97% is occlusion.
+
+    Computed from the model's step-edge depth, so it is a property of the geometry
+    and needs no render.
+    """
+    depth = rasterise_depth(model, smooth=False)
+    f_px = float(model.params["f_px"])
+    baseline = float(model.params["baseline"])
+    d_gt = f_px * baseline / depth
+    height, width = depth.shape
+    cols = np.arange(width)[None, :].repeat(height, 0)
+    target = np.rint(cols - d_gt).astype(int)
+
+    unmatched_right = 0
+    occluded_left = 0
+    longest_run = 0
+    for y in range(height):
+        order = np.argsort(-depth[y])  # far to near, so nearer surfaces win
+        xs = target[y, order]
+        inside = (xs >= 0) & (xs < width)
+        seen = np.zeros(width, dtype=bool)
+        owner = np.full(width, -1)
+        for idx, col in zip(order[inside], xs[inside], strict=True):
+            if owner[col] == -1 or depth[y, idx] < depth[y, owner[col]]:
+                owner[col] = idx
+            seen[col] = True
+        unmatched_right += int((~seen).sum())
+        occluded_left += int(
+            sum(1 for idx, col in zip(order[inside], xs[inside], strict=True) if owner[col] != idx)
+        )
+        run = 0
+        for flag in ~seen:
+            run = run + 1 if flag else 0
+            longest_run = max(longest_run, run)
+
+    size = depth.size
+    return {
+        "right_unmatched": unmatched_right,
+        "right_unmatched_fraction": unmatched_right / size,
+        "left_occluded": occluded_left,
+        "left_occluded_fraction": occluded_left / size,
+        "border_fraction": (unmatched_right - occluded_left) / size,
+        "longest_run_px": longest_run,
+        "card_area_fraction": float((depth < depth.max() - 1e-6).mean()),
+    }
 
 
 def rasterise_depth(model: SceneModel, smooth: bool = True) -> FloatArray:
