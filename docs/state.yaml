@@ -22,7 +22,7 @@ updated_at: 2026-08-31
 # a current one", which invited exactly that comparison and would have failed
 # after every merge. Staleness is tested per half, in `sequence`, and each half
 # gets the test it can actually pass.
-updated_by_commit: 42d5909   # the repository state this file describes
+updated_by_commit: c44af87   # the repository state this file describes
 
 # ------------------------------------------------------------------------------
 # SEQUENCE — where this project is, and what it plans next
@@ -142,6 +142,23 @@ sequence:
       12: src/bio3dvision/scene_model.py, exp004, fv-012-1..3, bio-027..bio-031
       15: src/bio3dvision/oculomotor.py, fv-016, bio-043..bio-046; fc-009's falsifier 2 answered
     out_of_sequence:
+      - what: >-
+          Step 18a, equirectangular capture and a spherical sampling model. THE
+          INSTRUMENT ONLY — no experiment, no allocation comparison, no closed loop
+          on spherical data. 18a/18b subdivides step 18, from the Chat surface.
+        note: >-
+          Three unknowns pinned separately, each able to fail silently: the Cycles
+          panoramic Z pass is RADIAL (bio-077, against a real Blender); posing the
+          equirect pole along the baseline makes rows epipolar exactly and needs
+          only a transpose, with the depth relation the SINE RULE and not f*b/z
+          (bio-079, against a real Blender); and EquirectSampling satisfies the
+          SamplingModel Protocol with zero signature changes (bio-080), which
+          CONFIRMS fc-009's interface claim after six iterations as an assertion.
+          FALSIFIER 4 FOUND WHAT IT WAS WRITTEN TO FIND: a sphere loses no grid to a
+          saccade, and HeadFrameBelief.reproject discards half of it anyway on a
+          pinhole guard (bio-081). Not fixed — that decides what the belief means.
+          18b's hypothesis is now visible in the instrument as zero grid loss, and
+          it is still a hypothesis. See fv-023.
       - what: >-
           Step 17c, the closed loop. THE LOOP RUNS. An action changes the sensory
           data for the first time in either repository, and exp010 measures it
@@ -1682,6 +1699,20 @@ foreclosures:
       on the lattice before either can run. Eliminating the index needs a foveal
       weight defined on ANGLE. That is step 17/18 work and is deliberately not
       built here.
+    interface_claim_tested_at_18a: >-
+      CONFIRMED BY CONSTRUCTION, AND IT HAD BEEN AN ASSERTION SINCE THIS ENTRY WAS
+      WRITTEN. `what_it_does_not_do` says the interface "admits the first two
+      without a signature change - direction is an arbitrary index-to-unit-vector
+      map, index returns the nearest sample, and contains exists because membership
+      stops being a bounds check on a non-uniform lattice". Step 18a built
+      EquirectSampling against the Protocol as written: it satisfies it with ZERO
+      signature changes, returns the SAME frame the pinhole does, and the round
+      trip is exact over 33.5M indices (bio-080, fv-023).
+      ONLY THE NON-PLANAR HALF IS TESTED. Equirect is non-uniform in SOLID ANGLE by
+      81.5x, but its lattice is COMPLETE, so `contains` remains a bounds check. The
+      case this entry names for `contains` — membership that is not a bounds check —
+      is still untested, and the foveated lattice is still the thing that would test
+      it.
     step_15_estimate: >-
       TESTED AT STEP 15, AND THE CONDITION IT NAMED WAS MET IN PART. It said the
       estimate would be tested by the first commit in which model.index drops out
@@ -3621,6 +3652,93 @@ falsifier_verdicts:
       is declared correct: they ask different questions and the defect was
       conflating them.
     verified_at_commit: 42d5909
+
+  - iteration: 18a
+    id: fv-023
+    falsifier: >-
+      Four, and the first gates the rest: (1) the equirect Z pass loads and matches
+      analytic distances on TILED planes, or STOP; (2) a baseline-aligned
+      parameterisation exists in which epipolar curves are rows, with the
+      disparity-to-depth relation derived and stated, or the resampling cost is
+      reported rather than adopted silently; (3) EquirectSampling satisfies the
+      Protocol unchanged, or the widening is named; (4) the belief's
+      azimuth-and-elevation invariance holds against the new sampling, or the
+      belief is more pinhole-coupled than 17a-fix implies.
+    verdict: >-
+      1, 2 and 3 PASS. 4 PASSES IN SUBSTANCE AND FAILS IN THE WAY IT WAS WRITTEN TO
+      CATCH — the belief carries a pinhole guard that discards half a sphere.
+    numbers:
+      f1_radial_max_err_m: 0.000073
+      f1_planar_max_err_m: 2.998
+      f1_pixels: 35708
+      f2_longitude_difference_between_eyes_rad: 0.0
+      f2_relation_max_rel_err_vs_render: 2.2e-14
+      f2_resampling_cost: none_transpose_is_an_index_permutation
+      f3_signature_changes: 0
+      f3_round_trip_failures_of_33554432: 0
+      f4_grid_lost_by_contains: 0.0
+      f4_grid_lost_by_reproject: 0.5
+      f4_drift_over_cell_pitch: [0.656, 0.701]
+    ran_against_real_blender: >-
+      YES for falsifiers 1 and 2 — Blender 5.2.0 LTS, Cycles, panorama_type
+      EQUIRECTANGULAR, at 512x256. NO for falsifiers 3 and 4, which are pure
+      geometry on the sampling model and the belief and run everywhere. The
+      Blender-gated test names what goes unverified when it skips.
+    detail: >-
+      (1) THE Z PASS IS RADIAL, by a factor of 46860 in rms — 73 micrometres against
+      a planar hypothesis wrong by 3 m, over 35708 pixels on three tiled planes
+      (bio-077). The scene had to be corrected first: longitude is measured about
+      the CAMERA'S UP axis, and tiling about world Z put every plane on a circle
+      through the poles, stacking them in latitude. That is the same failure the
+      pinhole calibration docstring warns about for shells, arriving by a different
+      route.
+      THE DEPTH-CONVENTION GUARD DOES NOT TRANSFER, AND REFUSES RATHER THAN MISLEADS
+      (bio-078). Its premise needs a wall filling the frame and radially symmetric
+      about a principal point; on a sphere there is no principal point, a plane is
+      not radially symmetric in lat-long, and the wall fills 1.7% of the frame. It
+      answers "unknown", which is correct and is its own guard working. But it
+      cannot answer, so the evidence is bio-077's analytic comparison and not this.
+      "Planar" may not be well defined at all on a spherical camera.
+      (2) POSING BEATS WARPING HERE TOO, AND COSTS NOTHING. With each camera's
+      equirect pole posed along the baseline, longitude is IDENTICAL between the
+      eyes — 0.0 rad, not close — so epipolar curves are meridians. Meridians are
+      COLUMNS, so as Blender rasterises it the disparity is VERTICAL and
+      cost_volume would find nothing. The fix is a TRANSPOSE, an exact index
+      permutation with no interpolation and therefore none of the variance cost
+      that made exp009 prefer posing to warping (bio-079).
+      THE RELATION IS THE SINE RULE, NOT f*b/z. r_L = b sin(theta_R) /
+      sin(theta_R - theta_L), verified to 2.2e-14 against the render's own
+      geometry. It depends on THETA, the angle from the baseline: at 3 m the
+      disparity is 5.8x larger at 90 degrees than at 10. A substitution into f*b/z
+      is wrong rather than approximate. One convenience: the angular disparity of a
+      parallel spherical pair is STRICTLY POSITIVE, so bio-057's negative-search
+      defect does not bite — a property of the geometry, not a repair.
+      (3) fc-009's CLAIM IS CONFIRMED BY CONSTRUCTION AFTER SIX ITERATIONS AS AN
+      ASSERTION. No signature change, no widening, same frame, and the round trip
+      is exact over 33.5M indices including the polar columns — the anticipated
+      pole collapse does not arise because the half-pixel offset keeps theta off
+      the poles (bio-080). ONLY HALF THE PROVISION IS EXERCISED: equirect is
+      non-uniform in solid angle by 81.5x but COMPLETE, so `contains` is still a
+      bounds check and a lattice with genuine holes remains untested.
+      (4) THE SPHERE LOSES NO GRID AND THE BELIEF THROWS HALF OF IT AWAY (bio-081).
+      `contains` reports zero loss at every amplitude out to 60 degrees;
+      `reproject` ANDs in `in_eye[..., 2] > 0.0` and loses exactly 0.5 at every
+      amplitude, INCLUDING 1 DEGREE. The constant is the signature: pinhole grid
+      loss grows with amplitude because it loses the field edge, and no
+      field-of-view effect can lose a fixed half-sphere at 1 degree. NOT FIXED —
+      changing reproject decides what the belief means, and 18a builds and pins.
+      The frame logic itself carries over: cells move under azimuth, elevation and
+      vergence, and the world-direction drift is quantisation, with drift/pitch
+      flat at 0.656-0.701 across an 8x resolution range.
+      18b's HYPOTHESIS IS NOW VISIBLE IN THE INSTRUMENT AND IS STILL A HYPOTHESIS.
+      Zero grid lost by `contains` is what would make exp011's coverage term vanish.
+      NO EXPERIMENT WAS RUN.
+      A LIMIT FOR 18b TO RESPECT: eye_rotations refuses azimuth >= pi/2, so the
+      sphere can represent every direction while the oculomotor geometry cannot
+      fixate beyond a quarter turn.
+      NO FORECLOSURE TAKEN, none reversed. od-002 and od-003 untouched. None of the
+      8 never_examined constants was swept.
+    verified_at_commit: c44af87
 
 # ------------------------------------------------------------------------------
 # STANDING CONSTRAINTS
