@@ -4444,7 +4444,7 @@ measurements:
       source: exp012, re-reading exp011 with the sign test named
       experiment: exp012_bar_reanalysis
       run_id: null
-      measured_at_sha: c02369c
+      measured_at_sha: 83978d1
       environment: {python: 3.13.15, numpy: 2.5.2, scipy: 1.18.1, matplotlib: 3.11.1}
     status: measured
     notes: >-
@@ -4466,6 +4466,11 @@ measurements:
       both entries are annotated rather than rewritten.
       THE AWAY BAND AT k8 IS THE SAME SHAPE: 21 of 24 seeds, p = 2.8e-04, recorded
       as indistinguishable at 0.97x.
+      SHA CORRECTED FORWARD. This entry first recorded c02369c, which `git commit
+      --amend` orphaned before it was pushed — the amend was a mistake, CLAUDE.md
+      forbids rewriting history, and a follow-up commit is what the rule requires
+      instead. 83978d1 is the commit that contains the work. Corrected here rather
+      than by a second amend, for the same reason exp010's sha was.
 
   - id: gap-009
     statement: Nothing inside Blender is covered by any test, so rendered stimuli are the least-verified inputs in the record.
