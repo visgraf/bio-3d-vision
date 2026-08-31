@@ -58,6 +58,7 @@ from __future__ import annotations
 import argparse
 import glob
 import json
+import math
 import os
 import sys
 
@@ -79,6 +80,19 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
     parser.add_argument("--res", type=int, nargs=2, default=[320, 240], metavar=("W", "H"))
     parser.add_argument("--samples", type=int, default=32)
     parser.add_argument("--lens", type=float, default=None, help="focal length, mm")
+    parser.add_argument(
+        "--pano",
+        action="store_true",
+        help="equirectangular capture: both eyes panoramic, full sphere",
+    )
+    parser.add_argument(
+        "--sphere-cards",
+        type=float,
+        nargs="+",
+        default=None,
+        metavar="Z",
+        help="tiled planes in LONGITUDE bands, for the spherical depth falsifier",
+    )
     parser.add_argument(
         "--cards",
         type=float,
@@ -134,6 +148,92 @@ def focal_px(cam: object, res_x: int) -> float:
     if data.sensor_fit == "VERTICAL":
         return float(res_x * data.lens / data.sensor_height)
     return float(res_x * data.lens / data.sensor_width)
+
+
+def make_panoramic(cam_data: object) -> None:
+    """Turn a camera into a FULL-SPHERE equirectangular one. **Blender 5.2 API.**
+
+    ``panorama_type`` lives on the camera data directly in 5.2; in older releases
+    it sat under ``cam.data.cycles``. Both are set defensively, because a silently
+    unset panorama type renders a perspective image that looks like a plausible
+    view of the same scene — the failure mode this repository has now recorded
+    three times under different names.
+
+    Longitude and latitude are set to the full sphere explicitly rather than left
+    at their defaults, so a future default change cannot quietly narrow the field.
+    """
+    cam_data.type = "PANO"
+    if hasattr(cam_data, "panorama_type"):
+        cam_data.panorama_type = "EQUIRECTANGULAR"
+    elif hasattr(cam_data, "cycles"):  # pragma: no cover - older Blender
+        cam_data.cycles.panorama_type = "EQUIRECTANGULAR"
+    else:  # pragma: no cover - build-dependent
+        raise RuntimeError("this Blender exposes no panorama_type; equirect is unavailable")
+    for attr, value in (
+        ("longitude_min", -math.pi),
+        ("longitude_max", math.pi),
+        ("latitude_min", -math.pi / 2.0),
+        ("latitude_max", math.pi / 2.0),
+    ):
+        if hasattr(cam_data, attr):
+            setattr(cam_data, attr, value)
+
+
+def build_sphere_calibration_scene(distances: list[float], res: tuple[int, int]) -> None:
+    """Fronto-parallel planes at known distances, each in its own LONGITUDE band.
+
+    The spherical counterpart of :func:`build_calibration_scene`, and it carries
+    that function's hard-won constraint: **planes are tiled, not stacked.**
+    Concentric shells at increasing distance would leave exactly one distance in
+    the depth pass, and a falsifier written to check three would silently check
+    one. On a sphere the failure is worse, not better — a full shell occludes
+    everything behind it in EVERY direction.
+
+    Each plane faces the camera along its own longitude, so its analytic RANGE at
+    a given direction is ``z / (d . n)`` and its analytic PLANAR depth is ``z``.
+    A single render therefore checks the distances AND discriminates the two
+    conventions, which on a spherical camera is the question that matters: there
+    is no image plane, so "planar" is a statement about a normal that has to be
+    named rather than assumed.
+
+    Bands are separated by gaps left empty on purpose; those directions have no
+    ray hit and load as ``nan``, exercising the non-hit path in the same render.
+    """
+    _reset_to_camera_only()
+    ordered = sorted(distances)
+    span = 2.0 * math.pi / len(ordered)
+    gap = span * 0.10
+    # Half-angle each plane must cover in longitude, and in latitude.
+    half_lon = (span - 2.0 * gap) / 2.0
+    half_lat = math.radians(35.0)
+
+    for i, z in enumerate(ordered):
+        centre_lon = -math.pi + span * (i + 0.5)
+        # LONGITUDE IS MEASURED ABOUT THE CAMERA'S UP AXIS, which for a Blender
+        # camera at the identity is world +Y. Tiling about world Z instead puts
+        # every plane on a circle THROUGH THE POLES, so they stack in latitude and
+        # overlap in longitude — measured on the first run of this function, and it
+        # reduced a three-way check to an overlapping mess in exactly the way the
+        # pinhole version's docstring warns about for stacked shells.
+        nx, nz = math.sin(centre_lon), -math.cos(centre_lon)
+        half_w = z * math.tan(half_lon)
+        half_h = z * math.tan(half_lat)
+        bpy.ops.mesh.primitive_plane_add(size=2.0, location=(z * nx, 0.0, z * nz))
+        plane = bpy.context.object
+        plane.scale = (half_w, half_h, 1.0)
+        # Default plane lies in XY with normal +Z; rotate about Y so the normal
+        # points back at the camera along its own longitude.
+        plane.rotation_euler = (0.0, -centre_lon, 0.0)
+        material = bpy.data.materials.new(f"Card_{i}")
+        material.use_nodes = True
+        nodes = material.node_tree.nodes
+        nodes.clear()
+        emission = nodes.new("ShaderNodeEmission")
+        emission.inputs["Strength"].default_value = 1.0
+        emission.inputs["Color"].default_value = (0.2 + 0.2 * i, 0.5, 0.8, 1.0)
+        output = nodes.new("ShaderNodeOutputMaterial")
+        material.node_tree.links.new(emission.outputs["Emission"], output.inputs["Surface"])
+        plane.data.materials.append(material)
 
 
 def build_calibration_scene(distances: list[float], res: tuple[int, int]) -> None:
@@ -611,6 +711,7 @@ def render_stereo(
     samples: int = 32,
     lens: float | None = None,
     eye_poses: dict | None = None,
+    panoramic: bool = False,
 ) -> dict[str, object]:
     """Render the pair and the left depth pass, and write the contract.
 
@@ -633,6 +734,11 @@ def render_stereo(
         if eye_poses is None
         else place_eyes_from_poses(base, eye_poses)
     )
+    if panoramic:
+        # AFTER the cameras are made: both are copies of `base`, and each copy
+        # carries its own camera data, so the projection must be set on each.
+        for cam in cams.values():
+            make_panoramic(cam.data)
     _, depth_node, _image_node = setup_outputs(scene, out)
 
     for name in ("left", "right"):
@@ -663,6 +769,7 @@ def render_stereo(
         "samples": samples,
         "denoising": False,
         "geometry": ("rectified_parallel" if eye_poses is None else "gaze_contingent"),
+        "projection": ("equirectangular" if panoramic else "pinhole"),
         "depth_pass": "Z",
         # Not inferred here. infer_depth_convention() answers it, and only on a
         # fronto-parallel calibration render; establish it per Blender version.
@@ -681,7 +788,12 @@ def main() -> None:
     res = (int(args.res[0]), int(args.res[1]))
     chosen = [
         n
-        for n, v in (("--cards", args.cards), ("--wall", args.wall), ("--scene", args.scene))
+        for n, v in (
+            ("--cards", args.cards),
+            ("--sphere-cards", args.sphere_cards),
+            ("--wall", args.wall),
+            ("--scene", args.scene),
+        )
         if v is not None and v != []
     ]
     if len(chosen) > 1:
@@ -707,12 +819,14 @@ def main() -> None:
         # of the scene being reproduced, and letting a CLI flag override it is how
         # the two scenes would silently stop being the same scene.
         lens = float(params["f_px"]) * SENSOR_WIDTH_MM / res[0]
+    elif args.sphere_cards:
+        build_sphere_calibration_scene(list(args.sphere_cards), res)
     elif args.cards:
         build_calibration_scene(list(args.cards), res)
     elif args.wall is not None:
         build_wall_scene(float(args.wall), res)
 
-    render_stereo(args.out, baseline, res, args.samples, lens, eye_poses)
+    render_stereo(args.out, baseline, res, args.samples, lens, eye_poses, panoramic=args.pano)
 
 
 if __name__ == "__main__":

@@ -244,6 +244,16 @@ methods:
     to_re_derive: >-
       A sweep of the radius as a policy arm. RASTER_PITCH is derived from it
       (20.0 * sqrt(pi)), so exp002's uninformed arms move with it too.
+    exposure_noted_at_18a: >-
+      RECORDED AS A KNOWN RISK, NOT SWEPT. Step 18 varies gaze geometry
+      substantially — a spherical capture has no field edge and the oculomotor
+      layer admits azimuth out to pi/2 (bio-081) — so amplitudes far beyond the
+      pinhole policy's half-field of 0.224 rad become reachable. An inhibition
+      radius fixed at 20.0 PIXELS is a fixed angle only while the lattice pitch is
+      fixed; on the equirect lattice the pitch varies with theta by 81.5x in solid
+      angle (bio-080), so the same radius means very different things near the pole
+      and at the equator. fc-007 closes IN FAVOUR OF a policy naming this constant.
+      A cold session reading fc-007 into 18b should see this before it does.
     status: never_examined
 
   - id: met-009
@@ -268,6 +278,15 @@ methods:
       without ever asking where 34 came from. fc-009 records that an ANGULAR foveal
       weight is step 17/18 work, which would replace it rather than examine it.
     to_re_derive: Sweep it; or replace it with an angular weight, which is a different task.
+    exposure_noted_at_18a: >-
+      RECORDED AS A KNOWN RISK, NOT SWEPT. This already sits under the 21 px
+      principal-point offset flagged at 17c (bio-065): the shift centres the gaze
+      DIRECTION while the target is a POINT, so the foveal peak misses by 21 px at
+      vergence 0.06 against sigma 34. On a spherical lattice a Gaussian in ROW AND
+      COLUMN is not a Gaussian in angle at all — rows are meridians and columns are
+      colatitude, so a circular pixel kernel is an increasingly elongated angular
+      kernel toward the poles. fc-009 already names an ANGULAR foveal weight as
+      step 17/18 work; 18b is where it stops being deferrable.
     status: never_examined
 
   - id: met-011
@@ -4471,6 +4490,274 @@ measurements:
       forbids rewriting history, and a follow-up commit is what the rule requires
       instead. 83978d1 is the commit that contains the work. Corrected here rather
       than by a second amend, for the same reason exp010's sha was.
+
+  - id: bio-077
+    statement: >-
+      Cycles' equirectangular Z pass is RADIAL, to 73 micrometres over 35708 pixels
+      on three tiled planes. MEASURED AGAINST A REAL BLENDER.
+    value:
+      convention: radial
+      radial_max_abs_err_m: 0.000073
+      radial_rms_err_m: 0.000018
+      planar_max_abs_err_m: 2.998
+      planar_rms_err_m: 0.841
+      planar_over_radial_rms: 46860
+      pixels_checked: 35708
+      plane_distances_m: [2.0, 3.5, 5.0]
+      pixel_to_direction:
+        longitude: "2*pi*(c + 0.5)/W - pi, increasing left to right, 0 at -Z"
+        latitude: "pi/2 - pi*(r + 0.5)/H, +90 deg at row 0"
+        direction: "(cos(lat)*sin(lon), sin(lat), -cos(lat)*cos(lon)) in camera axes"
+        pole_axis: camera_local_Y
+    units: m
+    n: {pixels: 35708, planes: 3}
+    stimulus_family: rendered_chart
+    matcher: none
+    configuration: >-
+      Blender 5.2.0 LTS, camera.type PANO with panorama_type EQUIRECTANGULAR and
+      the full sphere set explicitly, Cycles, 1 sample, 512x256. Three
+      fronto-parallel planes at 2.0/3.5/5.0 m, each in its own LONGITUDE band with
+      gaps between them, rendered from the left eye at (-b/2, 0, 0). Expected range
+      per pixel is (z - C.n)/(d.n) and expected planar depth is (z - C.n); both are
+      computed for every hit pixel and compared.
+    provenance:
+      cited_as: visgraf/bio-3d-vision
+      source: step 18a falsifier 1
+      experiment: null
+      run_id: null
+      measured_at_sha: c44af87
+      environment: {python: 3.13.15, numpy: 2.5.2, scipy: 1.18.1, matplotlib: 3.11.1}
+    status: measured
+    notes: >-
+      FALSIFIER 1 PASSES AND EVERYTHING DOWNSTREAM IS READABLE. The two conventions
+      are separated by a factor of 46860 in rms, so this is not a marginal call.
+      THE SCENE HAD TO BE FIXED FIRST, AND THE FIRST VERSION FAILED THE WAY THE
+      PINHOLE DOCSTRING WARNS. Longitude is measured about the CAMERA'S UP AXIS.
+      Tiling the planes about world Z put them on a circle through the poles, where
+      they stacked in latitude and overlapped in longitude; every column carried
+      some depth and the three-way check was not three-way. Corrected to tile about
+      the up axis, after which the three bands are cleanly separated at columns
+      16-153, 188-324 and 359-494.
+      THE LEFT EYE'S OFFSET IS VISIBLE IN THE RAW NUMBERS and is not an error: the
+      minimum loaded depth is 1.9719 m against a nearest plane at 2.0, because the
+      camera sits at -0.0325 m along the baseline. Reading that as a depth error is
+      the mistake this entry's configuration field exists to prevent.
+
+  - id: bio-078
+    statement: >-
+      infer_depth_convention's premise does not survive the projection change. It
+      REFUSES rather than misleads, which is the behaviour it was built for.
+    value:
+      pinhole_wall: {finite_fraction: 1.000, depth_range_m: [3.0000, 3.0000], verdict: planar}
+      equirect_wall: {finite_fraction: 0.017, depth_range_m: [3.0001, 3.3328], verdict: unknown}
+      emits_runtime_warning_on_equirect: true
+    units: fraction
+    n: {renders: 2}
+    stimulus_family: rendered_chart
+    matcher: none
+    configuration: >-
+      The same --wall 3.0 calibration render through both projections, passed to
+      blender_load.infer_depth_convention unchanged.
+    provenance:
+      cited_as: visgraf/bio-3d-vision
+      source: step 18a, asked of the guard rather than assumed of it
+      experiment: null
+      run_id: null
+      measured_at_sha: c44af87
+      environment: {python: 3.13.15, numpy: 2.5.2, scipy: 1.18.1, matplotlib: 3.11.1}
+    status: measured
+    notes: >-
+      A FINDING ABOUT THE GUARD, NOT A DETAIL. Its premise is a fronto-parallel
+      wall FILLING THE FRAME and RADIALLY SYMMETRIC ABOUT A PRINCIPAL POINT. On a
+      sphere there is no principal point, a plane is not radially symmetric in
+      lat-long, and a wall fills 1.7% of the frame. The premise fails on all three
+      counts.
+      IT RETURNS "unknown", WHICH IS CORRECT AND IS THE POINT OF ITS OWN GUARD. Its
+      docstring already records that "unknown" is the right answer for anything
+      that is not a calibration render, and an equirect wall is not one. So the
+      function does not mislead here — but it also cannot answer, and the evidence
+      that the pass is radial is bio-077's direct analytic comparison, not this.
+      "PLANAR" MAY NOT BE WELL DEFINED AT ALL ON A SPHERICAL CAMERA. There is no
+      image plane, so depth-along-the-optical-axis names an axis that does not
+      exist. The only convention with a meaning is radial, which is what Cycles
+      delivers.
+      A MINOR DEFECT SURFACED AND IS NOT FIXED HERE: on the equirect wall the
+      function emits "RuntimeWarning: Mean of empty slice", because all four image
+      corners are nan and it takes their mean. Harmless — the answer is "unknown"
+      either way — and recorded so it is not rediscovered as a mystery.
+
+  - id: bio-079
+    statement: >-
+      Posing the equirect pole along the baseline makes rows epipolar EXACTLY, and
+      the only transform needed is a transpose — an index permutation, not a
+      resampling.
+    value:
+      longitude_difference_between_eyes_rad: 0.0
+      markers: 5
+      as_rasterised: "epipolar curves are MERIDIANS = columns; disparity is VERTICAL"
+      after_transpose: "rows are epipolar; the shift is horizontal"
+      resampling_cost: none_it_is_an_index_permutation
+      angular_pitch_after_transpose_rad: {rows: 0.012272, cols: 0.012272}
+      depth_relation: "r_L = b*sin(theta_R)/sin(theta_R - theta_L)"
+      relation_max_rel_err_vs_render: 2.2e-14
+      relation_max_rel_err_analytic: 3.0e-10
+      disparity_ratio_90deg_over_10deg_at_3m: 5.8
+    units: mixed
+    n: {markers: 5, analytic_points: 199806}
+    stimulus_family: rendered_chart
+    matcher: none
+    configuration: >-
+      Five emissive markers at known world positions, rendered equirect from both
+      eyes with each camera's local +Y (the equirect pole) posed along world +X
+      (the baseline), Blender 5.2.0 LTS at 512x256, 16 samples. Longitude and
+      latitude of each marker are computed from the render's own geometry in each
+      eye. The analytic figures are 199806 random points at |P| > 0.5 m.
+    provenance:
+      cited_as: visgraf/bio-3d-vision
+      source: step 18a falsifier 2
+      experiment: null
+      run_id: null
+      measured_at_sha: c44af87
+      environment: {python: 3.13.15, numpy: 2.5.2, scipy: 1.18.1, matplotlib: 3.11.1}
+    status: measured
+    notes: >-
+      FALSIFIER 2 PASSES, AND THE PARAMETERISATION IS AVAILABLE BY POSING RATHER
+      THAN WARPING — the option exp009 established is worth having. Longitude is
+      IDENTICAL between the eyes to 0.0 rad, not merely close.
+      BLENDER RASTERISES IT TRANSPOSED FROM WHAT THE MATCHER NEEDS. With the pole
+      on the baseline the epipolar great circles are meridians, and meridians are
+      COLUMNS, so as rendered the disparity is vertical and cost_volume's
+      horizontal shift would find nothing. The fix is a transpose, which is an
+      exact index permutation: no interpolation, no correlation introduced, and so
+      none of the variance cost that made exp009 prefer posing to warping. The
+      transposed raster has equal angular pitch on both axes, 0.012272 rad.
+      THE DEPTH RELATION IS THE SINE RULE AND NOT f*b/z. r_L = b sin(theta_R) /
+      sin(theta_R - theta_L), which is the triangle (left centre, right centre,
+      point) solved with the sine rule. IT DEPENDS ON THETA, THE ANGLE FROM THE
+      BASELINE, AND THE PINHOLE RELATION HAS NO ANALOGUE OF THAT: at 3 m the
+      disparity is 5.8x larger at theta = 90 deg than at 10 deg. Substituting into
+      f*b/z is wrong rather than approximate.
+      ONE CONVENIENCE THE PINHOLE CASE DID NOT HAVE: the angular disparity of a
+      parallel pair is STRICTLY POSITIVE everywhere (minimum 9.2e-05 rad over
+      199806 points), so bio-057's defect — cost_volume cannot search negative
+      disparity — does not bite here. That is a property of the geometry, not a
+      repair of the matcher.
+
+  - id: bio-080
+    statement: >-
+      EquirectSampling satisfies the SamplingModel Protocol with no signature
+      change, and the round trip is exact over 33.5 million indices including the
+      polar columns.
+    value:
+      isinstance_of_protocol: true
+      members: [shape, frame, direction, index, contains]
+      signature_changes_needed: 0
+      frame: rectified_left_camera
+      frame_same_as_pinhole: true
+      round_trip_failures: 0
+      round_trip_indices_checked: 33554432
+      largest_shape_checked: [8192, 4096]
+      theta_min_deg_at_4096_cols: 0.021973
+      solid_angle_ratio_equator_over_pole: 81.5
+      total_solid_angle_rel_err: 2.5e-05
+      index_raises_for: nothing
+    units: count
+    n: {shapes: 7, indices: 33554432}
+    stimulus_family: analytic_fixture
+    matcher: none
+    configuration: >-
+      Every index of the lattice at (64,32), (256,128), (512,256), (1024,512),
+      (2048,1024), (4096,2048) and (8192,4096), mapped index -> direction -> index
+      and compared exactly. Solid angle per cell is (2*pi/H)*(pi/W)*sin(theta).
+    provenance:
+      cited_as: visgraf/bio-3d-vision
+      source: step 18a falsifier 3
+      experiment: null
+      run_id: null
+      measured_at_sha: c44af87
+      environment: {python: 3.13.15, numpy: 2.5.2, scipy: 1.18.1, matplotlib: 3.11.1}
+    status: measured
+    notes: >-
+      fc-009's CLAIM CONFIRMED BY CONSTRUCTION, AND IT HAD BEEN AN ASSERTION SINCE
+      ITERATION 6. The entry said the interface "must admit a non-uniform lattice
+      and a non-planar projection without a signature change". The non-planar half
+      is now built and needed nothing widened.
+      THE FRAME IS UNCHANGED, WHICH IS THE SUBSTANCE OF IT. Directions come back in
+      RECTIFIED_LEFT_CAMERA exactly as the pinhole returns them; only the
+      index-to-direction map differs. That is why the belief consumes it unchanged.
+      THE EXPECTED POLE FAILURE DOES NOT ARISE. A column at theta = 0 would collapse
+      every row onto one direction; the half-pixel offset keeps theta in
+      [pi/2W, pi - pi/2W], so no column sits at a pole. Checked to 4096 columns,
+      where the nearest column is 0.022 deg off the pole and adjacent rows there are
+      0.044 deg apart: still exactly invertible. ZERO failures in 33.5M indices.
+      ONLY HALF OF fc-009's PROVISION IS EXERCISED, AND SAYING SO IS MORE USEFUL
+      THAN CLAIMING OTHERWISE. `contains` exists because membership stops being a
+      bounds check on a non-uniform lattice. Equirect IS non-uniform in solid angle
+      — 81.5x between an equatorial and a polar cell — but it is COMPLETE, so every
+      in-bounds index is sampled and `contains` remains a bounds check. A lattice
+      with genuine holes is still untested.
+      AN ASYMMETRY WORTH CARRYING: PinholeSampling.index RAISES for rays with
+      d_z <= 0; EquirectSampling.index raises for no direction at all. Callers that
+      guard on `in_eye[..., 2] > 0` are carrying a pinhole assumption. One does —
+      see bio-081.
+
+  - id: bio-081
+    statement: >-
+      A sphere loses NO grid to a saccade at any amplitude — and HeadFrameBelief
+      discards half of it anyway, because reproject carries a pinhole guard.
+    value:
+      grid_lost_by_contains_only: {1: 0.0, 2: 0.0, 5: 0.0, 8.6: 0.0, 10: 0.0, 15: 0.0, 30: 0.0, 60: 0.0}
+      grid_lost_by_reproject: {1: 0.5, 2: 0.5, 5: 0.5, 8.6: 0.5, 10: 0.5, 15: 0.5, 30: 0.5, 60: 0.5}
+      pinhole_comparison_bio055_azimuth: {1: 0.041, 2: 0.080, 5: 0.200, 8.6: 0.341, 10: 0.394, 15: 0.584}
+      guard: "in_eye[..., 2] > 0.0"
+      cells_moved_fraction: {azimuth_10deg: 0.997, elevation_10deg: 0.999, vergence_0p16: 0.971}
+      world_direction_drift_deg_over_cell_pitch: {60_cols: 0.656, 120_cols: 0.692, 240_cols: 0.695, 480_cols: 0.701}
+      oculomotor_azimuth_limit_rad: 1.5707963267948966
+    units: fraction
+    n: {cells: 28800, amplitudes: 8}
+    stimulus_family: analytic_fixture
+    matcher: none
+    configuration: >-
+      HeadFrameBelief.from_sampling on EquirectSampling((240, 120)) — 28800 cells —
+      anchor Fixation(0, 0, 0.06), baseline 0.065. Grid loss is reported twice: from
+      sampling.contains alone, and from HeadFrameBelief.reproject, which ANDs the
+      pinhole forward guard into it. Drift is the angle between world_direction at
+      the anchor and at the saccade, over co-visible cells.
+    provenance:
+      cited_as: visgraf/bio-3d-vision
+      source: step 18a falsifier 4
+      experiment: null
+      run_id: null
+      measured_at_sha: c44af87
+      environment: {python: 3.13.15, numpy: 2.5.2, scipy: 1.18.1, matplotlib: 3.11.1}
+    status: measured
+    notes: >-
+      FALSIFIER 4 PASSES IN SUBSTANCE AND FAILS IN EXACTLY THE WAY IT WAS WRITTEN TO
+      CATCH: "the belief is more pinhole-coupled than 17a-fix's direction-based
+      construction implies". Cells move under azimuth, elevation AND vergence, and
+      the world direction each cell views is invariant to the cell — so the frame
+      logic carries over. But `reproject` ANDs `in_eye[..., 2] > 0.0` into
+      visibility, which on a sphere discards the BACK HEMISPHERE at every amplitude.
+      THE CONSTANT 0.5 IS THE SIGNATURE AND IS WHY THIS IS NOT A ROUNDING DETAIL.
+      Pinhole grid loss GROWS with amplitude — 0.041 at 1 deg to 0.584 at 15
+      (bio-055) — because what it loses is the field edge. This loses a fixed half
+      sphere at every amplitude, including 1 degree, which no field-of-view effect
+      can produce. NOT FIXED HERE: 18a builds and pins, and changing reproject is a
+      decision about what the belief means, not a repair.
+      THE NUMBER 18b's HYPOTHESIS RESTS ON IS THE FIRST ROW: ZERO grid lost by
+      `contains` at every amplitude out to 60 degrees. exp011 measured OPEN
+      ever-measuring 0.54-0.70 of the belief because one pinhole view cannot see
+      more of the scene; a spherical capture has full coverage by construction, so
+      the coverage term that dominated exp011 by 33x to 341x should vanish. THAT IS
+      A HYPOTHESIS, NOT A RESULT — 18a builds the instrument and runs no experiment.
+      THE DRIFT IS QUANTISATION, CHECKED RATHER THAN ASSERTED. Nearest-neighbour
+      reprojection cannot preserve a direction exactly on a finite lattice. Halving
+      the cell pitch halves the drift, and drift/pitch is flat at 0.656-0.701 across
+      a 8x range of resolutions, so the residual is the cell and not a frame error.
+      A LIMIT THAT IS THE OCULOMOTOR LAYER'S AND NOT THE SAMPLING'S: eye_rotations
+      refuses azimuth >= pi/2, because beyond the interaural axis the Vieth-Muller
+      chord subtends pi - vergence. So the sphere can represent every direction and
+      the geometry cannot FIXATE beyond a quarter turn. 18b must respect that.
 
   - id: gap-009
     statement: Nothing inside Blender is covered by any test, so rendered stimuli are the least-verified inputs in the record.
