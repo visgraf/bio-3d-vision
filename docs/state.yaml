@@ -22,7 +22,7 @@ updated_at: 2026-08-29
 # a current one", which invited exactly that comparison and would have failed
 # after every merge. Staleness is tested per half, in `sequence`, and each half
 # gets the test it can actually pass.
-updated_by_commit: 7dcaac7   # the repository state this file describes
+updated_by_commit: 3569152   # the repository state this file describes
 
 # ------------------------------------------------------------------------------
 # SEQUENCE — where this project is, and what it plans next
@@ -119,7 +119,7 @@ sequence:
       silently swapped, in the style of `sequence.staleness.amended` and for the
       same reason: the defect is worth more than the fix. A check that passes on a
       false claim is the same shape as a claim that cannot fail.
-    complete: [1, 2, 3, 4, 7, 8, 9, 10, 11, 12]
+    complete: [1, 2, 3, 4, 7, 8, 9, 10, 11, 12, 15]
     deferred:
       - step: 5
         until: the end of Stage 0
@@ -140,6 +140,7 @@ sequence:
       10: fc-011, taken by the maintainer on the evidence of fc-008 and fc-010 — a decision, not a run
       11: src/bio3dvision/blender_{render,load}.py, fv-011-1a and fv-011-1b, bio-024..bio-026
       12: src/bio3dvision/scene_model.py, exp004, fv-012-1..3, bio-027..bio-031
+      15: src/bio3dvision/oculomotor.py, fv-016, bio-043..bio-046; fc-009's falsifier 2 answered
     out_of_sequence:
       - what: >-
           exp005, the stratified re-analysis of exp001 and exp002. Not a numbered
@@ -297,11 +298,17 @@ sequence:
           - n: 15
             title: Migrate the active-stereo geometry, in ray form
             altitude: geom
-            status: planned
-            note: >-
-              fc-009 records that its cost estimate is UNTESTED and was not
-              revised. It will be tested by the first commit in which a geometry
-              layer consumes a ray directly.
+            status: complete
+            outcome: >-
+              src/bio3dvision/oculomotor.py. The stereo rig no longer carries a
+              sensor: StereoRig is baseline and capture vergence, and the focal
+              length and principal point stay in the SamplingModel. All 37 ported
+              tests are stated with no intrinsic anywhere in their bodies.
+              fc-009's falsifier 2 is ANSWERED — additive, and not eliminating.
+            taken_out_of_order: >-
+              Steps 13 and 14 are still `next`/`planned`; see am-005 for what
+              remains of them. Position clause (2) is unaffected: `next` is still
+              13, the lowest step that is neither complete nor deferred.
           - {n: 16, title: Incorporate the carried results, altitude: geom, status: planned}
 
       - stage: 4
@@ -489,8 +496,8 @@ runs:
   library:
     package: bio3dvision
     modules: [fixture, matching, loop, figure, baseline, policy, sampling, acquisition,
-              blender_render, blender_load, scene_model]
-    lines: 2098
+              blender_render, blender_load, scene_model, oculomotor]
+    lines: 3315
     policies: [A, A_prime, B, C, D, E]
     sampling: >-
       SamplingModel Protocol with PinholeSampling; sits in front of ActiveStereo,
@@ -502,9 +509,9 @@ runs:
     note: Still flat. Zero subpackages. See fc-002 and falsifier fv-003-2.
   test_suite:
     exists: true
-    count: 117
+    count: 172
     count_note: >-
-      106 run everywhere; 11 need the optional `blender` extra and skip without it.
+      161 run everywhere; 11 need the optional `blender` extra and skip without it.
       CI installs the extra so those 8 run there — falsifier 1a is the only check
       of the render path that needs no Blender binary, and skipping it in CI would
       have left the path unverified in the one place it is always checked. THREE
@@ -663,10 +670,18 @@ runs:
 
   not_present:
     - >-
-      Geometry. There is a sampling model producing rays (fc-009) but nothing
-      that CONSUMES one: no oculomotor state, no rotations, no projection. The
-      rays are produced and immediately turned back into indices, because
-      ActiveStereo still takes a pixel.
+      Geometry IN THE LOOP, though the geometry itself now exists. Step 15
+      migrated the oculomotor surface in ray form — fixation distance and point,
+      eye rotations under the binocular Listing law, the rectification rotation,
+      and target_to_fixation taking a unit direction — and ActiveStereo.step
+      accepts a ray. What does NOT happen is any of it driving the loop: no eye
+      rotation is applied, no fixation state is carried between steps, and the
+      ray is landed straight back on the pixel lattice because the foveal weight
+      is defined there. Step 17 is where geometry becomes control.
+      Projection is still absent, deliberately: project_toed_in and
+      toed_in_disparity were measured to have no consumer, and fc-003 makes
+      Blender the only rendered source, so an analytic toed-in forward model has
+      nothing here to serve.
     - >-
       Any rendered stimulus ANYONE HAS ASKED A QUESTION OF. Step 12 added a scene
       model and used it to check the render path against the fixture, which is a
@@ -1217,13 +1232,40 @@ foreclosures:
       have to change — and not from the ray commitment being cheap. The test that
       would discriminate has not been run, because nothing yet consumes a ray.
       Falsifier 2 asked whether PASSING A RAY is invasive. That remains open.
+    falsifier_2_answered_at_step_15: >-
+      ANSWERED. ADDITIVE, AND NOT ELIMINATING. The verdict above was deferred
+      because no ray crossed the boundary; step 15 built the geometry layer that
+      consumes one, so the question is finally decidable.
+      WHAT HAPPENED. bio3dvision.oculomotor.target_to_fixation takes a UNIT
+      DIRECTION, route_as_direction returns a ray and no index, and
+      ActiveStereo.step accepts one. policy.py is UNCHANGED — 0 lines — so the
+      index has left the policy path exactly as route_through_sampling's docstring
+      predicted. loop.py gained 35 lines and lost 2, all of them the new signature
+      and its guard; nothing existing was rewritten. Every array is bit-identical
+      across the pixel and ray paths, and exp008 re-runs byte-identically
+      (bio-043).
+      SO THE COMMITMENT IS ADDITIVE. The migration inventory's reading is
+      supported, and this time by a measurement of the interface rather than of
+      the component.
+      WHAT THE PREDICTION GOT WRONG. "model.index drops out of this path" is half
+      right: it leaves the policy path and reappears inside ActiveStereo.step,
+      which cannot resolve a ray without a sampling model. The reason is named and
+      is not incidental — _fovea_weight is a Gaussian in row and column and
+      vergence takes a median over a square pixel window, so a ray must be landed
+      on the lattice before either can run. Eliminating the index needs a foveal
+      weight defined on ANGLE. That is step 17/18 work and is deliberately not
+      built here.
     step_15_estimate: >-
-      NOT REVISED, in either direction. It is untested. It will be tested by the
-      first commit in which a geometry layer consumes a ray directly — that is,
-      the first commit in which model.index drops out of the policy path and
-      route_through_sampling's second hop disappears. Until then there is no
-      measurement of the interface cost to revise an estimate against, and this
-      foreclosure supplies none.
+      TESTED AT STEP 15, AND THE CONDITION IT NAMED WAS MET IN PART. It said the
+      estimate would be tested by the first commit in which model.index drops out
+      of the policy path and route_through_sampling's second hop disappears. The
+      first half happened: policy.py is unchanged and route_as_direction returns a
+      ray. The second half did not: the hop moved into ActiveStereo.step rather
+      than disappearing.
+      The measured cost is 35 added lines in loop.py, 0 in policy.py, and 3 files
+      touched outside the new module, none of which was forced by the rig/sensor
+      split itself. That is a small number, and it is a number about THIS interface
+      on THIS lattice — see bio-044 for what it does not cover.
     amendment: >-
       Corrected after first writing, in place, because the original was an
       overstatement rather than a verdict that later data reversed — the two are
@@ -2416,6 +2458,98 @@ falsifier_verdicts:
       gap-010 ANNOTATED, NOT CLOSED. od-002 stays open with its stale
       why_not_scheduled corrected. No policy changed, no foreclosure reversed.
     verified_at_commit: 7dcaac7
+
+  - iteration: 13
+    id: fv-016
+    falsifier: >-
+      Four, reported together because they are four readings of one migration:
+        (1) fc-009's DEFERRED verdict, finally answerable — does a ray actually
+            cross the boundary, and does model.index drop out of the policy path?
+            An EMPTY diff to loop.py and policy.py means it still does not cross;
+        (2) can each of the four expensive results be asserted WITHOUT a focal
+            length? If any cannot, the ray commitment is a re-derivation rather
+            than a migration for that result;
+        (3) how many of the reference's 59 core geometry tests survive? A large
+            residue of genuinely pinhole-dependent geometry tests would mean the
+            separation is not clean;
+        (4) what does splitting rig from sensor cost outside geometry? The
+            inventory predicted zero.
+    verdict: >-
+      (1) NON-EMPTY: additive, and not eliminating. (2) ALL FOUR, two verbatim and
+      two restated. (3) 37 of 59 across, 3 structurally dropped, 19 out of scope,
+      0 unaccounted. (4) ZERO forced by the split — but the prediction is weakly
+      confirmed and the report says why.
+    numbers:
+      loop_py_diff: {added: 35, removed: 2}
+      policy_py_diff: {added: 0, removed: 0}
+      files_changed_outside_the_new_module: 3
+      arrays_bit_identical: true
+      lattice_round_trip_exact_indices: 76800
+      expensive_results: {verbatim: 2, restated: 2, unassertable_without_a_focal_length: 0}
+      focal_lengths_constructed_in_the_ported_tests: 1
+      core_set: {total: 59, verbatim: 24, restated: 13, structurally_dropped: 3, out_of_scope: 19}
+      library: {new_module_lines: 529, new_test_lines: 868}
+    detail: >-
+      (1) THE PREDICTION IS HALF RIGHT AND THE HALF THAT FAILS IS THE INFORMATIVE
+      ONE. route_through_sampling's docstring said that once a geometry layer
+      existed, "the ray goes straight into it and model.index drops out of this
+      path". policy.py is UNCHANGED, so the index has left the policy path. It has
+      not left the system: it reappears inside ActiveStereo.step, which cannot
+      resolve a ray without a sampling model, because _fovea_weight is a Gaussian
+      in row and column and vergence takes a median over a square pixel window.
+      Eliminating it needs a foveal weight defined on ANGLE, which is step 17/18
+      work. So the commitment is ADDITIVE — 35 lines added to loop.py, nothing
+      rewritten, every array bit-identical — and NOT ELIMINATING.
+      (2) ALL FOUR SURVIVE, AND THE TWO RESTATEMENTS ARE EXACT RATHER THAN
+      APPROXIMATE. The Helmholtz identity at k = 1/2 and the R_e composition order
+      port verbatim: both were already pure SO(3) and the reference classified one
+      of them `mixed` only because the rig type dragged an intrinsic in.
+      The k = 1/2 spherical-excess result and the rectification member choice were
+      stated in PIXELS and are restated in angles. In max_vertical_disparity the
+      focal length multiplies both eyes' image ordinates equally and every
+      assertion is on a DIFFERENCE between the eyes, so it cancels from the
+      question "is this zero" — the reference's loop over three focal lengths was
+      testing that a constant cancels. "The plane of regard lands on the principal
+      row" needs a principal point; "the plane of regard has zero y-component in
+      the rectified frame" needs nothing.
+      Exactly ONE focal length is constructed in the whole ported file, in a test
+      that exists to show a magnitude in pixels is still available. It belongs to
+      the test, not to the rig.
+      (3) THE INVENTORY'S PREDICTION HELD. It said 39 of 59 were `mixed` — no
+      intrinsic needed by the assertion, one required by the type — and that they
+      would free themselves once the rig split. All 37 that came across are stated
+      with no focal length and no principal point anywhere in their bodies.
+      The 3 structurally dropped are the pixel bounds check, the pixel integrality
+      check and the depth-field shape check: none has a counterpart at a direction
+      boundary, because there is no pixel to bounds-check, no integrality to check,
+      and Estimate is scalar. Dropped because the concept went.
+      The 19 out of scope are test_geometry.py and test_projection_toedin.py.
+      project_toed_in and toed_in_disparity were MEASURED to have no consumer in
+      the reference outside a re-export, and depth_to_disparity/disparity_to_depth
+      are already covered here by true_disparity and scale_to_depth. Neither
+      migrates, and both scope questions were settled by measurement rather than
+      by judgement.
+      (4) ZERO CHANGES WERE FORCED BY THE SPLIT, AND THE PREDICTION IS CONFIRMED
+      WEAKLY. Three files outside the new module changed — __init__.py exports,
+      loop.py's step signature, sampling.py's new adapter — and every one of them
+      was forced by the RAY commitment, not by separating rig from sensor. The
+      split itself cost nothing because bio3dvision had no StereoRig to split: it
+      was performed at migration time rather than applied to live code. The
+      reference's 39 mixed tests are the evidence that it would have cost
+      something there. A confirmation obtained by not having the problem is worth
+      less than one obtained by solving it, and this is the former.
+      NO FORECLOSURE WAS TAKEN, which is the expected shape for a geom-altitude
+      iteration and is reported because the specification asked for a signal if
+      one appeared.
+      A TRAP THE RAY FORM INTRODUCED, worth recording because it is new rather
+      than migrated: the reference multiplied depth by a ray whose z component was
+      1, so depth was PLANAR. A unit direction is not that ray, and scaling it by
+      depth would silently make depth a RANGE — differing by 1/cos(angle),
+      smallest at the centre and largest at the field edge, which is the shape of
+      a modelling result rather than a units error. The same confusion
+      infer_depth_convention guards in the render path, arriving by a different
+      door. Pinned by test_depth_is_planar_not_radial.
+    verified_at_commit: 3569152
 
 # ------------------------------------------------------------------------------
 # STANDING CONSTRAINTS

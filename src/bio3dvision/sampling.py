@@ -231,6 +231,34 @@ class PinholeSampling:
         return ok
 
 
+def route_as_direction(policy: Any, model: SamplingModel) -> Any:
+    """Wrap a policy so it returns a **unit ray**, and no index, to its caller.
+
+    The difference from :func:`route_through_sampling` is the whole of step 15's
+    falsifier 1: that adapter converts index -> ray -> index and hands back a
+    pixel, so no ray ever leaves it. This one stops at the ray.
+
+    ``ActiveStereo.step(direction=..., sampling=...)`` consumes it. **The index
+    does not drop out of the system** — it reappears inside ``step``, because the
+    foveal weight and the vergence window are defined on the pixel lattice. What
+    this removes is the index from the POLICY path; what it cannot remove is the
+    sensor at the point of use.
+
+    Recorded that way because ``route_through_sampling``'s docstring predicted
+    otherwise: "when a geometry layer exists, the ray goes straight into it and
+    ``model.index`` drops out of this path". The geometry layer now exists, the
+    ray does go into it, and the prediction is half right.
+    """
+
+    def routed(engine: Any, visited: list[tuple[int, int]]) -> FloatArray | None:
+        chosen = policy(engine, visited)
+        if chosen is None:
+            return None
+        return model.direction(np.asarray(chosen, dtype=np.float64))
+
+    return routed
+
+
 def route_through_sampling(policy: Any, model: SamplingModel) -> Any:
     """Wrap a policy so its choice crosses the L6->L1 boundary AS A DIRECTION.
 

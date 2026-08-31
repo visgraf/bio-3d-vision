@@ -2396,6 +2396,159 @@ measurements:
       re-test of it and one measured trend across four geometry levels is not the
       pre-registered experiment that would.
 
+  - id: bio-043
+    statement: >-
+      Driving the ported loop with a unit ray instead of a pixel index leaves every
+      array bit-identical.
+    value: {arrays_compared_per_arm: 5, arms: 4, seeds: 2, divergences: 0, lattice_indices_exact: 76800}
+    units: count
+    n: {arms: 4, seeds: 2, steps: 6}
+    stimulus_family: analytic_fixture
+    matcher: block
+    configuration: >-
+      ActiveStereo.step(direction=..., sampling=PinholeSampling) against
+      step(fixation=...), arms A/A'/D/E, seeds 0 and 3, compared with
+      np.array_equal on mean, var, d_sub, var_d and valid, plus the scanpath.
+      Separately, exp008 was re-run in full after the migration and its results.json
+      is byte-identical to the committed record.
+    provenance:
+      cited_as: visgraf/bio-3d-vision
+      source: tests/test_geometry_ray_form.py
+      experiment: null
+      run_id: null
+      measured_at_sha: 3569152
+      environment: {python: 3.13.15, numpy: 2.5.2, scipy: 1.18.1, matplotlib: 3.11.1}
+    status: measured
+    notes: >-
+      THE CLAIM NINE EXPERIMENTS REST ON. Bit-identity holds because
+      index(direction(i)) == i exactly on a uniform pinhole lattice — verified
+      here over all 76800 indices rather than assumed, because that is a property
+      of THIS lattice and this principal point and not of ray commitments in
+      general. exp001, exp002, exp003, exp007 and exp008 are unaffected.
+
+  - id: bio-044
+    statement: >-
+      fc-009's falsifier 2, answered: the ray commitment is ADDITIVE, and it does
+      not eliminate the sensor at the point of use.
+    value:
+      loop_py_lines_changed: {added: 35, removed: 2}
+      policy_py_lines_changed: {added: 0, removed: 0}
+      files_changed_outside_the_new_module: 3
+      arrays_diverged: 0
+    units: count
+    n: {files: 2}
+    stimulus_family: analytic_fixture
+    matcher: block
+    configuration: >-
+      git diff of src/bio3dvision/loop.py and src/bio3dvision/policy.py on branch
+      feat/geometry-ray-form against 3569152.
+    provenance:
+      cited_as: visgraf/bio-3d-vision
+      source: experiments recorded in docs/state.yaml fv-016
+      experiment: null
+      run_id: null
+      measured_at_sha: 3569152
+      environment: {python: 3.13.15, numpy: 2.5.2, scipy: 1.18.1, matplotlib: 3.11.1}
+    status: measured
+    notes: >-
+      THE DEFERRED VERDICT, FINALLY MEASURED, AND THE PREDICTION IS HALF RIGHT.
+      route_through_sampling's docstring said that once a geometry layer existed
+      "the ray goes straight into it and model.index drops out of this path". The
+      geometry layer now exists. The ray does go into it, and policy.py is
+      UNCHANGED — the index has left the policy path. But it did not leave the
+      system: it reappears inside ActiveStereo.step, which cannot resolve a ray
+      without a sampling model.
+      THE REASON IS NAMED AND IS NOT INCIDENTAL. _fovea_weight is a Gaussian in
+      row and column; vergence takes a median over a square pixel window. Both are
+      defined on the lattice, so a ray must be landed on it before either can run.
+      Eliminating the index needs a foveal weight defined on ANGLE, which is step
+      17/18 work and is not built here.
+      So: ADDITIVE — 35 lines added to loop.py, nothing removed but two lines of
+      signature, policy.py untouched, every array bit-identical (bio-043). NOT
+      INVASIVE. NOT ELIMINATING.
+
+  - id: bio-045
+    statement: >-
+      All four expensive geometry results can be asserted without a focal length;
+      two port verbatim and two need restating from pixels into angles.
+    value:
+      k_half_spherical_excess: restated_px_to_tangent
+      helmholtz_identity_at_k_half: verbatim
+      composition_order_R_e: verbatim
+      rectification_member_choice: restated_principal_row_to_zero_elevation
+      focal_lengths_constructed_in_the_ported_tests: 1
+    units: count
+    n: {results: 4}
+    stimulus_family: analytic_fixture
+    matcher: none
+    configuration: >-
+      tests/test_oculomotor.py, ported from active-stereo@3f7a263
+      tests/unit/test_oculomotor.py.
+    provenance:
+      cited_as: visgraf/bio-3d-vision
+      source: tests/test_oculomotor.py
+      experiment: null
+      run_id: null
+      measured_at_sha: 3569152
+      environment: {python: 3.13.15, numpy: 2.5.2, scipy: 1.18.1, matplotlib: 3.11.1}
+    status: measured
+    notes: >-
+      THE RESTATEMENT IS EXACT, NOT APPROXIMATE, AND THAT IS THE FINDING. In the
+      reference's max_vertical_disparity the focal length multiplies BOTH eyes'
+      image ordinates equally, and every assertion is on a DIFFERENCE between the
+      eyes — so it cancels from the question "is this zero". The reference's loop
+      over three focal lengths was testing that a constant cancels.
+      The rectification member choice was stated as "the plane of regard lands on
+      the principal row", which needs a principal point to say; in the rectified
+      frame it is "the plane of regard has zero y-component", which needs nothing.
+      ONE focal length is constructed in the whole ported file, in a test that
+      exists to show a magnitude in pixels is still available — and it belongs to
+      the test, not to the rig. That is what the separation buys.
+
+  - id: bio-046
+    statement: >-
+      Of the reference's 59 core geometry tests, 37 came across, 3 were dropped
+      because the concept they test no longer exists, and 19 were out of scope.
+    value:
+      reference_core_set: 59
+      ported_verbatim: 24
+      restated: 13
+      structurally_dropped: 3
+      out_of_scope: 19
+      unaccounted: 0
+      new_tests_added: 7
+    units: count
+    n: {files: 3}
+    stimulus_family: analytic_fixture
+    matcher: none
+    configuration: >-
+      Reference sets: tests/unit/test_oculomotor.py (40), test_geometry.py (7),
+      test_projection_toedin.py (12), at active-stereo@3f7a263.
+    provenance:
+      cited_as: visgraf/bio-3d-vision
+      source: tests/test_oculomotor.py; accounting in docs/state.yaml fv-016
+      experiment: null
+      run_id: null
+      measured_at_sha: 3569152
+      environment: {python: 3.13.15, numpy: 2.5.2, scipy: 1.18.1, matplotlib: 3.11.1}
+    status: measured
+    notes: >-
+      THE INVENTORY'S PREDICTION HELD. It said 39 of 59 tests were `mixed` — no
+      intrinsic needed by the assertion, one required by the type — and that they
+      would free themselves once the rig type split. All 37 that came across are
+      stated with no focal length and no principal point anywhere in their bodies.
+      THE 3 STRUCTURALLY DROPPED are the pixel bounds check, the pixel integrality
+      check and the depth-field shape check. None has a counterpart at a direction
+      boundary: there is no pixel to bounds-check (SamplingModel.contains owns
+      that), no integrality to check, and Estimate is scalar so there is no field
+      to shape-check. Dropped because the concept went, not because the assertion
+      was inconvenient.
+      THE 19 OUT OF SCOPE are test_geometry.py and test_projection_toedin.py,
+      which test projection.py and horopter.py. project_toed_in and
+      toed_in_disparity were MEASURED to have no consumer in the reference outside
+      a re-export, and fc-003 makes Blender the only rendered source, so an
+      analytic toed-in forward model has nothing to serve here.
+
   # ==============================================================================
   # GAPS — measurements that were NOT made, and whose absence is load-bearing.
   # ==============================================================================
