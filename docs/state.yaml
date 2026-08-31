@@ -22,7 +22,7 @@ updated_at: 2026-08-31
 # a current one", which invited exactly that comparison and would have failed
 # after every merge. Staleness is tested per half, in `sequence`, and each half
 # gets the test it can actually pass.
-updated_by_commit: 16c9356   # the repository state this file describes
+updated_by_commit: 42d5909   # the repository state this file describes
 
 # ------------------------------------------------------------------------------
 # SEQUENCE — where this project is, and what it plans next
@@ -912,6 +912,30 @@ runs:
         annotates bio-066 rather than overturning it — exp010's verdicts stand with
         smaller margins.
 
+    - id: exp012_bar_reanalysis
+      question: >-
+        What did exp001's bar cost, across every verdict this repository has taken
+        — and what else walked in from the predecessor without being examined?
+      answer: >-
+        (c), NARROWLY. 45 of 96 nulls read differently under a standard-error bar
+        and no positive moved, but the two bars agree on 87.3% of 353 comparisons
+        and 138 of those agreements are by construction, because the materiality
+        floor binds. Exactly one foreclosure rests on a comparison that moved —
+        fc-007, on one of two primary metrics, where the sd bar, the se bar and a
+        sign test disagree with each other and the effect is 0.63 mm. fc-008 and
+        fc-010 were checked and are clean. Of 13 audited methods and constants, 10
+        were carried in and 8 have never been examined here.
+      pre_registered: 67b0a66, committed alone before the re-scorer existed
+      is_instrument_calibration: >-
+        Entirely, and it is the second iteration in a row whose sharpest finding is
+        about the instrument. It measures nothing about vision; it measures what
+        this repository's own criterion has been saying.
+      changed_no_foreclosure: >-
+        NONE REVERSED, none taken. fc-007 annotated as affected, fc-008 and fc-010
+        annotated as checked and unaffected — a negative result of an audit is a
+        result. od-002 and od-003 untouched. gap-011 records the count of
+        unexamined constants; nothing was re-derived.
+
   not_present:
     - >-
       NO LONGER TRUE, AND THIS ENTRY IS KEPT AS A CORRECTED ONE BECAUSE IT WAS THE
@@ -1152,6 +1176,25 @@ measurements:
       AT: d is 0.909 +/- 0.243 and the threshold is 1. One stimulus family, one
       policy, one budget. exp010's unsettled fusion-correlation caveat is untouched
       by more seeds and more levels.
+
+  - ids: [bio-074, bio-075, gap-011]
+    commit: 42d5909
+    what: >-
+      exp012: every pairwise comparison in the repository re-scored under both
+      readings of exp001's bar, and an audit of what else was carried in without
+      derivation.
+    where: docs/inherited-measurements.yaml, status "measured" and "gap"; the new `methods` section
+    headline: >-
+      45 of 96 nulls read differently under a standard-error bar and NO positive
+      moved, but the two bars agree on 87.3% of 353 comparisons and only ONE
+      foreclosure rests on anything that changed — fc-007, on one of its two
+      primary metrics, where the sd bar, the se bar and a sign test all disagree
+      with each other. Of 13 audited methods, 8 have never been examined here.
+    caveat: >-
+      Neither bar is correct. They ask different questions — would this reliably
+      help on a new scene, against did we see a real difference — and this
+      iteration deliberately declares neither. Nothing was re-derived, so gap-011
+      is a count and not a repair.
 
 measurements_note: >-
   No longer empty. Values enter this list only when a run in THIS repository
@@ -1412,6 +1455,39 @@ foreclosures:
       distinguishable on median only.
       That is supporting evidence about the remedy, not a test of the objectives
       null itself. The null remains untested on rendered data.
+    bar_reanalysis_exp012: >-
+      ANNOTATED, NOT REVERSED, AND THIS FORECLOSURE STANDS. exp012 re-scored every
+      comparison in the repository under a standard-error bar as well as the
+      criterion in force. THIS IS THE ONLY FORECLOSURE OF THE THREE CHECKED THAT
+      RESTS ON A COMPARISON THAT MOVED.
+      WHAT MOVED. The rationale above says the two objectives are "INDISTINGUISHABLE
+      on both declared primary metrics". Under the se bar that becomes
+      indistinguishable on ONE: A'-versus-C on median_abs_err reads 0.72x the sd bar
+      and 2.03x the se bar, so it flips; p90 reads 0.14x and 0.15x and does not.
+      WHAT IT DOES NOT MEAN. It does not mean the finding was wrong. The finding was
+      "the effect is not larger than scene-to-scene variation" and it was READ as
+      "there is no effect". Those are different claims and THE READING IS WHAT NEEDS
+      CORRECTING.
+      THE THREE CRITERIA DISAGREE WITH EACH OTHER HERE, WHICH IS THE HONEST SUMMARY.
+      sd says no; se says yes; the SIGN TEST says no — 6 of 8 seeds, p = 0.2891. And
+      the effect is 0.00063 m. So under one reading the mean is nonzero, under
+      another the direction is not consistent across seeds, and under the criterion
+      in force it is smaller than the spread. A foreclosure should not turn on which
+      of those was written down first.
+      THE CRITERION IN FORCE WHEN THIS ENTRY WAS WRITTEN WAS THE sd BAR, declared in
+      exp001's preregistration before any arm ran. Nothing here was scored against a
+      bar it did not declare, and this annotation does not change what was declared.
+      WHAT A PRE-REGISTERED RE-TEST WOULD NEED: A'-versus-C at the 40-45 fixation
+      budget, which `outstanding_test` above already records as absent, with the bar
+      DECLARED AS ONE OF THE TWO and the sign test declared alongside it. Not
+      scheduled. Reversing on this re-analysis instead would be am-002-c's defect
+      exactly — a closure moved by an analysis it did not pre-register.
+      ALSO AFFECTED, AND FOR THE SAME REASON: `stratified_recheck_exp005` calls
+      C-versus-A' "MORE indistinguishable away from depth discontinuities... both
+      nulls". Four of those band nulls flip under se, including AWAY p90 at 1.94x.
+      The recheck's direction of travel is unchanged; its "both nulls" phrasing is
+      not se-robust.
+      SEE bio-074. NO FORECLOSURE CHANGES IN THAT ITERATION.
     decided_in: experiments/exp001_gaze_objective/findings.md
 
   - id: fc-008
@@ -1510,6 +1586,17 @@ foreclosures:
       the fixture's geometry, which produces only 5.09% half-occlusion and no
       contrast axis (bio-038). A pre-registered re-test on a stimulus with a
       controlled contrast axis at occlusion boundaries is still what od-002 names.
+    bar_reanalysis_exp012: >-
+      CHECKED AND UNAFFECTED, comparison by comparison against the evidence this
+      entry names. E-versus-A' is distinguishable under BOTH bars on both primary
+      metrics (median 1.38x/1.38x — the materiality floor binds, so clause 2 decides
+      and the choice of clause 1 is irrelevant; p90 1.96x/6.55x). D-versus-E is
+      distinguishable under both on both (median 47.04x/87.57x, p90 5.88x/20.37x).
+      THE exp005 QUALIFICATION ALSO SURVIVES INTACT. Its AWAY-band median stays a
+      null under both bars (0.38x/0.53x) and its AWAY-band p90 stays a positive
+      under both (1.75x/1.75x, floor binding). So the qualification recorded in
+      `stratified_recheck_exp005` is not an artefact of the bar.
+      RECORDED BECAUSE A NEGATIVE RESULT OF AN AUDIT IS A RESULT. See bio-074.
     decided_in: experiments/exp002_saliency_value/findings.md
 
   - id: fc-009
@@ -1702,6 +1789,21 @@ foreclosures:
       worse than W's. See bio-039.
       Seeds 0-7 rather than exp003's 0-15, which widens the bar rather than
       narrowing it.
+    bar_reanalysis_exp012: >-
+      CHECKED AND UNAFFECTED ON EVERY PRIMARY METRIC, AND THE ONE FLIP NEARBY
+      STRENGTHENS THIS ENTRY RATHER THAN THREATENING IT. On the intersection — the
+      region exp003's coverage rule says to score — N-versus-W and V-versus-W are
+      distinguishable under BOTH bars on both primary metrics, at 11.30x/45.21x and
+      14.06x/56.24x for N and 2.01x/8.04x and 1.98x/7.92x for V.
+      THE FLIP IS ON A SECONDARY METRIC AND POINTS THE SAME WAY: V-versus-W on rmse
+      reads 0.82x the sd bar and 3.28x the se bar, with V worse in 16 of 16 seeds
+      (sign test p = 0.0000). A null that read "no difference" on rmse is, under the
+      other bar, V worse in every seed. That is additional support for narrowing
+      being the wrong strategy, not a reason to reopen.
+      THE MECHANISM FIELD IS UNTOUCHED BY ANY OF THIS. This entry's force comes from
+      a structural fact — the estimator cannot report a sign — and no bar bears on
+      it. See bio-074, and bio-073 for the closed loop failing to drive it out of
+      range at four occlusion levels.
     decided_in: experiments/exp003_vergence_acquisition/findings.md
 
   - id: fc-011
@@ -3411,6 +3513,72 @@ falsifier_verdicts:
       pixel-native foveal weight and the vergence estimator were carried unchanged
       as specified.
     verified_at_commit: 16c9356
+
+  - iteration: exp012
+    id: fv-022
+    falsifier: >-
+      (a) the disagreement set is empty or trivial — the bar cost nothing, and the
+      concern was a methodological point without empirical consequence, to be
+      reported plainly; (b) the set is small and peripheral, flipping only
+      comparisons no foreclosure rests on; (c) the set includes a LOAD-BEARING NULL
+      — fc-007, fc-008 or fc-010 — naming it first; (d) a positive flips, which is
+      impossible if the implementation is right, so stop and find the bug.
+    verdict: >-
+      (c), NARROWLY. fc-007 rests on a comparison that moved, on one of its two
+      primary metrics. fc-008 AND fc-010 WERE CHECKED COMPARISON BY COMPARISON AND
+      ARE UNAFFECTED. (d) did not occur and could not. (a) and (b) did not: the set
+      is neither empty nor confined to comparisons nothing rests on.
+    numbers:
+      comparisons: 353
+      experiments: 10
+      distinguishable_sd: 257
+      distinguishable_se: 302
+      nulls_sd: 96
+      disagreement_set: 45
+      agreement_fraction: 0.873
+      positives_that_flipped: 0
+      reconstruction_mismatches: 0
+      materiality_binds_under_se: 138
+      fc007_primary_flip: {comparison: "A_prime_vs_C|median_abs_err", x_bar_sd: 0.72, x_bar_se: 2.03, sign: "6/8", p: 0.2891, mean_diff_m: -0.00063}
+      methods_audited: 13
+      methods_never_examined: 8
+    detail: >-
+      (d) IS ALGEBRA, NOT LUCK, AND IS ASSERTED ANYWAY. max(sd, floor) >=
+      max(sd/sqrt(n), floor), so a positive under the sd bar is a positive under
+      the se bar. Zero flips in 353. A second guard rebuilt every per-seed
+      difference vector and asserted it against that experiment's own mean, spread
+      and bar to 1e-9: zero mismatches. Each experiment's own compare() supplied
+      the floor and the recorded verdict, so nothing was re-derived.
+      THE TWO BARS AGREE ON 87.3%, AND 138 OF THE AGREEMENTS ARE BY CONSTRUCTION —
+      the materiality floor binds under the se bar there, so clause 2 decides and
+      the choice of clause 1 never gets a vote. That is a larger share of the
+      ledger than the disagreement set, and it is why the consequences are so much
+      smaller than the raw flip count.
+      fc-007 IS THE ONE AFFECTED ENTRY. Its rationale says the two objectives are
+      "indistinguishable on both declared primary metrics"; under the se bar that
+      becomes one of two. AND THE THREE CRITERIA DISAGREE WITH EACH OTHER ON IT: sd
+      says no, se says yes, THE SIGN TEST SAYS NO (6 of 8 seeds, p = 0.2891), and
+      the effect is 0.00063 m. A foreclosure should not turn on which was written
+      down first. Annotated, not reversed.
+      fc-008 AND fc-010 ARE CLEAN, AND A NEGATIVE RESULT OF AN AUDIT IS A RESULT.
+      Every comparison fc-008 names is a positive under both bars, and its exp005
+      qualification survives intact. fc-010's primaries on the scored region are
+      positives under both; the one flip nearby is a SECONDARY metric that points
+      the SAME WAY — V worse than W in 16 of 16 seeds — so it strengthens the entry.
+      WHAT A FLIPPED NULL MEANS, RECORDED BEFORE ANY WERE FOUND: the finding was
+      "the effect is not larger than scene-to-scene variation" and was READ as
+      "there is no effect". The reading is what needs correcting; the measurement
+      stands.
+      PART C: 13 methods audited, 10 carried, 8 NEVER EXAMINED HERE (bio-075,
+      gap-011). Three are load-bearing — INHIBITION_RADIUS, which fc-007 closes in
+      favour of; prior_depth, in which bio-072's coverage headline is denominated;
+      and fovea_sigma, in which bio-065's miss is expressed. CANDIDATE_STRIDE is
+      included as the contrast case: pre-registered at 8, it FAILED its own halving
+      check and was moved to 4 before any arm was scored.
+      NO FORECLOSURE REVERSED, none taken. od-002 and od-003 untouched. Neither bar
+      is declared correct: they ask different questions and the defect was
+      conflating them.
+    verified_at_commit: 42d5909
 
 # ------------------------------------------------------------------------------
 # STANDING CONSTRAINTS
