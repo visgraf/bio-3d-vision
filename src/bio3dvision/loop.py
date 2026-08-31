@@ -140,8 +140,41 @@ class ActiveStereo:
         d_hi = self.f * self.I / 0.5
         return float(np.clip(d0, d_lo, d_hi))  # == fixation disparity d_fix
 
-    def step(self, fixation: tuple[int, int] | None = None) -> dict[str, Any]:
-        """One fixation. Uses no ground truth of any kind."""
+    def step(
+        self,
+        fixation: tuple[int, int] | None = None,
+        *,
+        direction: FloatArray | None = None,
+        sampling: Any | None = None,
+    ) -> dict[str, Any]:
+        """One fixation. Uses no ground truth of any kind.
+
+        ``direction`` accepts the fixation **as a unit ray** in the sampling
+        model's frame, which is the boundary ``fc-009`` committed to. It needs
+        ``sampling`` to resolve, and that requirement is the finding rather than
+        an inconvenience: **the index does not disappear, it moves in here.**
+
+        Everything below the choice is defined on the pixel lattice —
+        ``_fovea_weight`` is a Gaussian in row/column, and ``vergence`` takes a
+        median over a square pixel window. A ray cannot drive either without a
+        sensor to land it on the lattice. So this argument makes the ray cross
+        the boundary and does not make the sensor go away; what would is a foveal
+        weight defined on angle, which is step 17/18 work and is not built here.
+
+        On a uniform pinhole lattice ``index(direction(i)) == i`` exactly, so
+        passing a ray is bit-identical to passing the index it came from.
+        """
+        if direction is not None:
+            if fixation is not None:
+                raise ValueError("pass a fixation index or a direction, not both")
+            if sampling is None:
+                raise ValueError(
+                    "a direction needs a sampling model to resolve onto the lattice: "
+                    "the foveal weight and the vergence window are both defined in pixels"
+                )
+            resolved = sampling.index(np.asarray(direction, dtype=np.float64))
+            fixation = (int(resolved[0]), int(resolved[1]))
+
         # (5) choose next fixation = argmax posterior variance over the valid
         #     region (greedy information-gain stand-in)
         if fixation is None:
