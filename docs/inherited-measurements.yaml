@@ -3477,6 +3477,81 @@ measurements:
       The 9.5x ratio matches the 9x predicted from the band alone and the 10.2x
       predicted from slice count, so the cost is where it was expected to be; the
       wrong part of the prediction was the render it was compared against.
+  - id: bio-063
+    statement: >-
+      A principal-point shift lets a rectified camera follow the gaze. It does not
+      run out before the policy does, and it keeps MORE of the belief grid than the
+      toed-in path does.
+    value:
+      shift_px_at_policy_reach: 159.4
+      shift_x_at_policy_reach: 0.4982
+      policy_reach_deg: 12.83
+      shift_reaches_one_sensor_width_at_deg: 24.57
+      shift_diverges_at_deg: 90.0
+      belief_empties_at_deg: {RECT_shifted: 26.02, TOED: 25.74}
+      angular_field_kept: {5: 0.993, 10: 0.972, 12.84: 0.954, 15: 0.938, 20: 0.891, 30: 0.763}
+      grid_lost_by_azimuth_deg:
+        TOED:          {1: 0.041, 2: 0.080, 5: 0.200, 8.6: 0.341, 10: 0.394, 12.84: 0.500, 15: 0.584, 20: 0.773}
+        RECT_unshifted: {1: 0.070, 2: 0.070, 5: 0.070, 8.6: 0.070, 10: 0.070, 12.84: 0.070, 15: 0.070, 20: 0.070}
+        RECT_shifted:  {1: 0.033, 2: 0.011, 5: 0.127, 8.6: 0.268, 10: 0.321, 12.84: 0.436, 15: 0.524, 20: 0.730}
+      row_shift_px: 0.000000
+      shift_is_vergence_independent: true
+      oversampling_at_gaze_at_reach: 1.052
+    units: mixed
+    n: {amplitudes: 13, grid_cells: 76800}
+    stimulus_family: analytic_fixture
+    matcher: none
+    configuration: >-
+      HeadFrameBelief.from_sampling over the full 76800-cell grid, anchor
+      Fixation(0, 0, 0.06), 320x240 at f_px 700, baseline 0.065. Three camera
+      models over ONE grid: TOED is eye_rotations(...).left with the principal
+      point at the sensor centre; RECT_unshifted is rectification_rotation with
+      the same principal point; RECT_shifted is rectification_rotation with the
+      principal point moved so the GAZE DIRECTION FROM THE CYCLOPEAN ORIGIN lands
+      at the sensor centre. Pure geometry — nothing rendered.
+    provenance:
+      cited_as: visgraf/bio-3d-vision
+      source: measured for the maintainer before fc-012 was written
+      experiment: null
+      run_id: null
+      measured_at_sha: eabe31c
+      environment: {python: 3.13.15, numpy: 2.5.2, scipy: 1.18.1, matplotlib: 3.11.1}
+    status: measured
+    notes: >-
+      THE CONTROL IS THE FIRST THING TO CHECK: the TOED row reproduces bio-055's
+      azimuth column to three decimals at all six of its amplitudes. Without that
+      the other two rows are unreadable.
+      RECT_unshifted's ROW IS THE BLOCKER IN ONE LINE: 0.070 at every amplitude
+      from 1 degree to 85. Azimuth is inert, so grid loss cannot depend on it.
+      THE SHIFT DOES NOT RUN OUT BEFORE THE POLICY DOES. It is a translation,
+      f*tan(az), diverging only at 90 degrees. At the policy's reach it is exactly
+      half a sensor width; it reaches a full width at 24.57 degrees, about twice
+      the reach. The binding limit is the BELIEF emptying at 26.0 degrees, also
+      about twice the reach.
+      RECT_shifted KEEPS MORE GRID THAN TOED AT EVERY AMPLITUDE, by 6.4 points at
+      the reach. THIS IS NOT A BONUS, IT IS A DIFFERENCE IN EYE ALIGNMENT and it
+      means a rectified loop is NOT the current loop with rectification added. The
+      cause is exact: eye_rotations(...).left points 1.72 degrees OUTSIDE the
+      cyclopean gaze at vergence 0.06 — half the vergence — while a common shift
+      centres both eyes on the gaze itself. Three confirmations: TOED loss at
+      12.84 degrees falls 0.500 -> 0.460 -> 0.438 as vergence goes 0.06 -> 0.02 ->
+      0.001, converging on RECT_shifted's 0.436; RECT_shifted's MINIMUM is at az
+      1.72 degrees with loss 0.0050, exactly the half-vergence; and
+      RECT_unshifted's constant 0.070 is what bio-055 prices for 1.72 degrees of
+      misalignment.
+      THE SHIFT IS PURELY HORIZONTAL — row shift 0.000000 px at every elevation and
+      vergence tested. That is the rectifier MEMBER CHOICE working: this member
+      puts the plane of regard at zero elevation in the rectified frame. A
+      different member would need two numbers per fixation.
+      IT IS ALSO VERGENCE-INDEPENDENT, because it centres the gaze DIRECTION and
+      rectification_rotation takes neither vergence nor the rig.
+      AN ASSUMPTION, NAMED: centring the DIRECTION rather than the finite FIXATION
+      POINT is what keeps the shift COMMON to both eyes, so disparity still means
+      f*b/z and fc-010's [0, 56] window is untouched. Centring the point instead
+      needs a per-eye shift, which adds a constant disparity offset of 21.0 px at
+      vergence 0.03 and 112.2 px at 0.16 — out of that window on its own at
+      vergence 0.10 and beyond.
+
   - id: gap-009
     statement: Nothing inside Blender is covered by any test, so rendered stimuli are the least-verified inputs in the record.
     value: null

@@ -1645,6 +1645,122 @@ foreclosures:
 # falsifier. They are recorded here, with the numbers, whichever way they came
 # out.
 # ------------------------------------------------------------------------------
+  - id: fc-012
+    altitude: fw
+    closed: >-
+      Accepting the epipolar violation and matching a toed-in pair with a 2-D
+      search over (d_v, d_h).
+    in_favour_of: >-
+      RECTIFYING IN THE CAMERA: ``rectification_rotation`` composed into
+      ``eye_camera_poses``, WITH A PRINCIPAL-POINT SHIFT so the rectified sensor
+      follows the gaze. The render is rectified at source and the ported 1-D
+      matcher is correct by construction.
+    decided_by: >-
+      The maintainer, on exp009 (fv-019, bio-057..bio-062) and on the
+      option-2 geometry measured before this entry was written.
+    the_shift_is_part_of_the_decision_not_an_implementation_detail: >-
+      READ THIS FIRST. The decision as originally specified was rectification
+      composed into eye_camera_poses and nothing else. THAT VERSION WAS REJECTED
+      BECAUSE IT MAKES AZIMUTH AND VERGENCE INERT, and the rejection is the reason
+      this entry exists in the form it does.
+      A rectifying orientation must have its x-axis along the baseline, which
+      forces its forward axis to azimuth zero; ``rectification_rotation`` is
+      explicit about this — it is the Helmholtz version rotation WITH AZIMUTH
+      ZEROED, and it takes neither vergence nor the rig. Composed alone, two
+      fixations differing only in azimuth produce BIT-IDENTICAL camera matrices,
+      measured at three (elevation, vergence) combinations, and so do two
+      differing only in vergence. A closed loop built on it would re-render an
+      identical image after every azimuthal saccade. In the grid-loss format the
+      signature is unmistakable: loss constant at 0.070 from 1 degree to 85.
+      A rectified camera cannot ROTATE to an eccentric gaze. It can SLIDE ITS
+      SENSOR WINDOW instead, which is a translation in the image plane, leaves the
+      pair rectified because both eyes take the same shift, and diverges only as
+      the gaze approaches 90 degrees from the forward axis. At the policy's reach
+      of 0.2240 rad the shift is 159.4 px, EXACTLY HALF THE SENSOR WIDTH, and the
+      angular field keeps 95.4%. See bio-063.
+    why_in_the_camera_and_not_by_warping: >-
+      Rectification is a pure rotation about each optical centre. It induces NO
+      PARALLAX and is exactly a homography, so rendering rectified and
+      rendering-then-warping give the same image up to resampling.
+      THE RESAMPLING IS NOT FREE. It correlates neighbouring pixels, which is
+      precisely the variance problem the belief's nearest-neighbour choice was
+      made to avoid. Warping would reintroduce at the sensor the correlation that
+      was refused at the belief, and a matcher's variance estimate would then be
+      wrong in a direction that flatters it.
+    what_it_forecloses_stated_as_a_loss: >-
+      VERTICAL DISPARITY IS IDENTICALLY ZERO IN A RECTIFIED PAIR, so ADR-0013's
+      viewing-distance cue has no input. PERMANENTLY, not incidentally: this is
+      not a cue that is hard to read here, it is a cue that does not exist in the
+      data the loop will now produce.
+      AND IT IS A REAL SIGNAL THAT IS BEING GIVEN UP, not a hypothetical one.
+      exp009 measured d_v recovery AWAY FROM DEPTH DISCONTINUITIES at correlation
+      0.878 on axis and 0.796 at a 0.08/0.05 rad saccade, with signal-to-residual
+      1.305 at the latter — above 1, not below it.
+      THE POOLED FIGURES UNDERSTATE THIS AND MUST NOT BE USED. Chat's
+      specification quoted 0.824 and 0.576 with signal-to-residual below 1, which
+      are the ALL band. exp009 pre-registered the AT/AWAY split precisely because
+      pooling hides the answer, and the AWAY column is the one that says what is
+      being foreclosed. The loss is larger than the pooled reading makes it look.
+      WHAT IS NOT CLAIMED: that d_v is a USEFUL cue. Nothing in this repository
+      consumes it and exp009 did not test it. The loss recorded here is of a
+      measurable signal, not of a demonstrated benefit.
+    the_conflict_with_the_endpoint_is_open_and_is_not_resolved_by_this: >-
+      RECORDED AS AN OPEN CONFLICT, NOT AS SETTLED. The plan's section 2.3 rules
+      planar rectification out for a spherical sensor, which has no shared image
+      plane. This decision adopts FOR THE LOOP a thing the plan rules out FOR
+      STEP 18. The two cannot both stand at step 18.
+      THE TENSION EXISTED BEFORE exp009; WHAT exp009 DID WAS PRICE IT. Nothing
+      here resolves it, and nothing here should be read as having chosen the loop
+      over the endpoint. The plan is `source: chat` and NOT ESTABLISHED IN THIS
+      REPOSITORY, so section 2.3 cannot be checked from here at all — it is cited
+      as a claim held elsewhere, which is the honest status of it.
+      The principal-point shift SHARPENS the conflict rather than easing it: it is
+      a construction on a planar sensor with a shiftable principal point, and a
+      spherical sensor has neither. A loop that comes to depend on it depends on
+      something step 18 removes.
+    the_cost_to_reopen: >-
+      NOT A FLAG. A vertical-disparity cue needs an ESTIMATOR THAT DOES NOT EXIST.
+      exp009's 2-D argmin is integer-valued in d_v — the sub-pixel parabola is
+      fitted along d_h only — so its residual sits at the 0.289 px quantisation
+      floor (bio-061), and the correlations above are a LOWER BOUND measured with
+      an instrument that cannot do better.
+      Reopening means BUILDING THAT FIRST: a coarse-to-fine search with a
+      vertical sub-pixel stage, or the disparity-energy approach od-003 names for
+      a different reason. Then re-measuring whether the cue survives its own
+      estimator. Only then is there a decision to retake.
+      A CHEAPER FIRST STEP EXISTS AND IS NAMED SO IT IS NOT REDISCOVERED: fit the
+      parabola along d_v as well and see whether the residual falls below 0.289.
+      That is a change to exp009's runner, not new theory, and it would say
+      whether the measured correlations were instrument-limited or signal-limited.
+    corrections_to_the_record_this_entry_makes: >-
+      THREE, ALL OF THEM IN THE ARGUMENT THAT REACHED THIS DECISION, AND THE
+      DECISION SURVIVES ALL THREE.
+      (1) THE 2-D SEARCH WAS ARGUED AS PRESERVING AN OPTION AT 5x COST. Measured:
+      9.4x (bio-062, 0.188 s against 0.020 s). It also degrades matching, and the
+      option it preserves is noise-dominated wherever d_v is large enough to
+      matter.
+      (2) "TOED IS WORSE ON AXIS WITH ZERO VERTICAL DISPARITY TO FIND" IS FALSE.
+      At az 0, el 0, vergence 0.06 the maximum vertical disparity over the field
+      is 1.71 px — THE LARGEST OF THE FIVE FIXATIONS exp009 ran (bio-058). The
+      0.00 figure is bio-056's `parallel_az0_el0_mu0` row, a PARALLEL rig at
+      vergence ZERO, carried into a converged-rig table. On axis is the most
+      favourable case for a 2-D search, not a null one — which makes the measured
+      1.18x median penalty a STRONGER fact than the one stated, not a weaker one.
+      (3) THE d_v FIGURES QUOTED WERE POOLED. See
+      `what_it_forecloses_stated_as_a_loss`.
+    evidence: >-
+      fv-019 and bio-057..bio-062 (exp009); bio-063 (the option-2 geometry).
+      bio-059 prices the violation at 1.7-10.9 mm of median range error, at worst
+      0.4% of range, concentrated AT discontinuities; bio-062 prices the 2-D
+      search at 9.4x matcher time against a render that still dominates.
+    what_this_does_not_decide: >-
+      Not od-002, not od-003, not ADR-0013's inherited claim beyond recording that
+      the quantity it names is now absent by construction. Not the endpoint: see
+      the open conflict above. Not whether src/matching.py should carry a signed
+      cost volume — bio-057 stands unfixed, and a rectified pair is parallel, so
+      the positive-only search is correct for the loop this decision builds and
+      remains wrong for anything that matches a converged pair.
+
 falsifier_verdicts:
 
   - iteration: 2
