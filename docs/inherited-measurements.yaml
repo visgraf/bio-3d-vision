@@ -3581,7 +3581,7 @@ measurements:
       source: fc-012's only unverified link, pinned before the loop was built
       experiment: null
       run_id: null
-      measured_at_sha: c90c3e0
+      measured_at_sha: cdd5a85
       environment: {python: 3.13.15, numpy: 2.5.2, scipy: 1.18.1, matplotlib: 3.11.1}
     status: measured
     notes: >-
@@ -3621,7 +3621,7 @@ measurements:
       source: recorded for fc-012's loop, NOT FIXED
       experiment: null
       run_id: null
-      measured_at_sha: c90c3e0
+      measured_at_sha: cdd5a85
       environment: {python: 3.13.15, numpy: 2.5.2, scipy: 1.18.1, matplotlib: 3.11.1}
     status: measured
     notes: >-
@@ -3678,7 +3678,7 @@ measurements:
       source: exp010, falsifier (a)
       experiment: exp010_closed_loop
       run_id: null
-      measured_at_sha: db62692
+      measured_at_sha: cdd5a85
       environment: {python: 3.13.15, numpy: 2.5.2, scipy: 1.18.1, matplotlib: 3.11.1}
     status: measured
     notes: >-
@@ -3730,7 +3730,7 @@ measurements:
       source: exp010, the excluded sets
       experiment: exp010_closed_loop
       run_id: null
-      measured_at_sha: db62692
+      measured_at_sha: cdd5a85
       environment: {python: 3.13.15, numpy: 2.5.2, scipy: 1.18.1, matplotlib: 3.11.1}
     status: measured
     notes: >-
@@ -3768,7 +3768,7 @@ measurements:
       source: exp010, the grid-loss budget
       experiment: exp010_closed_loop
       run_id: null
-      measured_at_sha: db62692
+      measured_at_sha: cdd5a85
       environment: {python: 3.13.15, numpy: 2.5.2, scipy: 1.18.1, matplotlib: 3.11.1}
     status: measured
     notes: >-
@@ -3808,7 +3808,7 @@ measurements:
       source: exp010, the cost beside outcome (a)
       experiment: exp010_closed_loop
       run_id: null
-      measured_at_sha: db62692
+      measured_at_sha: cdd5a85
       environment: {python: 3.13.15, numpy: 2.5.2, scipy: 1.18.1, matplotlib: 3.11.1}
     status: measured
     notes: >-

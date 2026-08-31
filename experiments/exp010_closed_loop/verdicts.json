@@ -165,15 +165,15 @@
   "cost": {
     "OPEN": {
       "renders": 1.0,
-      "measurement_seconds": 0.02162379026412964,
-      "front_end_seconds": 0.05354684591293335,
+      "measurement_seconds": 0.02176406979560852,
+      "front_end_seconds": 0.05376538634300232,
       "front_end_calls": 1.0,
       "render_seconds_at_0p57": 0.57
     },
     "CLOSED": {
       "renders": 41.0,
-      "measurement_seconds": 0.022513359785079956,
-      "front_end_seconds": 2.1951099634170532,
+      "measurement_seconds": 0.02259114384651184,
+      "front_end_seconds": 2.210934042930603,
       "front_end_calls": 41.0,
       "render_seconds_at_0p57": 23.369999999999997
     }

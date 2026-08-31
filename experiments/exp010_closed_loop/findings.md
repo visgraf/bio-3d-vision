@@ -1,6 +1,6 @@
 # exp010 — findings
 
-**Measured** at `db62692`, 8 seeds × 40 fixations × 2 arms, 8.84%
+**Measured** at `cdd5a85`, 8 seeds × 40 fixations × 2 arms, 8.84%
 left-occluded, Blender **5.2.0 LTS** (`fbe6228777e7`), Cycles, 1 sample; Python
 3.13.15 / numpy 2.5.2.
 

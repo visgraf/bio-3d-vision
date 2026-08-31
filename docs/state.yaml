@@ -22,7 +22,7 @@ updated_at: 2026-08-31
 # a current one", which invited exactly that comparison and would have failed
 # after every merge. Staleness is tested per half, in `sequence`, and each half
 # gets the test it can actually pass.
-updated_by_commit: db62692   # the repository state this file describes
+updated_by_commit: cdd5a85   # the repository state this file describes
 
 # ------------------------------------------------------------------------------
 # SEQUENCE — where this project is, and what it plans next
@@ -1019,7 +1019,7 @@ measurements:
       integer quantisation floor, so those correlations are a lower bound.
 
   - ids: [bio-063, bio-064, bio-065, bio-066, bio-067, bio-068, bio-069]
-    commit: db62692
+    commit: cdd5a85
     what: >-
       Step 17c: the option-2 geometry that made a rectified loop possible, the
       render that pinned Blender's shift_x, where the foveal weight now lands, and
@@ -3217,7 +3217,14 @@ falsifier_verdicts:
       worse, and an unknown part of the gap may be that rather than better data.
       NO FORECLOSURE TAKEN. fc-012 was taken separately, before the loop was built.
       od-002 and od-003 untouched.
-    verified_at_commit: db62692
+    sha_correction: >-
+      MEASURED AT cdd5a85, NOT AT db62692 AS FIRST RECORDED. The runner commit
+      db62692 does not contain HeadFrameBelief's `orientation` hook, which was
+      written before the pre-registration but not staged with it, so neither
+      9468833 nor db62692 can run this experiment at all. Corrected forward rather
+      than by rewriting history: cdd5a85 is the first commit at which the numbers
+      reproduce, and re-running there gives them unchanged.
+    verified_at_commit: cdd5a85
 
 # ------------------------------------------------------------------------------
 # STANDING CONSTRAINTS
