@@ -86,6 +86,12 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
         help="equirectangular capture: both eyes panoramic, full sphere",
     )
     parser.add_argument(
+        "--poses",
+        default=None,
+        metavar="JSON",
+        help="explicit eye poses for any scene builder: {'left': {...}, 'right': {...}}",
+    )
+    parser.add_argument(
         "--sphere-cards",
         type=float,
         nargs="+",
@@ -823,6 +829,13 @@ def main() -> None:
         build_sphere_calibration_scene(list(args.sphere_cards), res)
     elif args.cards:
         build_calibration_scene(list(args.cards), res)
+
+    if args.poses:
+        # Applies to ANY scene builder, unlike --markers and --scene which each
+        # carry their own. Needed to render one scene from two orientations, which
+        # is how fc-013's claim is checked rather than asserted.
+        with open(args.poses) as handle:
+            eye_poses = json.load(handle)
     elif args.wall is not None:
         build_wall_scene(float(args.wall), res)
 

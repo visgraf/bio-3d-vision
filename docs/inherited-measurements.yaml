@@ -4759,6 +4759,51 @@ measurements:
       chord subtends pi - vergence. So the sphere can represent every direction and
       the geometry cannot FIXATE beyond a quarter turn. 18b must respect that.
 
+  - id: bio-082
+    statement: >-
+      A rotation about a fixed optical centre re-indexes a full-sphere capture and
+      changes nothing in it. MEASURED AGAINST A REAL BLENDER.
+    value:
+      orientation_A: identity
+      orientation_B: {yaw_deg: 37.0, pitch_deg: 19.0}
+      max_abs_err_vs_analytic_m: {A: 0.000069, B: 0.000080}
+      rms_err_vs_analytic_m: {A: 1.75e-05, B: 1.76e-05}
+      pixels_checked: {A: 34778, B: 35835}
+      raw_arrays_identical: false
+      same_function_of_direction: true
+    units: m
+    n: {orientations: 2, pixels: 70613}
+    stimulus_family: rendered_chart
+    matcher: none
+    configuration: >-
+      The same three tiled planes at 2.0/3.5/5.0 m rendered twice through the
+      equirectangular camera, once at the identity and once yawed 37 deg and
+      pitched 19 deg, Blender 5.2.0 LTS at 512x256, 1 sample, left eye at
+      (-b/2, 0, 0). Each render is compared to the analytic radial distance for ITS
+      OWN orientation's directions.
+    provenance:
+      cited_as: visgraf/bio-3d-vision
+      source: step 18b Part A, fc-013's evidence
+      experiment: null
+      run_id: null
+      measured_at_sha: PLACEHOLDER_A
+      environment: {python: 3.13.15, numpy: 2.5.2, scipy: 1.18.1, matplotlib: 3.11.1}
+    status: measured
+    notes: >-
+      fc-013's PREMISE, CHECKED RATHER THAN ASSERTED. Both orientations reproduce
+      the same analytic function of direction, to the same 1e-4 m tolerance bio-077
+      measured for a single orientation. The raw arrays differ — the indexing does —
+      and the capture does not.
+      A COMPARISON THAT LOOKED LIKE A DIFFERENCE AND WAS NOT. Resampling one render
+      onto the other's directions by nearest neighbour gives a median disagreement
+      of 5.2e-03 m and a maximum of 6.5e-02 m. That is the quantisation of MY
+      comparison, not of the capture: a cell subtends 0.7 deg, which at 3.5 m on a
+      tilted plane is centimetres of depth. Checking each render against ANALYTIC
+      truth instead removes the resampling and the disagreement with it. Recorded
+      because the first number looked like a real difference.
+      WHAT IT DOES NOT SHOW: that a foveated capture would behave this way. It
+      would not, and fc-013's qualifier and od-004 say so.
+
   - id: gap-009
     statement: Nothing inside Blender is covered by any test, so rendered stimuli are the least-verified inputs in the record.
     value: null

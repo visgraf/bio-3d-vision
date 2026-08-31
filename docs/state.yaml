@@ -1238,6 +1238,51 @@ measurements_note: >-
 # ------------------------------------------------------------------------------
 open_decisions:
 
+  - id: od-004
+    altitude: fw
+    status: open
+    title: Foveated sampling as ECONOMY, not only as acuity.
+    decision: >-
+      Not taken. Recorded because fc-013's qualifier names the condition that would
+      reopen it, and a condition stated without the question it reopens is half a
+      record.
+    the_question: >-
+      fc-013 establishes that a UNIFORM omnidirectional capture has nothing to
+      acquire by refixating. Under a foveated sampling density the claim inverts:
+      the matcher never runs at full resolution off-fovea, so a second look
+      returns information the first did not contain.
+      THE CLAIM THEN BECOMES A COST CLAIM: "an active system with a foveated sensor
+      reaches the same posterior for LESS COMPUTATION than a uniform one." Not a
+      better posterior — the same one, cheaper.
+    why_it_is_recorded_now_and_not_when_it_is_built: >-
+      BECAUSE THE DENOMINATOR HAS TO BE DECLARED BEFORE THE RESULT EXISTS, OR IT
+      BECOMES met-001 AGAIN. met-001 is the two-clause bar: a threshold that walked
+      in with no marker and acquired the authority of a decision because nobody had
+      to write down what it asked. A cost metric chosen after seeing which one
+      makes the result look best is the same defect with a different unit.
+    the_denominator_declared_in_advance: >-
+      EITHER of these, and whichever is used must be named in the preregistration:
+        (1) SAMPLES MATCHED — the count of lattice cells the front end evaluates,
+            summed over the run. Hardware-free, reproducible, and the one this
+            repository can compare across machines.
+        (2) MATCHER WALL-CLOCK — seconds in the front end, as bio-062 and bio-069
+            already report. Machine-dependent, and comparable only within a run.
+      HELD FIXED WHILE ACCURACY VARIES, or accuracy held fixed while it varies.
+      Not both floating: an arm that is better AND cheaper is not a cost result, it
+      is two results reported as one.
+    why_this_repository_has_never_made_one: >-
+      EVERY MEASUREMENT TO DATE IS ERROR AGAINST GROUND TRUTH. bio-062 and bio-069
+      report wall-clock, but as a COST BESIDE a result, never as the axis the
+      result is stated on. A cost result needs a different bar as well as a
+      different denominator — exp001's bar compares error, and 2% of a mean error
+      means nothing applied to a sample count.
+    what_it_would_cost: >-
+      A variable-resolution sampling model (C2), which does not exist; a matcher
+      that respects it, which the ported block matcher does not; and a bar for cost
+      comparisons, which this repository has never written. Do not build it.
+    blocked_by: >-
+      Nothing formally. It is not scheduled, and fc-013 stands without it.
+
   - id: od-002
     altitude: fw
     status: open
@@ -2088,6 +2133,65 @@ foreclosures:
       cost volume — bio-057 stands unfixed, and a rectified pair is parallel, so
       the positive-only search is correct for the loop this decision builds and
       remains wrong for anything that matches a converged pair.
+
+  - id: fc-013
+    altitude: fw
+    closed: >-
+      The forward-hemisphere visibility guard for spherical sampling — the
+      ``in_eye[..., 2] > 0.0`` term ``HeadFrameBelief.reproject`` ANDs into
+      visibility.
+    in_favour_of: >-
+      THE WHOLE SPHERE. ``contains`` already reports every cell present at every
+      amplitude; a complete capture has no hemisphere to hide.
+    decided_by: The maintainer, on step 18a's bio-081 and the derivation below.
+    the_reason_is_a_finding_not_a_fix: >-
+      READ THIS BEFORE THE GUARD. The eye centres are FIXED in the head at
+      +/- b/2, and ``eye_rotations`` returns ROTATIONS, not translations. A
+      rotation about a fixed optical centre does not change what a complete sphere
+      sees — it re-indexes the same rays.
+      SO FOR A FIXED OMNIDIRECTIONAL RIG SAMPLED UNIFORMLY, RE-RENDERING AT A NEW
+      FIXATION RETURNS AN IDENTICAL CAPTURE: THERE IS NOTHING TO ACQUIRE. That is
+      the plan's section 2.1 table row derived rather than asserted, and it is why
+      the guard is not merely unnecessary but describes a sensor this rig does not
+      have.
+      MEASURED, NOT ONLY DERIVED (bio-082). The same scene rendered from two camera
+      orientations 37 and 19 degrees apart reproduces the SAME analytic function of
+      direction, to 69 and 80 micrometres — the same tolerance bio-077 measured for
+      a single orientation. The raw arrays differ, because the indexing differs;
+      the capture does not.
+      AND IN THIS RIG THE LATTICE DOES NOT EVEN ROTATE WITH GAZE. Rows are epipolar
+      only while the equirect pole lies on the baseline (bio-079), and the baseline
+      is fixed in the head, so the spherical rectified pose is FIXATION-INDEPENDENT
+      up to a roll. Part D renders once per seed for both arms because of this.
+    the_qualifier_is_load_bearing_and_this_entry_forecloses_only_with_it: >-
+      "SAMPLED UNIFORMLY" IS NOT DECORATION. Under variable resolution the fovea
+      RESOLVES what the periphery only sampled coarsely, so refixation genuinely
+      acquires: the second look returns information the first did not contain.
+      THE VOID IS A PROPERTY OF THE SAMPLING SCHEME, NOT OF THE SENSOR. An
+      omnidirectional sensor does not make acquisition pointless; a UNIFORM
+      omnidirectional sensor does.
+      A PRECISION ABOUT "UNIFORM" THAT THIS REPOSITORY'S OWN LATTICE FORCES:
+      equirect is uniform in ANGLE PER INDEX and non-uniform in SOLID ANGLE by
+      81.5x (bio-080). It qualifies here only because its density pattern is pinned
+      to the baseline rather than to the gaze. A lattice whose density FOLLOWED the
+      gaze would not qualify, and that is exactly od-004.
+    what_this_does_not_close: >-
+      Not acquisition in general, not the closed loop, and not od-002 or od-003.
+      Not the value of ALLOCATION either: fc-013 says a second capture carries
+      nothing new, and says nothing about whether choosing where to spend
+      measurement on the one capture is worth anything. That is Part D's question
+      and it is open at the time this entry is written.
+    cost_to_reopen: >-
+      A sampling scheme whose resolution depends on gaze. od-004 records it, and
+      reopening is anticipated rather than merely permitted — the qualifier above
+      is the condition, stated in advance.
+    evidence: >-
+      bio-081 (a sphere loses no grid at any amplitude; reproject discards exactly
+      0.5 at every one), bio-082 (two orientations, same analytic function of
+      direction to 80 micrometres), bio-079 (rows are epipolar only with the pole
+      on the baseline, which is fixed in the head), bio-080 (the lattice is
+      non-uniform in solid angle by 81.5x).
+    decided_in: step 18b, Part A, recorded before anything was built on it.
 
 falsifier_verdicts:
 
