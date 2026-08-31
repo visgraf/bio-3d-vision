@@ -58,14 +58,19 @@ from __future__ import annotations
 import json
 from dataclasses import dataclass
 from pathlib import Path
+from typing import Any
 
 import numpy as np
 from scipy.ndimage import gaussian_filter
 
 from bio3dvision.fixture import CameraParams, FloatArray, make_synthetic_scene
+from bio3dvision.oculomotor import K_LISTING_DEFAULT, Fixation, StereoRig, eye_rotations
 
 __all__ = [
+    "CAMERA_FROM_EYE",
     "FIXTURE_SMOOTHING_SIGMA",
+    "WORLD_FROM_HEAD",
+    "eye_camera_poses",
     "SceneModel",
     "Surface",
     "rasterise_depth",
@@ -209,6 +214,76 @@ class SceneModel:
         if r1 >= height:
             v_min -= margin_px / height
         return u_min, u_max, v_min, v_max
+
+
+#: **head frame -> Blender world frame.** Head is +X right, +Y DOWN, +Z FORWARD.
+#: The world these scenes are built in is +X right, +Y UP, and the camera looks
+#: down -Z, so forward is -Z. Both axes that disagree flip, and this is the
+#: matrix that flips them.
+WORLD_FROM_HEAD: FloatArray = np.diag([1.0, -1.0, -1.0])
+
+#: **eye frame -> Blender camera-local frame.** The geometry's eye frame has the
+#: optical axis along +Z with +Y down, matching the image. Blender's camera looks
+#: down its local **-Z** with local **+Y up**. Numerically the same flip as
+#: :data:`WORLD_FROM_HEAD`, and written separately because it is a different
+#: statement: one is about the scene, the other about the camera. Collapsing them
+#: into one constant is how a basis change becomes uncheckable.
+CAMERA_FROM_EYE: FloatArray = np.diag([1.0, -1.0, -1.0])
+
+
+def eye_camera_poses(
+    rig: StereoRig, fixation: Fixation, k: float = K_LISTING_DEFAULT
+) -> dict[str, dict[str, Any]]:
+    """Blender world matrices for the two eyes at ``fixation``. **Tested, no bpy.**
+
+    Returns ``{"left": {...}, "right": {...}}``, each with a ``matrix_world`` as a
+    4x4 row-major nested list and the pieces it was built from, so a reader can
+    check the construction rather than trust it.
+
+    **THE BASIS CHANGE IS THE TRAP AND IT LIVES HERE, NOT IN BLENDER.**
+    ``blender_render`` may import nothing but the standard library and ``bpy``, so
+    it cannot compute this; it applies a matrix it is handed. That constraint is
+    load-bearing rather than inconvenient — the conversion is the part most likely
+    to be wrong, and putting it here makes it testable without a renderer.
+
+    The construction, written out because inferring it from a render that "looks
+    right" is exactly how a rotated eye passes for a different scene:
+
+        ``M = WORLD_FROM_HEAD @ R @ CAMERA_FROM_EYE``
+
+    Read right to left: take the camera's local axes into the eye frame, apply the
+    eye's head-frame orientation ``R``, then carry the result into the world. The
+    optical axis check is ``M @ [0, 0, -1] == WORLD_FROM_HEAD @ (R @ [0, 0, 1])``
+    — Blender looks down local -Z, the geometry looks along +Z.
+
+    **Not Blender's native toe-in**, which is yaw-only and zero-torsion and is
+    therefore right only for a symmetric horizontal fixation. Each camera's world
+    matrix is set explicitly from the rotation the geometry gives, torsion
+    included.
+
+    Optical centres are ``(-b/2, 0, 0)`` and ``(+b/2, 0, 0)`` in the head frame;
+    ``x`` is the one axis the basis change leaves alone, so they are the same
+    numbers in the world frame.
+    """
+    rotations = eye_rotations(rig, fixation, k=k)
+    half_b = float(rig.baseline) / 2.0
+    poses: dict[str, dict[str, Any]] = {}
+    for name, rot, sign in (
+        ("left", rotations.left, -1.0),
+        ("right", rotations.right, +1.0),
+    ):
+        basis = WORLD_FROM_HEAD @ rot @ CAMERA_FROM_EYE
+        centre_head = np.array([sign * half_b, 0.0, 0.0])
+        centre_world = WORLD_FROM_HEAD @ centre_head
+        matrix = np.eye(4)
+        matrix[:3, :3] = basis
+        matrix[:3, 3] = centre_world
+        poses[name] = {
+            "matrix_world": matrix.tolist(),
+            "head_rotation": np.asarray(rot).tolist(),
+            "centre_world": centre_world.tolist(),
+        }
+    return poses
 
 
 def scene_from_fixture(seed: int = 0, H: int = 240, W: int = 320) -> SceneModel:
@@ -373,7 +448,12 @@ def rasterise_depth(model: SceneModel, smooth: bool = True) -> FloatArray:
     return np.asarray(depth, dtype=np.float32)
 
 
-def write_scene(model: SceneModel, directory: str | Path) -> Path:
+def write_scene(
+    model: SceneModel,
+    directory: str | Path,
+    fixation: Fixation | None = None,
+    k: float = K_LISTING_DEFAULT,
+) -> Path:
     """Write the model where Blender can read it: ``scene.json`` and ``texture.exr``.
 
     Blender runs in its own process and its own interpreter, so the model crosses
@@ -409,6 +489,26 @@ def write_scene(model: SceneModel, directory: str | Path) -> Path:
         "smoothing_sigma": model.smoothing_sigma,
         "left_camera_x": model.left_camera_x,
         "texture": "texture.exr",
+        # Present only when a fixation was asked for. Absent means the renderer
+        # uses its rectified-parallel path, unchanged, which is what keeps every
+        # render before this step reproducible.
+        "eye_poses": (
+            None
+            if fixation is None
+            else eye_camera_poses(
+                StereoRig(baseline=float(model.params["baseline"])), fixation, k=k
+            )
+        ),
+        "fixation": (
+            None
+            if fixation is None
+            else {
+                "azimuth": fixation.azimuth,
+                "elevation_down": fixation.elevation_down,
+                "vergence": fixation.vergence,
+                "k": k,
+            }
+        ),
         "surfaces": [
             {
                 "depth_m": s.depth_m,

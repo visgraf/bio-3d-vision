@@ -2665,6 +2665,132 @@ measurements:
       17b has to take, and it is recorded here so that 17b confronts it rather
       than discovering it.
 
+  - id: bio-050
+    statement: >-
+      A marker at the fixation point images at the principal point in both eyes,
+      in a gaze-contingent render, to a third of a tenth of a pixel.
+    value:
+      max_error_px: 0.033
+      per_fixation_px: {sagittal: [0.007, 0.010], eccentric_pos: [0.018, 0.016], eccentric_neg: [0.013, 0.033]}
+      principal_point_row_col: [119.5, 159.5]
+    units: px
+    n: {fixations: 3, eyes: 2}
+    stimulus_family: rendered_chart
+    matcher: none
+    configuration: >-
+      Emissive marker of radius 4 mm at fixation_point, black world, 320x240,
+      f_px 700, baseline 0.065, Cycles 16 samples, k = 0.5; intensity centroid of
+      the float EXR beauty pass. Fixations (0, 0, 0.09), (0.25, 0.18, 0.09) and
+      (-0.3, -0.22, 0.12). Camera world matrices from scene_model.eye_camera_poses.
+    provenance:
+      cited_as: visgraf/bio-3d-vision
+      source: tests/test_gaze_contingent_render.py::test_falsifier_1_the_fixation_point_images_at_the_principal_point
+      experiment: null
+      run_id: null
+      measured_at_sha: a2aba67
+      environment: {python: 3.13.15, numpy: 2.5.2, scipy: 1.18.1, matplotlib: 3.11.1, blender: 5.2.0 LTS (fbe6228777e7)}
+    status: measured
+    notes: >-
+      FALSIFIER 1, AND IT IS WHAT FIXATION MEANS. A wrong sign, a wrong basis
+      change or a dropped composition factor each move the image by pixels or tens
+      of pixels; none is visible in a render that merely looks plausible, which is
+      why this is measured rather than looked at.
+      TWO OF THE THREE FIXATIONS ARE ECCENTRIC IN BOTH AZIMUTH AND ELEVATION. A
+      symmetric horizontal fixation would not have tested the basis change, because
+      the rectifier is the identity at zero elevation.
+
+  - id: bio-051
+    statement: >-
+      In a gaze-contingent render at an eccentric fixation, vertical disparity in
+      the plane of regard vanishes at k = 1/2 and does not at k = 0, matching the
+      analytic prediction.
+    value:
+      eccentric_az0p25_el0p18_mu0p16:
+        k_half: {rendered_px: 0.0397, analytic_px: 0.0574, agreement_px: 0.0178}
+        k_zero: {rendered_px: 1.1649, analytic_px: 1.1712, agreement_px: 0.0063}
+      sagittal_el0p18_mu0p16:
+        k_half: {rendered_px: 0.0200, analytic_px: 0.0000, agreement_px: 0.0200}
+        k_zero: {rendered_px: 1.2580, analytic_px: 1.2116, agreement_px: 0.0464}
+      ratio_k0_over_k_half_eccentric: 29.3
+      rotation_difference_deg: 0.405
+    units: px
+    n: {markers: 5, fixations: 2, k_values: 2}
+    stimulus_family: rendered_chart
+    matcher: none
+    configuration: >-
+      Five 0.6 mm emissive markers spanning the plane of regard at az +/- 0.12 rad
+      CENTRED ON THE GAZE, at the fixation distance; rendered one at a time so each
+      centroid is its own. Vertical disparity is row_L - row_R from sub-pixel
+      intensity centroids. The analytic column is f_px * max |tan(elev_L) -
+      tan(elev_R)| from oculomotor.eye_rotations, computed independently.
+    provenance:
+      cited_as: visgraf/bio-3d-vision
+      source: tests/test_gaze_contingent_render.py::test_falsifier_2_and_3_torsion_at_an_eccentric_fixation
+      experiment: null
+      run_id: null
+      measured_at_sha: a2aba67
+      environment: {python: 3.13.15, numpy: 2.5.2, scipy: 1.18.1, matplotlib: 3.11.1, blender: 5.2.0 LTS (fbe6228777e7)}
+    status: measured
+    notes: >-
+      FALSIFIERS 2 AND 3 TOGETHER, because neither means anything alone. The
+      k = 1/2 null is 29x smaller than the k = 0 value at the same fixation, so
+      torsion is demonstrably reaching the camera and falsifier 2 did not pass for
+      the wrong reason.
+      THE RENDER IS CHECKED AGAINST THE ANALYTIC PREDICTION, not against a
+      threshold, and agrees to 0.006-0.046 px at every k and both fixations. That
+      is what makes this a geometric verdict rather than a visual one.
+      A MEASUREMENT ERROR CORRECTED ALONG THE WAY, recorded because the first
+      number was wrong and looked plausible: the observable was initially taken as
+      the ABSOLUTE ROW of each marker, whose spread is dominated by marker size
+      (8 px spheres at that distance) and which shows nothing. The invariant
+      oculomotor.py actually pins is the DISPARITY between the eyes. The rows are
+      not constant at k = 1/2 and were never supposed to be.
+      The ~0.02-0.04 px floor at k = 1/2 is sub-pixel centroid noise on a ~2 px
+      marker at 16 samples, not a geometric residual.
+
+  - id: bio-052
+    statement: >-
+      Wall-clock per gaze-contingent render, and the fraction of the head-frame
+      belief grid that leaves the sensor per saccade.
+    value:
+      seconds_per_render: 0.57
+      render_config: {resolution: [320, 240], samples: 1, engine: CYCLES, scene: fixture_geometry}
+      projected_17c_minutes_per_arm_144_renders: 1.4
+      grid_lost_by_elevation_deg: {1: 0.054, 2: 0.105, 5: 0.260, 8.6: 0.444, 10: 0.514, 15: 0.771}
+      grid_lost_by_azimuth_deg: {1: 0.0, 2: 0.0, 5: 0.0, 8.6: 0.0, 10: 0.0, 15: 0.0}
+      field_of_view_deg: {vertical: 19.6, horizontal: 26.2}
+    units: mixed
+    n: {renders: 3, amplitudes: 6}
+    stimulus_family: rendered_chart
+    matcher: none
+    configuration: >-
+      Renders timed end to end including Blender start-up, on the machine recorded
+      in `environment`. Grid loss from HeadFrameBelief.reproject over the full
+      76800-cell grid.
+    provenance:
+      cited_as: visgraf/bio-3d-vision
+      source: measured for 17c scoping; script in the step 17b branch history
+      experiment: null
+      run_id: null
+      measured_at_sha: a2aba67
+      environment: {python: 3.13.15, numpy: 2.5.2, scipy: 1.18.1, matplotlib: 3.11.1, blender: 5.2.0 LTS (fbe6228777e7)}
+    status: measured
+    notes: >-
+      FOR 17c's BUDGET, and both numbers change how it should be scoped.
+      RENDERING IS CHEAP: 0.57 s each, so 18 fixations x 8 seeds is 1.4 minutes per
+      arm and four arms is about 5.5 minutes. 17c is not render-bound and does not
+      need to be scoped around rendering cost.
+      THE GRID LOSS IS THE REAL CONSTRAINT, AND IT IS WILDLY ASYMMETRIC. An
+      elevation saccade of 10 degrees costs HALF the belief grid; an azimuth
+      saccade of any amplitude costs NOTHING. That asymmetry is not a fact about
+      vision — it follows from bio-049, the rectified frame being azimuth-invariant
+      by construction, so the head grid tied to it does not move under azimuth at
+      all. A closed loop built on this operator would accumulate freely across
+      azimuth and lose half its grid on one modest vertical saccade.
+      17c has to confront that rather than discover it. It is the same question
+      bio-049 left open — whether the grid should track GAZE rather than the
+      RECTIFIER — now with a cost attached.
+
   # ==============================================================================
   # GAPS — measurements that were NOT made, and whose absence is load-bearing.
   # ==============================================================================
