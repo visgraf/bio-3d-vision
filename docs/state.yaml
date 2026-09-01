@@ -22,7 +22,7 @@ updated_at: 2026-08-31
 # a current one", which invited exactly that comparison and would have failed
 # after every merge. Staleness is tested per half, in `sequence`, and each half
 # gets the test it can actually pass.
-updated_by_commit: 3cf16cf   # the repository state this file describes
+updated_by_commit: af05e68   # the repository state this file describes
 
 # ------------------------------------------------------------------------------
 # SEQUENCE — where this project is, and what it plans next
@@ -972,6 +972,27 @@ runs:
         annotated as checked and unaffected — a negative result of an audit is a
         result. od-002 and od-003 untouched. gap-011 records the count of
         unexamined constants; nothing was re-derived.
+
+    - id: exp014_pedestal_vs_allocation
+      question: >-
+        Is exp011's accuracy term allocation — the acuity weight following the
+        gaze — or scaling, the linearisation pedestal following it?
+      answer: >-
+        THE QUESTION'S PREMISE IS WRONG: OPEN already re-linearises at every
+        fixation, so the accuracy term is the residual between two arms that both
+        re-verge. Where the question can be answered, the answer is BAND-DEPENDENT.
+        Away from depth discontinuities freezing the pedestal costs NOTHING
+        (retention 1.07-1.29), so the gain there is allocation. At discontinuities
+        the experiment cannot apportion, because freezing destroys the arm rather
+        than removing a term.
+      pre_registered: 5c7002f, committed alone before the runner existed
+      is_instrument_calibration: >-
+        Partly. Its sharpest output is that a question asked of the ledger could
+        not be answered as posed, and the reason was visible in the code the whole
+        time.
+      changed_no_foreclosure: >-
+        None taken, none reversed, none annotated. od-002, od-003 and od-004
+        untouched. No new renders — exp011's captures were reused.
 
   not_present:
     - >-
@@ -3931,6 +3952,74 @@ falsifier_verdicts:
       untouched; od-004 opened. No never_examined constant was swept — met-008 and
       met-010 change UNITS only.
     verified_at_commit: 3cf16cf
+
+  - iteration: exp014
+    id: fv-025
+    falsifier: >-
+      (a) CLOSED-FROZEN loses most or all of the CLOSED-OPEN accuracy gap — the
+      accuracy term was the SCALING LAYER, exp011 becomes "re-verging helps", and
+      it would transfer to a PASSIVE rig; (b) CLOSED-FROZEN retains most of the
+      gain — allocation is doing the work and the concern is dead; (c) between
+      them, with the split reported per band, since sig_model is eta-squared and
+      eta is largest where depth changes; (d) CLOSED-FROZEN BEATS CLOSED, which
+      would make od-003 urgent.
+      Plus a pre-registered check of its own: the coverage term must be IDENTICAL
+      for CLOSED and CLOSED-FROZEN, because freezing changes nothing about which
+      cells are visible.
+    verdict: >-
+      (c), AND THE ANSWER IS BAND-DEPENDENT. AWAY from discontinuities it is (b) —
+      retention 1.07 to 1.29, the pedestal contributes nothing. AT discontinuities
+      the experiment CANNOT SEPARATE THEM, because freezing does not remove the
+      pedestal's contribution there, it destroys the arm. (a) is not supported AS
+      STATED and (d) did not occur. The coverage check passes exactly, 96/96.
+    numbers:
+      retention_AWAY: {k1: -383.16, k2: 1.07, k4: 1.10, k8: 1.29}
+      retention_AT: {k1: -18.05, k2: -14.18, k4: -4.87, k8: -12.58}
+      accuracy_term_FROZEN: {k1: -0.29464, k2: -0.18254, k4: -0.13727, k8: -0.10288}
+      accuracy_term_CLOSED: {k1: 0.01045, k2: 0.00165, k4: 0.01155, k8: 0.00112}
+      coverage_term_ratio_FROZEN_over_CLOSED: 0.92
+      frozen_D_fix_m: [4.539, 4.557]
+      pedestal_clamped_runs: 0
+      coverage_check_identical: "96/96"
+      open_reproduction_max_abs_diff: 0.0
+      new_renders: 0
+    detail: >-
+      THE PREMISE OF THE QUESTION WAS WRONG AND IT IS THE FIRST RESULT. OPEN
+      ALREADY RE-LINEARISES: run_arm calls measurement(yf, xf) for BOTH arms at
+      every fixation and measurement calls vergence(yf, xf) internally. So exp011's
+      accuracy term is the residual between two arms that BOTH re-verge, and
+      freezing one does not decompose that residual — it moves that arm into a
+      different regime. Recorded in the preregistration before any number existed.
+      AWAY FROM DISCONTINUITIES THE ANSWER IS ALLOCATION. Retention 1.07-1.29 at
+      k2, k4 and k8: freezing costs nothing, so CLOSED's gain over OPEN there comes
+      from the fresh captures.
+      AT DISCONTINUITIES THE EXPERIMENT CANNOT APPORTION, AND SAYING SO IS THE
+      HONEST OUTPUT. FROZEN is 0.15-0.25 m worse than OPEN while the difference
+      being apportioned is 0.008 m. A retention of -14 is arithmetic without
+      meaning, and reporting it as "the pedestal's share" would be the defect this
+      repository keeps recording under other names.
+      THE MEAN AND THE MEDIAN DISAGREE AND BOTH ARE REPORTED. exp011's
+      decomposition uses the mean and says freezing is catastrophic at every level;
+      the median says most of CLOSED's gain survives at k4 and k8. The damage is in
+      the TAIL, which is what an eta-squared term does.
+      THE MECHANISM IS MEASURED, NOT INFERRED. The pedestal freezes at D_fix ~ 4.55
+      m in 96 of 96 runs — the background — and is NEVER clamped, so the [d_lo,
+      d_hi] clamp is not the story. The downstream np.clip(Zmeas, 0.3, 10.0) is,
+      and it binds monotonically more often OPEN < CLOSED < FROZEN at every level.
+      Damage scales with the fraction of field away from the frozen depth: card
+      area 0.4603 -> 0.2464 against retention -62.03 -> +0.23.
+      TWO CONTROLS, BOTH EXACT (bio-087). exp014's OPEN and CLOSED reproduce
+      exp011's at max |diff| 0.000e+00 over 96 pairs, and the pre-registered
+      coverage check holds in 96/96 — so the coverage term is interpretable as
+      accuracy rather than visibility.
+      THE ARM IS YOKED AND THAT IS BETTER ISOLATION, NOT A COMPROMISE. A
+      free-running frozen arm would have needed captures that do not exist;
+      replaying CLOSED's cells AND fixations leaves d_fix as the only difference.
+      What it gives up — how a frozen-pedestal loop would CHOOSE to look — is a
+      different experiment and is named as one.
+      NO FORECLOSURE REVERSED OR ANNOTATED, as the specification required. If this
+      bears on exp011's description, that is the maintainer's decision.
+    verified_at_commit: af05e68
 
 # ------------------------------------------------------------------------------
 # STANDING CONSTRAINTS

@@ -173,7 +173,9 @@ class ActiveStereo:
         d_hi = self.f * self.I / 0.5
         return float(np.clip(d0, d_lo, d_hi))  # == fixation disparity d_fix
 
-    def measurement(self, yf: int, xf: int) -> tuple[FloatArray, PosteriorArray, float]:
+    def measurement(
+        self, yf: int, xf: int, d_fix: float | None = None
+    ) -> tuple[FloatArray, PosteriorArray, float]:
         """The measurement one fixation produces: ``(Zmeas, precision, D_fix)``.
 
         Extracted from :meth:`step`, which now calls it — **one implementation, so
@@ -190,7 +192,13 @@ class ActiveStereo:
         matters: the fusion below is written against exactly these dtypes, and the
         head-frame belief reproduces it bit-for-bit only because it inherits them.
         """
-        d_fix = self.vergence(yf, xf)
+        # ``d_fix`` is normally servoed to THIS fixation. Passing one in freezes
+        # the linearisation while the eye keeps moving, which is the only way to
+        # separate the two things that co-vary in every experiment so far: the
+        # acuity weight ``w`` (allocation) and the expansion point (scaling). It
+        # is an override and not a new default; ``None`` is the ported behaviour.
+        if d_fix is None:
+            d_fix = self.vergence(yf, xf)
         D_fix = self.f * self.I / max(d_fix, 1e-3)
         Zmeas, dZ_deta = scale_to_depth(self.d_sub, d_fix, self.f, self.I)
         Zmeas = np.clip(Zmeas, 0.3, 10.0)  # reject absurd scaled depths

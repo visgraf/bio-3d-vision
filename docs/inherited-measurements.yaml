@@ -4990,6 +4990,114 @@ measurements:
       (0.619 ms against 0.363 ms) because it computes a dot product and an arccos
       over 76800 cells. The design was chosen without checking that cost.
 
+  - id: bio-086
+    statement: >-
+      Freezing the linearisation pedestal costs NOTHING away from depth
+      discontinuities and is catastrophic at them. The question "allocation or
+      scaling" has a band-dependent answer, and its premise was wrong.
+    value:
+      arms: [OPEN, CLOSED, CLOSED_FROZEN]
+      retention_of_closed_gain_median:
+        k1: {AT: -18.05, MIDDLE: -45.91, AWAY: -383.16, POOLED: -62.03}
+        k2: {AT: -14.18, MIDDLE: -0.69, AWAY: 1.07, POOLED: -1.36}
+        k4: {AT: -4.87, MIDDLE: 1.10, AWAY: 1.10, POOLED: 0.14}
+        k8: {AT: -12.58, MIDDLE: 1.21, AWAY: 1.29, POOLED: 0.23}
+      accuracy_term_m:
+        CLOSED: {k1: 0.01045, k2: 0.00165, k4: 0.01155, k8: 0.00112}
+        FROZEN: {k1: -0.29464, k2: -0.18254, k4: -0.13727, k8: -0.10288}
+      coverage_term_m:
+        CLOSED: {k1: 0.36810, k2: 0.37199, k4: 0.38704, k8: 0.38066}
+        FROZEN: {k1: 0.33787, k2: 0.34074, k4: 0.36382, k8: 0.35490}
+      frozen_pedestal_px: [9.986, 10.025]
+      frozen_D_fix_m: [4.539, 4.557]
+      pedestal_clamped_runs: 0
+      zmeas_clip_fraction: {k1: [0.0122, 0.0733, 0.0940], k8: [0.0823, 0.1170, 0.1415]}
+      card_area_fraction: {k1: 0.4603, k2: 0.3021, k4: 0.2648, k8: 0.2464}
+      binds: sd_in_every_cell
+    units: m
+    n: {levels: 4, seeds: 24, arms: 3, budget: 40}
+    stimulus_family: rendered_chart
+    matcher: block
+    configuration: >-
+      exp011's design with CLOSED-FROZEN added. NO NEW RENDERS — exp011's captures
+      are reused by giving the frozen arm CLOSED's render tag, and its trajectory
+      by replaying CLOSED's cells AND fixations, so d_fix is the only difference.
+      d_fix is computed at fixation 0 exactly as CLOSED computes it (win 6, gain
+      0.7, four iterations, the [f*I/8, f*I/0.5] clamp) and then held.
+    provenance:
+      cited_as: visgraf/bio-3d-vision
+      source: exp014
+      experiment: exp014_pedestal_vs_allocation
+      run_id: null
+      measured_at_sha: af05e68
+      environment: {python: 3.13.15, numpy: 2.5.2, scipy: 1.18.1, matplotlib: 3.11.1}
+    status: measured
+    notes: >-
+      THE PREMISE OF THE QUESTION IS WRONG AND THAT IS THE FIRST RESULT. run_arm
+      calls measurement(yf, xf) for BOTH arms at every fixation and measurement
+      calls vergence(yf, xf) internally, so OPEN'S PEDESTAL TRACKS ITS GAZE EXACTLY
+      AS CLOSED'S DOES. exp011's accuracy term is the residual between two arms
+      that both re-verge; freezing one does not decompose that residual, it moves
+      that arm into a different regime.
+      AWAY FROM DISCONTINUITIES THE PEDESTAL CONTRIBUTES NOTHING: retention 1.07 to
+      1.29 at k2, k4 and k8. CLOSED's gain over OPEN there is the fresh captures —
+      ALLOCATION, NOT SCALING.
+      AT DISCONTINUITIES THE EXPERIMENT CANNOT SEPARATE THEM, and saying so is
+      better than reporting the ratio. Freezing does not remove the pedestal's
+      contribution there, it destroys the arm: FROZEN is 0.15-0.25 m worse than
+      OPEN while the difference being apportioned is 0.008 m. A ratio of -14 is
+      arithmetic without meaning.
+      THE MEAN AND THE MEDIAN DISAGREE AND BOTH ARE REPORTED. The decomposition
+      (mean) says freezing is catastrophic at every level; the median says most of
+      CLOSED's gain survives at k4 and k8. THE DAMAGE IS IN THE TAIL, which is what
+      an eta-squared term does.
+      THE MECHANISM IS MEASURED. The pedestal freezes at D_fix ~ 4.55 m in every
+      one of 96 runs — the background — and is NEVER clamped. The fixture spans
+      2.4-4.5 m, so everything nearer carries a large eta. Damage scales
+      monotonically with the fraction of field away from that depth: card area
+      0.4603 -> 0.2464 against retention -62.03 -> +0.23.
+      THE COVERAGE TERM BARELY MOVES (92% of CLOSED's), as pre-registered: it is
+      about which cells are visible and those are identical.
+      NO FORECLOSURE REVERSED OR ANNOTATED. If this bears on exp011's description,
+      that is the maintainer's decision.
+
+  - id: bio-087
+    statement: >-
+      exp014's OPEN and CLOSED arms reproduce exp011's bit-identically, and
+      freezing the pedestal changes no cell's visibility.
+    value:
+      open_and_closed_max_abs_diff: 0.0
+      fields_checked: [ever_measured_fraction, common_fraction, AT_common_median, AWAY_common_median, POOLED_common_median]
+      pairs: 96
+      ever_measured_identical_closed_vs_frozen: 96
+      common_equals_common_all: 96
+      max_abs_ever_difference: 0.0
+    units: m
+    n: {pairs: 96, runs: 96}
+    stimulus_family: rendered_chart
+    matcher: block
+    configuration: >-
+      exp014's rows compared field by field against exp011's results.json, and
+      exp014's own pre-registered coverage check over all 96 runs.
+    provenance:
+      cited_as: visgraf/bio-3d-vision
+      source: exp014, the two controls
+      experiment: exp014_pedestal_vs_allocation
+      run_id: null
+      measured_at_sha: af05e68
+      environment: {python: 3.13.15, numpy: 2.5.2, scipy: 1.18.1, matplotlib: 3.11.1}
+    status: measured
+    notes: >-
+      TWO CONTROLS, BOTH EXACT, AND BOTH WERE WORTH RUNNING. The first says adding
+      a third arm changed nothing about the two that already existed — max
+      difference 0.000e+00, not "close". The second was pre-registered as a
+      falsifier of its own: meas_prec contains 1/var_Z which contains sig_model, so
+      a frozen pedestal COULD in principle drive a cell's precision to zero and
+      change which cells register a measurement. It does not, in 96 of 96 runs.
+      THAT IS WHY THE COVERAGE TERM IS INTERPRETABLE. Without it, a change in the
+      coverage term could have been visibility rather than accuracy, and the
+      decomposition would have been reporting two things as one.
+
   - id: gap-009
     statement: Nothing inside Blender is covered by any test, so rendered stimuli are the least-verified inputs in the record.
     value: null
