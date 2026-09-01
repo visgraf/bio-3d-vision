@@ -1,0 +1,26 @@
+\section{Findings}
+
+\emph{Placeholder. Section content is drafted on the Chat surface and lands in
+the next iteration.}
+
+% The figure is here rather than in the next iteration on purpose: it is what
+% proves the build path end to end, and a document that compiles without it
+% would not have proved it. Its caption states measured numbers and cites the
+% ledger entries they come from; it is not a stand-in for the prose.
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=\textwidth]{scanpath.pdf}
+  \caption{Scanpath of the ported baseline under argmax-posterior-variance
+  selection with no inhibition of return, on the analytic fixture at seed 0.
+  Eighteen fixations, nine of them distinct: the loop visits eight pixels once
+  each, reaches pixel $(170, 94)$ at step 8, and spends its remaining ten
+  fixations there. Step 6 lands at $(169, 94)$, one pixel above the lockup
+  pixel, so its marker sits beneath the highlighted one at this scale.
+  \emph{Measured}, and regenerated for this figure from committed code at a
+  pinned seed: \texttt{bio-001} and \texttt{bio-002} in
+  \texttt{docs/inherited-measurements.yaml}, pinned by
+  \texttt{tests/test\_loop\_port.py}. This is the predecessor's loop, ported
+  bit-identically (\texttt{bio-009}); it is inherited behaviour and a baseline,
+  not a result about anything new.}
+  \label{fig:scanpath}
+\end{figure}

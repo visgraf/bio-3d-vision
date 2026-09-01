@@ -1,0 +1,50 @@
+% Technical report — scaffold.
+%
+% NO PROSE YET, DELIBERATELY. This iteration establishes that the document
+% builds, that its one figure is generated from the record, and that CI fails on
+% a broken source. Section content follows in the next iteration, after its
+% factual claims have been verified against docs/state.yaml and
+% docs/inherited-measurements.yaml.
+%
+% Build:  make -C report        (or: latexmk -pdf main.tex, from this directory)
+
+\documentclass[11pt]{article}
+
+% Standard margins, stated rather than defaulted, because the figures are sized
+% against \textwidth. At letterpaper with 1 in margins \textwidth is exactly
+% 6.5 in, which is the width report/figures/make_*.py draw to, so a figure
+% included at width=\textwidth is reproduced 1:1 and its type is not rescaled.
+\usepackage[letterpaper,margin=1in]{geometry}
+
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage[hidelinks]{hyperref}
+
+% biblatex + biber, not bibtex. Chosen now, before a bibliography exists, because
+% the toolchain question is cheaper to settle than to migrate: biber 2.21 is
+% present locally and ships with the TeX Live installation CI uses, and biblatex
+% is what carries the per-entry provenance notes this report's appendix will
+% need. No entries yet, so \printbibliography is not called and biber does not
+% run; refs.bib is the empty file the first \cite will fill.
+\usepackage[backend=biber,style=numeric,sorting=none]{biblatex}
+\addbibresource{refs.bib}
+
+\graphicspath{{figures/}}
+
+\title{Active 3D Vision: A Technical Report}
+\author{Luiz Velho}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\input{sections/introduction}
+\input{sections/findings}
+\input{sections/conclusion}
+
+\appendix
+\input{sections/appendix}
+
+\end{document}
