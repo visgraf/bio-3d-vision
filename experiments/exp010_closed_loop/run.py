@@ -173,8 +173,39 @@ def render(work, tag, scene, poses, binary):
     return load_render(out)
 
 
-def run_arm(arm: str, model, rig, anchor, work, tag, binary) -> dict[str, Any]:
-    """One arm, one seed. ``arm`` is OPEN or CLOSED."""
+def run_arm(
+    arm: str,
+    model,
+    rig,
+    anchor,
+    work,
+    tag,
+    binary,
+    freeze_pedestal: bool = False,
+    replay: list | None = None,
+) -> dict[str, Any]:
+    """One arm, one seed. ``arm`` is OPEN or CLOSED.
+
+    **Both extra arguments default off and exp010's own behaviour is unchanged.**
+    They exist for exp014, which separates the two things that move together when
+    the eye moves:
+
+    ``freeze_pedestal`` computes ``d_fix`` once at fixation 0 and holds it, so the
+    acuity weight keeps following the gaze while the linearisation stops. The
+    pedestal is still computed the ported way — same window, same integrator, same
+    clamp — and only then held.
+
+    ``replay`` supplies BOTH the chosen cell and the executed fixation at every
+    step, which YOKES an arm to another's trajectory. Replaying the camera path
+    alone would not be enough: the fovea is placed on the arm's OWN argmax cell,
+    and a frozen pedestal changes the belief and therefore that cell — so the two
+    arms would differ in where they looked as well as in how they linearised.
+    Replaying the cell too leaves ``d_fix`` as the only difference.
+
+    It is also what lets exp014 reuse exp011's captures rather than rendering new
+    ones. What it gives up is the free-running question — how a frozen-pedestal
+    loop would choose to look — which is a different experiment.
+    """
     scene = prepare_scene(work, model, tag)
     poses = rectified_camera_poses(rig, anchor, float(model.params["f_px"]), int(model.params["W"]))
     left, right, depth, params = render(work, f"{tag}_anchor", scene, poses, binary)
@@ -205,6 +236,15 @@ def run_arm(arm: str, model, rig, anchor, work, tag, binary) -> dict[str, Any]:
     matcher_seconds = 0.0
     refusals: list[dict[str, Any]] = []
     stopped_at = None
+    frozen_pedestal: float | None = None
+    # The [d_lo, d_hi] clamp cannot newly bind under freezing — it lives inside
+    # vergence, which runs once. Where freezing shows up is the DOWNSTREAM
+    # np.clip(Zmeas, 0.3, 10.0): a first-order expansion evaluated far from its
+    # expansion point produces absurd depths and that clip is what catches them.
+    clip_hits = 0
+    clip_total = 0
+    trajectory: list[dict[str, Any]] = []
+    chosen: list[list[int]] = []
 
     for step in range(BUDGET):
         sampling = sampling_for(current, rig, params)
@@ -226,14 +266,24 @@ def run_arm(arm: str, model, rig, anchor, work, tag, binary) -> dict[str, Any]:
         if not selectable.any():
             stopped_at = {"step": step, "why": "no visible cell is measurable"}
             break
-        v = gaussian_filter(np.where(selectable, belief.var, 0.0), 4.0)
-        v = np.where(selectable, v, -np.inf)
-        cell = np.unravel_index(int(np.argmax(v)), v.shape)
+        if replay is not None:
+            cell = tuple(replay[step]["cell"])
+        else:
+            v = gaussian_filter(np.where(selectable, belief.var, 0.0), 4.0)
+            v = np.where(selectable, v, -np.inf)
+            cell = np.unravel_index(int(np.argmax(v)), v.shape)
         yf, xf = int(index[cell][0]), int(index[cell][1])
+        chosen.append([int(cell[0]), int(cell[1])])
 
         # --- measure ----------------------------------------------------------
         t0 = time.time()
-        z_img, prec_img, d_fix = engine.measurement(yf, xf)
+        z_img, prec_img, d_fix = engine.measurement(yf, xf, d_fix=frozen_pedestal)
+        if freeze_pedestal and frozen_pedestal is None:
+            # Fixation 0's value, computed exactly as CLOSED computes it, then held.
+            frozen_pedestal = float(engine.vergence(yf, xf))
+        clipped = int(np.sum((np.asarray(z_img) <= 0.3001) | (np.asarray(z_img) >= 9.9999)))
+        clip_hits += clipped
+        clip_total += int(np.asarray(z_img).size)
         matcher_seconds += time.time() - t0
         rays = unit_z_rays(sampling, rectification_rotation(current))
         rng_img, jac = planar_to_range(np.asarray(z_img, float), rays, centre_head)
@@ -290,7 +340,12 @@ def run_arm(arm: str, model, rig, anchor, work, tag, binary) -> dict[str, Any]:
             continue
 
         if arm == "CLOSED":
-            current = proposal.fixation
+            if replay is not None:
+                f = replay[step]["fixation"]
+                current = Fixation(f[0], f[1], f[2])
+            else:
+                current = proposal.fixation
+            executed.append([current.azimuth, current.elevation_down, current.vergence])
             poses = rectified_camera_poses(rig, current, float(params["f_px"]), int(params["W"]))
             left, right, _d, params = render(work, f"{tag}_s{step:03d}", scene, poses, binary)
             renders += 1
@@ -305,6 +360,9 @@ def run_arm(arm: str, model, rig, anchor, work, tag, binary) -> dict[str, Any]:
         "matcher_seconds": matcher_seconds,
         "front_end_seconds": front_end_seconds,
         "front_end_calls": front_end_calls,
+        "frozen_pedestal": frozen_pedestal,
+        "trajectory": trajectory,
+        "zmeas_clip_fraction": (clip_hits / clip_total) if clip_total else 0.0,
         "history": history,
         "refusals": refusals,
         "stopped_at": stopped_at,
