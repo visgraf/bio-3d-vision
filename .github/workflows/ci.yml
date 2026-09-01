@@ -15,7 +15,49 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: ["3.12", "3.13"]
+        # PULL REQUESTS RUN 3.13 ONLY; MAIN RUNS BOTH. Conditional, so here is
+        # why, because the next reader will ask.
+        #
+        # 3.13 is what every developer machine and every verification clone
+        # uses. That makes 3.12 the ONLY environment in which pyproject.toml:10's
+        # `requires-python = ">=3.12"` is tested at all. Dropping it entirely
+        # would leave that declaration an untested claim carried forward on
+        # nobody's authority -- met-001's shape exactly: an inherited criterion
+        # used unexamined across TEN experiments (exp001-005, exp007-011) before
+        # anyone asked what it tested, at which point the re-analysis moved
+        # eleven comparisons.
+        #
+        # ELEVEN, AND NOT THE 45 THIS COMMENT USED TO CITE. 45 is the size of the
+        # se-bar DISAGREEMENT SET, and exp012's own amendment records that the se
+        # bar as specified -- |mean| > sd/sqrt(n), which is t > 1, two-sided p of
+        # 0.33 at n = 24 rising to 0.39 at n = 4 -- is not a significance test at
+        # any conventional level. The 45 is "where two non-tests disagree", not
+        # 45 real effects. Of them, ELEVEN pass an exact two-sided sign test at
+        # p < 0.05 and THIRTY-FOUR do not, and fc-007, the load-bearing one, did
+        # NOT move: 6 of 8 seeds, sign-test p = 0.289. The argument never needed
+        # the big number, and a CI comment is precisely where an unqualified
+        # figure gets requoted later without its qualification -- which is the
+        # failure met-001 is an example of.
+        #
+        # Keeping 3.12 on `main` means the claim is still tested before anything
+        # lands, while a PR iteration pays for one interpreter instead of two.
+        #
+        # ONE JOB WITH A CONDITIONAL MATRIX, not two jobs with `if:`. Two jobs
+        # would need the whole step list twice -- install, lint, format, types,
+        # tests, and the four long comments explaining why the blender extra is
+        # installed and which tests skip -- so every future edit would have to be
+        # made in both copies and would eventually be made in one. The cost of
+        # this form is that the expression is dense; the cost of the other is a
+        # duplicate that drifts. `fromJSON` is needed because a matrix dimension
+        # must be a real list, and a GitHub expression cannot produce one
+        # literally.
+        # Folded scalar: every continuation line sits at the SAME indent, so
+        # YAML folds the newlines to spaces and Actions receives one expression.
+        # Indenting them further would make YAML keep the newlines literally.
+        python-version: >-
+          ${{ github.event_name == 'pull_request'
+          && fromJSON('["3.13"]')
+          || fromJSON('["3.12", "3.13"]') }}
 
     steps:
       - uses: actions/checkout@v4
