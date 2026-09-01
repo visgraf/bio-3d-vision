@@ -345,7 +345,17 @@ def run_arm(
                 current = Fixation(f[0], f[1], f[2])
             else:
                 current = proposal.fixation
-            executed.append([current.azimuth, current.elevation_down, current.vergence])
+            # Paired AT THE POINT OF ASSIGNMENT, not zipped from two lists
+            # afterwards: a refusal `continue`s before this line, so separate
+            # lists would silently misalign from that step on and a yoked replay
+            # would follow the wrong cell. exp011 recorded no refusals in 192
+            # runs, which is exactly why that must not become a latent assumption.
+            trajectory.append(
+                {
+                    "cell": chosen[-1],
+                    "fixation": [current.azimuth, current.elevation_down, current.vergence],
+                }
+            )
             poses = rectified_camera_poses(rig, current, float(params["f_px"]), int(params["W"]))
             left, right, _d, params = render(work, f"{tag}_s{step:03d}", scene, poses, binary)
             renders += 1
