@@ -4926,6 +4926,70 @@ measurements:
       commit. One of them had a WRONG FIRST EXPLANATION written down before the
       real cause was found.
 
+  - id: bio-085
+    statement: >-
+      Swapping the pixel foveal weight for the angular one moves NO recorded
+      verdict — 0 of 24 — while shrinking some effect sizes by up to 30%.
+    value:
+      comparisons: 24
+      experiments: [exp001_gaze_objective, exp002_saliency_value]
+      verdicts_moved: 0
+      verdicts_identical: 24
+      fovea_sigma_px: 34.0
+      fovea_sigma_rad: 0.048542
+      fovea_sigma_deg: 2.7813
+      weight_divergence_on_the_pinhole_model:
+        max_abs_dw: 0.0435
+        rms_abs_dw: 0.0077
+        weight_sum_ratio_range: [1.005, 1.075]
+      largest_effect_shifts:
+        E_vs_A_prime_rmse: {pixel: 0.00089, angular: 0.00062, change: -0.30}
+        A_vs_C_p90: {pixel: -0.04332, angular: -0.03062, change: -0.29}
+        A_vs_A_prime_p90: {pixel: -0.04445, angular: -0.03158, change: -0.29}
+        E_vs_A_prime_p90: {pixel: 0.04957, angular: 0.03657, change: -0.26}
+      cost_to_measure_minutes: 159
+    units: count
+    n: {comparisons: 24, arm_runs: 256}
+    stimulus_family: analytic_fixture
+    matcher: block
+    configuration: >-
+      exp001 (4 arms x 8 seeds x 18 fixations) and exp002 (6 arms x 16 seeds x 40
+      fixations) re-run IN MEMORY under both weights and scored with each
+      experiment's OWN analyser. 256 arm-runs. Nothing on disk was touched and no
+      committed results.json was rewritten.
+    provenance:
+      cited_as: visgraf/bio-3d-vision
+      source: step 18b Part B, the pinhole control
+      experiment: null
+      run_id: null
+      measured_at_sha: 3cf16cf
+      environment: {python: 3.13.15, numpy: 2.5.2, scipy: 1.18.1, matplotlib: 3.11.1}
+    status: measured
+    notes: >-
+      THE CONTROL PASSES: exp001's and exp002's recorded verdicts stand unchanged
+      under the angular weight, so making the weight angular does not silently
+      invalidate anything built on them — which includes fc-007 and fc-008, the two
+      framework foreclosures resting on fixture experiments.
+      BIT-EXACTNESS WAS NEVER EXPECTED AND IS NOT WHAT HAPPENED. The two are
+      different functions: a pixel offset r subtends arctan(r/f), and arctan
+      compresses, so the angular weight is LARGER in the periphery. Weight sums
+      differ by 0.5-7.5% and individual effect sizes by up to 30%. What does not
+      move is any verdict.
+      THE SHIFTS ARE SYSTEMATIC AND IN ONE DIRECTION: every one of the four largest
+      is a SHRINKAGE, of p90 and rmse rather than of medians. That is consistent
+      with the angular weight giving more weight to the periphery, where the tail
+      of the error distribution lives, and averaging the tail down. Recorded
+      because a 29% shift that changes no verdict is exactly the kind of thing that
+      would be invisible if only verdicts were reported.
+      THE UNITS CHANGE, NOT THE STATUS. 34.0 px is met-010, carried and never
+      examined; 0.048542 rad is the same carried default in radians. Nothing here
+      derives it, and met-010 stays never_examined.
+      IT COST 159 MINUTES AND SHOULD HAVE BEEN COSTED FIRST. exp001's arm C is a
+      field-integral policy that calls _fovea_weight ONCE PER CANDIDATE — 691200
+      calls per pass — and the angular weight is 1.7x the pixel one per call
+      (0.619 ms against 0.363 ms) because it computes a dot product and an arccos
+      over 76800 cells. The design was chosen without checking that cost.
+
   - id: gap-009
     statement: Nothing inside Blender is covered by any test, so rendered stimuli are the least-verified inputs in the record.
     value: null

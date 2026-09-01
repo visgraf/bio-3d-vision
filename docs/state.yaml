@@ -22,7 +22,7 @@ updated_at: 2026-08-31
 # a current one", which invited exactly that comparison and would have failed
 # after every merge. Staleness is tested per half, in `sequence`, and each half
 # gets the test it can actually pass.
-updated_by_commit: c44af87   # the repository state this file describes
+updated_by_commit: 3cf16cf   # the repository state this file describes
 
 # ------------------------------------------------------------------------------
 # SEQUENCE — where this project is, and what it plans next
@@ -142,6 +142,21 @@ sequence:
       12: src/bio3dvision/scene_model.py, exp004, fv-012-1..3, bio-027..bio-031
       15: src/bio3dvision/oculomotor.py, fv-016, bio-043..bio-046; fc-009's falsifier 2 answered
     out_of_sequence:
+      - what: >-
+          Step 18b, allocation on a sphere and the angular foveal weight. 18a/18b
+          subdivides step 18, from the Chat surface.
+        note: >-
+          fc-013 taken first and alone: the whole sphere, because a rotation about a
+          fixed optical centre re-indexes a complete capture and changes nothing in
+          it — so a uniform omnidirectional rig has NOTHING TO ACQUIRE by
+          refixating. od-004 records the case that reopens it, foveated sampling as
+          ECONOMY, with its denominator declared in advance.
+          exp013 then measured outcome (c): uniform weighting beats gaze-directed
+          foveal weighting on a complete capture, 8 of 8 seeds, because a foveal
+          weight models an acuity gradient and a uniform capture has none. It also
+          RAISES, without settling, that exp011's accuracy term may belong to the
+          scaling layer's linearisation rather than to allocation. See fv-024 and
+          bio-082..bio-085.
       - what: >-
           Step 18a, equirectangular capture and a spherical sampling model. THE
           INSTRUMENT ONLY — no experiment, no allocation comparison, no closed loop
@@ -3843,6 +3858,79 @@ falsifier_verdicts:
       NO FORECLOSURE TAKEN, none reversed. od-002 and od-003 untouched. None of the
       8 never_examined constants was swept.
     verified_at_commit: c44af87
+
+  - iteration: 18b
+    id: fv-024
+    falsifier: >-
+      (a) F beats U — allocation has value independent of field of view, to be
+      reported against Part C's theta prediction; (b) indistinguishable — exp011's
+      accuracy term does not survive coverage equalisation, to be stated plainly as
+      the outcome that most reduces what this project claims; (c) U beats F —
+      foveal weighting harms on a complete capture; (d) it cannot be run, because a
+      pinhole assumption survives somewhere not yet found — STOP AND REPORT.
+      Part B carries its own: the angular weight must not silently invalidate
+      exp001, exp002, exp003, exp007, exp008, exp010 or exp011, and if a verdict
+      moves, STOP rather than adjust the falloff.
+    verdict: >-
+      (c), IN EVERY BAND ON BOTH METRICS, 8 OF 8 SEEDS. (d) did not fire. PART B's
+      CONTROL PASSES: 0 of 24 verdicts move.
+    numbers:
+      d_ALL_median: {U: 0.0745, F: 0.8727, mean_diff: 0.7983, bar: 0.1971, sign: "0/8", p: 0.0078}
+      d_ALL_p90: {U: 0.3558, F: 2.8821, mean_diff: 2.5263, bar: 0.4642}
+      binds: sd_in_every_cell
+      weighted_solid_angle: {U: 1.0000, F: 0.2149}
+      front_end_median_abs_err_m: 0.0668
+      gaze_theta_median_deg: 62.8
+      gaze_within_30deg_of_epipole: 0.103
+      partB_verdicts_moved: 0
+      partB_comparisons: 24
+      partB_largest_effect_shift: -0.30
+      partC_var_r_ratio_at_10deg: 33.16
+      orientation_independence_m: 0.000080
+    ran_against_real_blender: >-
+      YES for Part A's orientation check (bio-082) and all of Part D — Blender
+      5.2.0 LTS, equirectangular, 2048x1024, Cycles, one capture per seed. NO for
+      Part B's control and Part C, which are the analytic fixture and pure
+      calculus respectively.
+    detail: >-
+      PART A IS A FORECLOSURE AND IS RECORDED SEPARATELY AS fc-013, taken before
+      anything was built on it, with od-004 recording the case that reopens it and
+      its denominator declared in advance.
+      PART B's CONTROL PASSES AND THE DIVERGENCE IS REAL. 0 of 24 verdicts move,
+      so fc-007 and fc-008 are not silently invalidated — but weight sums differ by
+      up to 7.5% and four effect sizes shift by 26-30%, every one of them a
+      SHRINKAGE of p90 or rmse. Reporting only the verdicts would have hidden that.
+      See bio-085, and note it cost 159 minutes because exp001's field-integral arm
+      calls the weight once per candidate; the design was not costed first.
+      PART C's PREDICTION POINTS OPPOSITE TO THE SPECIFICATION AND IS PRE-EMPTED IN
+      PRACTICE. var_r goes as 1/sin^2(theta), so argmax-variance should be drawn to
+      the EPIPOLES, where stereo carries no depth — not to the equator, which is
+      what a policy seeking GOOD measurements would do. Measured: gaze median 62.8
+      degrees, 10.3% within 30 degrees of an epipole. The mechanism is real and the
+      MATCHER GETS THERE FIRST — sub-column disparities near the epipoles fail
+      validity, so those cells are excluded from selection before the policy can
+      prefer them (bio-083, bio-084).
+      (c) ON PART D, AND THE MECHANISM IS MEASURED: F weights 21.5% of the sphere's
+      solid angle and U 100%. A 2.78 degree fovea and 40 fixations cannot cover a
+      sphere.
+      THE READING IS NOT "ALLOCATION IS WORTHLESS", AND THE COMPARISON CANNOT SHOW
+      (a). A foveal weight models an ACUITY GRADIENT and a uniform capture has
+      none. In the pinhole loop foveal advantage has two sources — the acuity
+      weight AND scale_to_depth's linearisation remainder, which loop.py's own
+      comment says confines each fixation's confident estimate to its foveal
+      neighbourhood. The sine rule is exact, so the second has no spherical
+      analogue and F has upside only if down-weighting helps. SO exp011's ACCURACY
+      TERM MAY BE A PROPERTY OF THE SCALING LAYER RATHER THAN OF ALLOCATION —
+      raised here and not settled. U is also a STRONGER arm than either exp011 arm,
+      since OPEN foveated too; a faithful transposition is impossible because
+      CLOSED-vs-OPEN is degenerate under fc-013.
+      FOUR APPARATUS FAULTS PRECEDED PART D's NUMBERS and one had a WRONG WRITTEN
+      EXPLANATION before the real cause was found. They are recorded in the runner
+      commit and in exp013's findings.
+      NO FORECLOSURE TAKEN BY THE EXPERIMENT. fc-013 was Part A. od-002 and od-003
+      untouched; od-004 opened. No never_examined constant was swept — met-008 and
+      met-010 change UNITS only.
+    verified_at_commit: 3cf16cf
 
 # ------------------------------------------------------------------------------
 # STANDING CONSTRAINTS
