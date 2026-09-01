@@ -61,6 +61,44 @@ INHIBITION_RADIUS = 20.0
 #: its maximum, so the exact argmax pixel is not stable at fine grids.
 CANDIDATE_STRIDE = 4
 
+#: ``fovea_sigma`` as an ANGLE. 34.0 px at f = 700 px is ``arctan(34/700)``.
+#:
+#: **This changes the UNITS of met-010, not its status.** 34.0 px is a carried
+#: default that has never been examined here, and 0.04854 rad is the same carried
+#: default in radians. Nothing about this conversion derives it.
+FOVEA_SIGMA_RAD = 0.048542418850613  # = math.atan(34.0 / 700.0), 2.7813 degrees
+
+
+def angular_falloff(directions: Any, gaze: Any, sigma_rad: float = FOVEA_SIGMA_RAD) -> Any:
+    """Acuity falloff by ANGLE from the gaze. ``(..., 3)`` unit rays -> ``(...)``.
+
+    ``exp(-alpha^2 / (2 sigma^2))`` where ``alpha`` is the angle between each
+    direction and ``gaze``. Replaces ``ActiveStereo._fovea_weight``'s Gaussian in
+    ROW AND COLUMN, which on an equirectangular lattice is wildly anisotropic:
+    rows there are meridians, so a circular pixel kernel is an angular kernel
+    stretched by ``1/sin(theta)`` toward the poles — 81.5x in solid angle between
+    an equatorial and a polar cell (bio-080).
+
+    **The signature is the point, and it is chosen for C2.** This takes DIRECTIONS
+    and a GAZE and returns a per-cell scalar. A variable-resolution sampling model
+    needs exactly the same inputs to return a per-cell DENSITY, so "weight by
+    angle" becomes "sample by angle" by substituting the operator at this call
+    site rather than by rewriting the caller. **The sampling is NOT built here**;
+    od-004 records what it would take, and this docstring records where it goes.
+
+    ``alpha`` is computed from the dot product clipped to ``[-1, 1]``, so a gaze
+    that is one ULP off unit length cannot produce a nan.
+    """
+    d = np.asarray(directions, dtype=np.float64)
+    g = np.asarray(gaze, dtype=np.float64)
+    if d.shape[-1] != 3 or g.shape[-1] != 3:
+        raise ValueError(f"directions {d.shape} and gaze {g.shape} must end in 3")
+    g = g / np.linalg.norm(g, axis=-1, keepdims=True)
+    alpha = np.arccos(np.clip(np.einsum("...i,...i->...", d, g), -1.0, 1.0))
+    out = np.exp(-(alpha**2) / (2.0 * float(sigma_rad) ** 2))
+    return out
+
+
 #: The port's saliency blur, from ActiveStereo.step. Carried, not endorsed.
 SALIENCY_SIGMA = 4.0
 

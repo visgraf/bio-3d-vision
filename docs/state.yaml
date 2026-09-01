@@ -22,7 +22,7 @@ updated_at: 2026-08-31
 # a current one", which invited exactly that comparison and would have failed
 # after every merge. Staleness is tested per half, in `sequence`, and each half
 # gets the test it can actually pass.
-updated_by_commit: c44af87   # the repository state this file describes
+updated_by_commit: 3cf16cf   # the repository state this file describes
 
 # ------------------------------------------------------------------------------
 # SEQUENCE — where this project is, and what it plans next
@@ -142,6 +142,21 @@ sequence:
       12: src/bio3dvision/scene_model.py, exp004, fv-012-1..3, bio-027..bio-031
       15: src/bio3dvision/oculomotor.py, fv-016, bio-043..bio-046; fc-009's falsifier 2 answered
     out_of_sequence:
+      - what: >-
+          Step 18b, allocation on a sphere and the angular foveal weight. 18a/18b
+          subdivides step 18, from the Chat surface.
+        note: >-
+          fc-013 taken first and alone: the whole sphere, because a rotation about a
+          fixed optical centre re-indexes a complete capture and changes nothing in
+          it — so a uniform omnidirectional rig has NOTHING TO ACQUIRE by
+          refixating. od-004 records the case that reopens it, foveated sampling as
+          ECONOMY, with its denominator declared in advance.
+          exp013 then measured outcome (c): uniform weighting beats gaze-directed
+          foveal weighting on a complete capture, 8 of 8 seeds, because a foveal
+          weight models an acuity gradient and a uniform capture has none. It also
+          RAISES, without settling, that exp011's accuracy term may belong to the
+          scaling layer's linearisation rather than to allocation. See fv-024 and
+          bio-082..bio-085.
       - what: >-
           Step 18a, equirectangular capture and a spherical sampling model. THE
           INSTRUMENT ONLY — no experiment, no allocation comparison, no closed loop
@@ -1238,6 +1253,51 @@ measurements_note: >-
 # ------------------------------------------------------------------------------
 open_decisions:
 
+  - id: od-004
+    altitude: fw
+    status: open
+    title: Foveated sampling as ECONOMY, not only as acuity.
+    decision: >-
+      Not taken. Recorded because fc-013's qualifier names the condition that would
+      reopen it, and a condition stated without the question it reopens is half a
+      record.
+    the_question: >-
+      fc-013 establishes that a UNIFORM omnidirectional capture has nothing to
+      acquire by refixating. Under a foveated sampling density the claim inverts:
+      the matcher never runs at full resolution off-fovea, so a second look
+      returns information the first did not contain.
+      THE CLAIM THEN BECOMES A COST CLAIM: "an active system with a foveated sensor
+      reaches the same posterior for LESS COMPUTATION than a uniform one." Not a
+      better posterior — the same one, cheaper.
+    why_it_is_recorded_now_and_not_when_it_is_built: >-
+      BECAUSE THE DENOMINATOR HAS TO BE DECLARED BEFORE THE RESULT EXISTS, OR IT
+      BECOMES met-001 AGAIN. met-001 is the two-clause bar: a threshold that walked
+      in with no marker and acquired the authority of a decision because nobody had
+      to write down what it asked. A cost metric chosen after seeing which one
+      makes the result look best is the same defect with a different unit.
+    the_denominator_declared_in_advance: >-
+      EITHER of these, and whichever is used must be named in the preregistration:
+        (1) SAMPLES MATCHED — the count of lattice cells the front end evaluates,
+            summed over the run. Hardware-free, reproducible, and the one this
+            repository can compare across machines.
+        (2) MATCHER WALL-CLOCK — seconds in the front end, as bio-062 and bio-069
+            already report. Machine-dependent, and comparable only within a run.
+      HELD FIXED WHILE ACCURACY VARIES, or accuracy held fixed while it varies.
+      Not both floating: an arm that is better AND cheaper is not a cost result, it
+      is two results reported as one.
+    why_this_repository_has_never_made_one: >-
+      EVERY MEASUREMENT TO DATE IS ERROR AGAINST GROUND TRUTH. bio-062 and bio-069
+      report wall-clock, but as a COST BESIDE a result, never as the axis the
+      result is stated on. A cost result needs a different bar as well as a
+      different denominator — exp001's bar compares error, and 2% of a mean error
+      means nothing applied to a sample count.
+    what_it_would_cost: >-
+      A variable-resolution sampling model (C2), which does not exist; a matcher
+      that respects it, which the ported block matcher does not; and a bar for cost
+      comparisons, which this repository has never written. Do not build it.
+    blocked_by: >-
+      Nothing formally. It is not scheduled, and fc-013 stands without it.
+
   - id: od-002
     altitude: fw
     status: open
@@ -2088,6 +2148,65 @@ foreclosures:
       cost volume — bio-057 stands unfixed, and a rectified pair is parallel, so
       the positive-only search is correct for the loop this decision builds and
       remains wrong for anything that matches a converged pair.
+
+  - id: fc-013
+    altitude: fw
+    closed: >-
+      The forward-hemisphere visibility guard for spherical sampling — the
+      ``in_eye[..., 2] > 0.0`` term ``HeadFrameBelief.reproject`` ANDs into
+      visibility.
+    in_favour_of: >-
+      THE WHOLE SPHERE. ``contains`` already reports every cell present at every
+      amplitude; a complete capture has no hemisphere to hide.
+    decided_by: The maintainer, on step 18a's bio-081 and the derivation below.
+    the_reason_is_a_finding_not_a_fix: >-
+      READ THIS BEFORE THE GUARD. The eye centres are FIXED in the head at
+      +/- b/2, and ``eye_rotations`` returns ROTATIONS, not translations. A
+      rotation about a fixed optical centre does not change what a complete sphere
+      sees — it re-indexes the same rays.
+      SO FOR A FIXED OMNIDIRECTIONAL RIG SAMPLED UNIFORMLY, RE-RENDERING AT A NEW
+      FIXATION RETURNS AN IDENTICAL CAPTURE: THERE IS NOTHING TO ACQUIRE. That is
+      the plan's section 2.1 table row derived rather than asserted, and it is why
+      the guard is not merely unnecessary but describes a sensor this rig does not
+      have.
+      MEASURED, NOT ONLY DERIVED (bio-082). The same scene rendered from two camera
+      orientations 37 and 19 degrees apart reproduces the SAME analytic function of
+      direction, to 69 and 80 micrometres — the same tolerance bio-077 measured for
+      a single orientation. The raw arrays differ, because the indexing differs;
+      the capture does not.
+      AND IN THIS RIG THE LATTICE DOES NOT EVEN ROTATE WITH GAZE. Rows are epipolar
+      only while the equirect pole lies on the baseline (bio-079), and the baseline
+      is fixed in the head, so the spherical rectified pose is FIXATION-INDEPENDENT
+      up to a roll. Part D renders once per seed for both arms because of this.
+    the_qualifier_is_load_bearing_and_this_entry_forecloses_only_with_it: >-
+      "SAMPLED UNIFORMLY" IS NOT DECORATION. Under variable resolution the fovea
+      RESOLVES what the periphery only sampled coarsely, so refixation genuinely
+      acquires: the second look returns information the first did not contain.
+      THE VOID IS A PROPERTY OF THE SAMPLING SCHEME, NOT OF THE SENSOR. An
+      omnidirectional sensor does not make acquisition pointless; a UNIFORM
+      omnidirectional sensor does.
+      A PRECISION ABOUT "UNIFORM" THAT THIS REPOSITORY'S OWN LATTICE FORCES:
+      equirect is uniform in ANGLE PER INDEX and non-uniform in SOLID ANGLE by
+      81.5x (bio-080). It qualifies here only because its density pattern is pinned
+      to the baseline rather than to the gaze. A lattice whose density FOLLOWED the
+      gaze would not qualify, and that is exactly od-004.
+    what_this_does_not_close: >-
+      Not acquisition in general, not the closed loop, and not od-002 or od-003.
+      Not the value of ALLOCATION either: fc-013 says a second capture carries
+      nothing new, and says nothing about whether choosing where to spend
+      measurement on the one capture is worth anything. That is Part D's question
+      and it is open at the time this entry is written.
+    cost_to_reopen: >-
+      A sampling scheme whose resolution depends on gaze. od-004 records it, and
+      reopening is anticipated rather than merely permitted — the qualifier above
+      is the condition, stated in advance.
+    evidence: >-
+      bio-081 (a sphere loses no grid at any amplitude; reproject discards exactly
+      0.5 at every one), bio-082 (two orientations, same analytic function of
+      direction to 80 micrometres), bio-079 (rows are epipolar only with the pole
+      on the baseline, which is fixed in the head), bio-080 (the lattice is
+      non-uniform in solid angle by 81.5x).
+    decided_in: step 18b, Part A, recorded before anything was built on it.
 
 falsifier_verdicts:
 
@@ -3739,6 +3858,79 @@ falsifier_verdicts:
       NO FORECLOSURE TAKEN, none reversed. od-002 and od-003 untouched. None of the
       8 never_examined constants was swept.
     verified_at_commit: c44af87
+
+  - iteration: 18b
+    id: fv-024
+    falsifier: >-
+      (a) F beats U — allocation has value independent of field of view, to be
+      reported against Part C's theta prediction; (b) indistinguishable — exp011's
+      accuracy term does not survive coverage equalisation, to be stated plainly as
+      the outcome that most reduces what this project claims; (c) U beats F —
+      foveal weighting harms on a complete capture; (d) it cannot be run, because a
+      pinhole assumption survives somewhere not yet found — STOP AND REPORT.
+      Part B carries its own: the angular weight must not silently invalidate
+      exp001, exp002, exp003, exp007, exp008, exp010 or exp011, and if a verdict
+      moves, STOP rather than adjust the falloff.
+    verdict: >-
+      (c), IN EVERY BAND ON BOTH METRICS, 8 OF 8 SEEDS. (d) did not fire. PART B's
+      CONTROL PASSES: 0 of 24 verdicts move.
+    numbers:
+      d_ALL_median: {U: 0.0745, F: 0.8727, mean_diff: 0.7983, bar: 0.1971, sign: "0/8", p: 0.0078}
+      d_ALL_p90: {U: 0.3558, F: 2.8821, mean_diff: 2.5263, bar: 0.4642}
+      binds: sd_in_every_cell
+      weighted_solid_angle: {U: 1.0000, F: 0.2149}
+      front_end_median_abs_err_m: 0.0668
+      gaze_theta_median_deg: 62.8
+      gaze_within_30deg_of_epipole: 0.103
+      partB_verdicts_moved: 0
+      partB_comparisons: 24
+      partB_largest_effect_shift: -0.30
+      partC_var_r_ratio_at_10deg: 33.16
+      orientation_independence_m: 0.000080
+    ran_against_real_blender: >-
+      YES for Part A's orientation check (bio-082) and all of Part D — Blender
+      5.2.0 LTS, equirectangular, 2048x1024, Cycles, one capture per seed. NO for
+      Part B's control and Part C, which are the analytic fixture and pure
+      calculus respectively.
+    detail: >-
+      PART A IS A FORECLOSURE AND IS RECORDED SEPARATELY AS fc-013, taken before
+      anything was built on it, with od-004 recording the case that reopens it and
+      its denominator declared in advance.
+      PART B's CONTROL PASSES AND THE DIVERGENCE IS REAL. 0 of 24 verdicts move,
+      so fc-007 and fc-008 are not silently invalidated — but weight sums differ by
+      up to 7.5% and four effect sizes shift by 26-30%, every one of them a
+      SHRINKAGE of p90 or rmse. Reporting only the verdicts would have hidden that.
+      See bio-085, and note it cost 159 minutes because exp001's field-integral arm
+      calls the weight once per candidate; the design was not costed first.
+      PART C's PREDICTION POINTS OPPOSITE TO THE SPECIFICATION AND IS PRE-EMPTED IN
+      PRACTICE. var_r goes as 1/sin^2(theta), so argmax-variance should be drawn to
+      the EPIPOLES, where stereo carries no depth — not to the equator, which is
+      what a policy seeking GOOD measurements would do. Measured: gaze median 62.8
+      degrees, 10.3% within 30 degrees of an epipole. The mechanism is real and the
+      MATCHER GETS THERE FIRST — sub-column disparities near the epipoles fail
+      validity, so those cells are excluded from selection before the policy can
+      prefer them (bio-083, bio-084).
+      (c) ON PART D, AND THE MECHANISM IS MEASURED: F weights 21.5% of the sphere's
+      solid angle and U 100%. A 2.78 degree fovea and 40 fixations cannot cover a
+      sphere.
+      THE READING IS NOT "ALLOCATION IS WORTHLESS", AND THE COMPARISON CANNOT SHOW
+      (a). A foveal weight models an ACUITY GRADIENT and a uniform capture has
+      none. In the pinhole loop foveal advantage has two sources — the acuity
+      weight AND scale_to_depth's linearisation remainder, which loop.py's own
+      comment says confines each fixation's confident estimate to its foveal
+      neighbourhood. The sine rule is exact, so the second has no spherical
+      analogue and F has upside only if down-weighting helps. SO exp011's ACCURACY
+      TERM MAY BE A PROPERTY OF THE SCALING LAYER RATHER THAN OF ALLOCATION —
+      raised here and not settled. U is also a STRONGER arm than either exp011 arm,
+      since OPEN foveated too; a faithful transposition is impossible because
+      CLOSED-vs-OPEN is degenerate under fc-013.
+      FOUR APPARATUS FAULTS PRECEDED PART D's NUMBERS and one had a WRONG WRITTEN
+      EXPLANATION before the real cause was found. They are recorded in the runner
+      commit and in exp013's findings.
+      NO FORECLOSURE TAKEN BY THE EXPERIMENT. fc-013 was Part A. od-002 and od-003
+      untouched; od-004 opened. No never_examined constant was swept — met-008 and
+      met-010 change UNITS only.
+    verified_at_commit: 3cf16cf
 
 # ------------------------------------------------------------------------------
 # STANDING CONSTRAINTS

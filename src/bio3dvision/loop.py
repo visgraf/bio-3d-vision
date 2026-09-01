@@ -93,6 +93,7 @@ class ActiveStereo:
         fovea_sigma: float = 34.0,
         prior_depth: float = 3.0,
         prior_std: float = 3.0,
+        fovea: str = "pixel",
     ) -> None:
         self.f = float(params["f_px"])
         self.I = float(params["baseline"])
@@ -105,6 +106,22 @@ class ActiveStereo:
             raise ValueError(f"only the block matcher is ported; got matcher={matcher!r}")
         self.d_sub, self.var_d, valid_fe = front_end_block(left, right, dmin, dmax, win)
         self.fovea_sigma = fovea_sigma
+        if fovea not in ("pixel", "angular"):
+            raise ValueError(f"fovea must be 'pixel' or 'angular', got {fovea!r}")
+        #: **"pixel" is the default and nothing changes silently.** The two are
+        #: different functions, so switching is a decision and not a refactor; the
+        #: divergence and whether any recorded verdict moves under it are measured
+        #: in bio-083. "angular" exists because on a spherical lattice a Gaussian
+        #: in row and column is not a Gaussian in angle at all.
+        self.fovea = fovea
+        self._angular_directions: FloatArray | None = None
+        if fovea == "angular":
+            from bio3dvision.sampling import PinholeSampling
+
+            model = PinholeSampling((self.H, self.W), self.f)
+            rows, cols = np.mgrid[0 : self.H, 0 : self.W]
+            index = np.stack([rows, cols], axis=-1).astype(np.float64)
+            self._angular_directions = np.asarray(model.direction(index))
         # Add the image-border constraint (needs left-side search support).
         border = np.zeros((self.H, self.W), bool)
         m = win + 1
@@ -118,6 +135,22 @@ class ActiveStereo:
         self.scanpath: list[tuple[int, int]] = []
 
     def _fovea_weight(self, yf: int, xf: int) -> FloatArray:
+        """Acuity falloff about the fixated sample.
+
+        ``"pixel"`` is the ported Gaussian in ROW AND COLUMN, unchanged and still
+        the default. ``"angular"`` is the same falloff in the ANGLE between each
+        sample's direction and the gaze direction, which is what a non-planar
+        lattice needs — see ``policy.angular_falloff`` and bio-083.
+        """
+        if self.fovea == "angular":
+            from bio3dvision.policy import angular_falloff
+
+            dirs = self._angular_directions
+            assert dirs is not None
+            gaze = dirs[int(yf), int(xf)]
+            sigma = float(np.arctan(self.fovea_sigma / self.f))
+            out: FloatArray = np.asarray(angular_falloff(dirs, gaze, sigma), dtype=np.float32)
+            return out
         yy, xx = np.mgrid[0 : self.H, 0 : self.W]
         r2 = (yy - yf) ** 2 + (xx - xf) ** 2
         w: FloatArray = np.exp(-r2 / (2 * self.fovea_sigma**2)).astype(np.float32)
