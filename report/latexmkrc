@@ -1,0 +1,8 @@
+# latexmk configuration. Keeps the build to one command, locally and in CI.
+$pdf_mode = 1;                 # pdflatex
+$bibtex_use = 2;               # run the bibliography tool, and clean its output
+$out_dir = '.';
+# Warnings stay warnings; only real errors fail the build. -halt-on-error and
+# -interaction=nonstopmode make a broken .tex fail immediately and loudly rather
+# than dropping into the interactive prompt and hanging a CI runner (falsifier 3).
+set_tex_cmds('-halt-on-error -interaction=nonstopmode -file-line-error %O %S');

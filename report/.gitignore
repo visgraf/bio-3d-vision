@@ -1,0 +1,15 @@
+# LaTeX build artifacts. The figures under figures/ are generated too, but they
+# are COMMITTED on purpose (so the document builds without Python) and are not
+# matched by anything here.
+main.pdf
+*.aux
+*.bbl
+*.bcf
+*.blg
+*.fdb_latexmk
+*.fls
+*.log
+*.out
+*.run.xml
+*.synctex.gz
+*.toc

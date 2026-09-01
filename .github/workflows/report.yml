@@ -1,0 +1,64 @@
+# The report build. SEPARATE from ci.yml on purpose: that workflow is the Python
+# gate and runs a two-version matrix, and there is no reason to install a TeX
+# distribution twice or to couple a prose change to the test suite.
+#
+# Triggers mirror ci.yml rather than firing on literally every push, so a branch
+# with an open pull request is not built twice for the same commit. Every change
+# in this repository reaches main through a PR, so this covers every change.
+name: Report
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      # The package set is derived from what the document actually loads, read
+      # out of main.log, not guessed: article, geometry, graphicx, booktabs,
+      # hyperref, lmodern, biblatex. NOTHING here needs texlive-latex-extra,
+      # which is the large one, and nothing needs texlive-full.
+      #
+      # HOW LONG THIS TAKES IS ASSUMED, NOT MEASURED. It could not be measured
+      # locally: there is no container runtime on the development machine, so
+      # the first real number comes from Actions. This is the same shape as the
+      # OpenEXR manylinux question, which also only resolved when CI ran. If it
+      # proves slow, the lever is a path filter on `report/**` so the install is
+      # paid only when the document changes -- deliberately not applied up
+      # front, because a document that silently stops building is worse than a
+      # slow job.
+      - name: Install TeX
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            texlive-latex-recommended \
+            texlive-fonts-recommended \
+            texlive-bibtex-extra \
+            biber \
+            latexmk
+
+      # No Python step, and that is the point: report/figures/*.pdf are
+      # committed, so the document compiles from a clean checkout with a TeX
+      # installation alone.
+      - name: Build
+        run: make -C report
+
+      - name: Upload PDF
+        # `always()` so a failed build still hands back the log to read.
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: report-pdf
+          path: |
+            report/main.pdf
+            report/main.log
+          if-no-files-found: error
