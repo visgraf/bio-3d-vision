@@ -1,1 +1,59 @@
-% No entries yet. biblatex + biber is wired in main.tex; the first 
+% Bibliography. Every entry here was verified in report/claims-verified.md
+% (sections 19-22) and NOTHING has been added beyond what that pass established.
+% Fields were not re-searched while typesetting: the verification pass is the
+% source of truth for this file exactly as it is for every number in the prose.
+
+% VERIFIED EXCEPT ITS PAGE RANGE, AND THE PAGES ARE DELIBERATELY ABSENT.
+% claims-verified.md section 19 records three variants across otherwise reliable
+% sources -- 966--1005, 996--1005 and 996--1006 -- and could not resolve them.
+% A citation without a page range is honest; one with a guessed range is not, and
+% a reader cannot tell the difference after the fact. The DOI and the issue
+% identify the article unambiguously, so nothing is lost but the span.
+% Fill `pages` only from the print issue, never from a search result.
+@article{bajcsy1988active,
+  author  = {Bajcsy, Ruzena},
+  title   = {Active Perception},
+  journal = {Proceedings of the IEEE},
+  volume  = {76},
+  number  = {8},
+  year    = {1988},
+  doi     = {10.1109/5.5968},
+}
+
+@article{aloimonos1988active,
+  author  = {Aloimonos, John and Weiss, Isaac and Bandyopadhyay, Amit},
+  title   = {Active Vision},
+  journal = {International Journal of Computer Vision},
+  volume  = {1},
+  number  = {4},
+  pages   = {333--356},
+  year    = {1988},
+  doi     = {10.1007/BF00133571},
+}
+
+@article{ballard1991animate,
+  author  = {Ballard, Dana H.},
+  title   = {Animate Vision},
+  journal = {Artificial Intelligence},
+  volume  = {48},
+  number  = {1},
+  pages   = {57--86},
+  year    = {1991},
+  doi     = {10.1016/0004-3702(91)90080-4},
+}
+
+% The 1960 paper introduces the technique and does NOT contain the phrase
+% "random-dot stereogram" -- claims-verified.md section 22 flags this. If the
+% TERM is what a sentence needs rather than the result, the usual citation is
+% Julesz, Foundations of Cyclopean Perception (1971), which that pass did not
+% verify and which is therefore not in this file.
+@article{julesz1960binocular,
+  author  = {Julesz, Bela},
+  title   = {Binocular Depth Perception of Computer-Generated Patterns},
+  journal = {Bell System Technical Journal},
+  volume  = {39},
+  number  = {5},
+  pages   = {1125--1162},
+  year    = {1960},
+  doi     = {10.1002/j.1538-7305.1960.tb03954.x},
+}

@@ -1,12 +1,131 @@
+% Set from report/draft.md, part 2. The prose is the maintainer's; this file is
+% its transit into LaTeX and nothing in it was rewritten.
+%
+% Every caption states what was measured, on what, and cites the ledger entries
+% the numbers come from — the discipline the scaffold's Figure 1 caption set.
 \section{Findings}
 
-\emph{Placeholder. Section content is drafted on the Chat surface and lands in
-the next iteration.}
+Thirteen experiments, each pre-registered with a stated falsifier, produced a
+set of results that read at first as unrelated: some about the synthetic
+stimulus, some about the gaze policy, one about closing the loop. They are
+better understood as one claim measured at three levels.
 
-% The figure is here rather than in the next iteration on purpose: it is what
-% proves the build path end to end, and a document that compiles without it
-% would not have proved it. Its caption states measured numbers and cites the
-% ledger entries they come from; it is not a stand-in for the prose.
+\begin{quote}
+\textbf{Availability dominates selection.} What can be measured determines the
+result. How cleverly one chooses among what can be measured is a second-order
+refinement. This holds whether the thing limiting availability is the stimulus,
+the sensor's field, or the geometry of occlusion.
+\end{quote}
+
+\S2.1 asks what limits availability, \S2.2 what selection buys, \S2.3 what
+changes availability.
+
+\subsection{The instrument}
+
+Random-dot stereograms are the right synthetic fixture for this work, for the
+reason Julesz introduced them~\cite{julesz1960binocular}: depth exists only in
+disparity, so nothing can be recovered by exploiting shading or texture
+gradient. The fixture used here follows the standard construction --- generate a
+texture, then warp it by the ground-truth disparity field to produce the second
+view.
+
+That construction has a defect, and it is not the obvious one.
+
+At a depth discontinuity the disparity field jumps, so adjacent output pixels
+draw from widely separated input columns. The second image acquires a stretched
+or duplicated patch of real texture with no consistent disparity. The matcher
+finds it. The result is a confident, incorrect depth estimate --- and it
+survives the front end's validity test, of which left--right consistency is one
+of two conditions: 78.5\% of discontinuity pixels are marked valid, and 21.7\%
+of those are wrong by more than two pixels.
+
+The obvious criticism of a warped stereogram is that it lacks true
+half-occlusions. The measured problem is worse and has the opposite sign: the
+fixture substitutes an artefact that is harder than real occlusion and invisible
+to the detector meant to catch it. Rendering the same geometry in a
+physically-based renderer, where occluded pixels genuinely have no correspondent
+and fail consistency, the fixture is 23\texttimes{} worse in the tail at depth
+discontinuities and 1.6\texttimes{} worse in the median. The damage is
+concentrated in a small number of badly wrong estimates rather than spread
+across the field --- which is what an artefact that passes validity looks like.
+
+The pixels within ten of a depth discontinuity are 38\% of the valid measured
+pixels and carry 82\% of the total squared error.
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=\textwidth]{diagnostic.pdf}
+  \caption{The same geometry from two sources, at seed 0, under the ported loop
+  with policy \texttt{A'} for 18 fixations: the analytic fixture (F), whose
+  right image is resampled from its left, and a Blender render (R), where
+  occluded pixels genuinely have no correspondent. The fixture's error
+  concentrates in bands at the depth discontinuities that the render's does not
+  have, and its RMSE settles at 0.475\,m against the render's 0.225\,m.
+  \emph{Measured}: exp004, whose recorded band figures are
+  \texttt{AT} p90 1.4982\,m for F against 0.0734\,m for R
+  (\texttt{experiments/exp004\_scene\_model\_check/results.json}). The panels
+  are regenerated from committed code at the pinned seed because exp004 stored
+  no arrays; both regenerated scanpaths are asserted against the two the
+  experiment recorded before the figure is drawn, and the two loops agree on
+  1 of 18 fixations.}
+  \label{fig:diagnostic}
+\end{figure}
+
+Two consequences followed, and both were reversals.
+
+Conclusions already drawn had to be re-read, because results measured on the
+fixture were pooled over a pixel population dominated by the artefact.
+
+And the obvious correction was also wrong. Restricting the analysis to pixels
+far from any discontinuity made every policy difference vanish, which looked
+like a clean answer: the effects had been artefactual. On rendered data they
+returned, stronger. Removing discontinuities does not isolate \emph{clean}
+measurement --- it isolates \emph{easy} measurement, and on smooth textured
+surface there is nothing to allocate. The band where the artefact lived is also
+the band where the question lives, which is why the artefact was so damaging and
+why removing it by masking answers nothing.
+
+A stimulus, once characterised, also has an operating range. Sweeping the
+fraction of occluded surface showed the allocation question is sharpest near a
+tenth of the surface occluded --- and, independently, that the acquisition gain
+measured later peaks at the same level. Above roughly a sixth the stimulus stops
+discriminating between policies altogether, and not merely because the spread
+grows: the arms' error means themselves converge, from a spread of 0.51 at a
+tenth to 0.02 at a sixth, as the scene's own difficulty saturates the estimator.
+That range then sized every experiment after it.
+
+A stimulus is an instrument. Four of thirteen experiments went to establishing
+that, and none of the results after them would have been readable otherwise.
+
+\subsection{What selection buys}
+
+The gaze policy proposes a next fixation by maximising something over the
+current belief. The natural candidate is posterior variance: look where you are
+least certain.
+
+\textbf{The choice of objective does not matter.} Two objectives were compared
+--- variance, and the expected reduction in variance a fixation would actually
+produce, integrated over the field. They never once selected the same pixel: an
+agreement rate of exactly zero across 144 comparisons, and zero again across a
+further 144 for a second pairing. Their picks sit a median 115 pixels apart,
+more than three fovea widths --- different regions of the image, not
+neighbouring cells. And their results were indistinguishable under the
+experiment's pre-registered bar, with a sign test agreeing there is no effect.
+
+The fields are moderately rank-correlated, so this is a statement about the
+argmax rather than about the objectives being unrelated. It is also a statement
+about one fixture, with both objectives evaluated at the same state on the same
+candidate grid, so that only the objective varies.
+
+\textbf{What matters is not looking twice.} Posterior variance conflates two
+situations: \emph{nothing has been measured here yet}, and \emph{measurement
+here is known to be uninformative}. The second is a fixed point --- looking
+again does not reduce it. Without a mechanism to suppress recently-visited
+locations, the policy locks: in one representative run it visited eight distinct
+locations and then spent its remaining ten fixations on a single pixel, where
+the matcher had confidently hallucinated a disparity and the confidence
+machinery had correctly refused it.
+
 \begin{figure}[htbp]
   \centering
   \includegraphics[width=\textwidth]{scanpath.pdf}
@@ -24,3 +143,133 @@ the next iteration.}
   not a result about anything new.}
   \label{fig:scanpath}
 \end{figure}
+
+\textbf{Knowing where measurement is possible beats knowing how well.} A policy
+informed only by the validity mask --- no variance at all, just \emph{don't look
+where nothing can be measured} --- captures the overwhelming majority of the
+available benefit. On median error, on a stimulus with effectively no occlusion,
+knowing \emph{where} the data is was worth 65\texttimes{} what knowing \emph{how
+uncertain} it is added on top. On the tail the ratio narrows to 3.5:1, and it
+falls as occlusion rises. Variance is a real refinement, and a second-order one.
+
+That refinement was nearly lost to the instrument. On the fixture, variance
+appeared to contribute nothing once the artefact band was excluded. On rendered
+data it recovered, several times stronger than the fixture had ever shown. The
+fixture was understating the saliency channel, not inflating it --- the opposite
+of the concern that prompted the check.
+
+\textbf{Foveal weighting, on a uniformly sampled sensor, is strictly lossy.}
+Given a complete spherical capture --- every direction present, nothing outside
+the field --- a gaze-dependent foveal weight lost to uniform weighting on both
+metrics, in every band grouping, on every one of eight seeds. The mechanism is
+measured: the solid angle receiving more than one percent of peak weight is the
+whole sphere for uniform weighting and about a fifth of it for foveal, so the
+foveal arm leaves four fifths of the sphere at the prior. The reason is
+structural rather than empirical --- a foveal weight models an \emph{acuity
+gradient}, and a uniformly sampled sensor does not have one. Weighting by gaze
+can only discard information already paid for. It cannot buy anything back.
+
+This does not mean allocation is worthless. It means allocation implemented as
+weighting, on a sensor with no acuity gradient, has nothing to work with.
+
+\subsection{What changes availability}
+
+If selection buys little, the remaining hypothesis is that active vision works
+by changing what is available rather than by choosing among it.
+
+\textbf{Deliberately verging to acquire made things worse.} Narrowing the
+disparity search around the current vergence estimate, so that re-verging brings
+new depths into range, cost 7.5\texttimes{} in median accuracy. Verging to
+re-acquire did not recover it: it halved the tail and bought 21.7\% more
+coverage, at 2.6\texttimes{} the hypothesis count and nineteen front-end calls
+against one.
+
+The mechanism is the interesting part, and it is not specific to vergence. The
+estimator computes a statistic over \emph{valid} measurements in a foveal
+window, and a target outside the search range either fails validity or clamps to
+the edge --- so the pixels carrying the error are the ones the validity mask has
+already deleted. At one measured fixation the target sat at nineteen pixels of
+disparity while the estimator's window reported eight, and the controller verged
+away from it, from ten pixels to six over three fixations. Across the run it
+partially recovers, and it is better described as badly steered than as stuck.
+\S3 returns to this as the finding with the widest reach beyond stereo.
+
+\textbf{Closing the perception-action loop does help.} Re-rendering at each new
+fixation, re-matching, and accumulating into a head-centred belief beats holding
+a single capture and re-weighting it, at 41\texttimes{} the cost in wall-clock
+seconds --- of which the renders are 91\%.
+
+It helped at every occlusion level tested, consistently in direction: the moving
+arm was better in all sixteen band-by-level cells. It was not consistent in
+verdict. Per band the results are level-dependent and non-monotone, and the
+effect at depth discontinuities crosses the bar at the lowest and highest
+occlusion levels but not at the two between. A consolidation run at three times
+the seeds also revised the original margins downward, because the smaller sample
+had underestimated the spread. The conclusion survived; its margin did not.
+
+Decomposing the gain is where the result becomes specific. It splits into an
+\emph{accuracy} term, on the cells both arms measured, and a \emph{coverage}
+term, on the cells only the moving sensor ever reached. Coverage exceeded
+accuracy by at least 34\texttimes{} at every level and by 341\texttimes{} at the
+highest, in a decomposition that is exact --- the two terms sum to the total at
+every level. The closed loop's value is not that it estimates better; it is that
+it sees the scene, and the fixed sensor does not.
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=\textwidth]{coverage.pdf}
+  \caption{The two arms of exp010/exp011 over four occlusion levels, 24 seeds
+  each. \emph{Left}: the fraction of the belief each arm ever measured.
+  \emph{Right}: exp011's question-3 decomposition of the all-cells gain into an
+  accuracy term, on the cells both arms reached, and a coverage term, on the
+  cells only the moving arm reached; note the logarithmic axis. \emph{Measured}:
+  exp011, on the pre-registered yardstick of mean absolute error over all
+  76\,800 cells with unmeasured cells left at the prior
+  (\texttt{experiments/exp011\_consolidation/results.json}, 192 rows;
+  \texttt{bio-076}). The decomposition is exact --- the two terms sum to the
+  total at every level --- and this figure rebuilds it from the per-seed rows
+  and asserts the result against the values exp011 published before drawing.}
+  \label{fig:coverage}
+\end{figure}
+
+The accuracy term was then narrowed by an experiment whose premise turned out to
+be false. Both arms re-estimate vergence at every fixation and both apply the
+same foveal weight at the same locations, so they differ in exactly one respect:
+whether the images are fresh. Away from depth discontinuities, freezing the
+linearisation pedestal costs nothing --- so the advantage there comes from the
+fresh captures rather than from re-linearising about each new fixation. At
+discontinuities the experiment cannot separate the two, and one confound remains
+unexcluded: the stationary arm's measurements are far more correlated with each
+other than the moving arm's. The attribution to re-acquisition is established on
+smooth surface and open where the geometry is hard.
+
+That is the project's positive result, and it is a narrow one. A second
+viewpoint helps. Choosing it cleverly does not.
+
+\textbf{And on a complete spherical sensor, acquisition disappears entirely.}
+The eyes rotate about centres fixed in the head; a rotation about a fixed
+optical centre does not change what a complete sphere sees. Re-rendering at a
+new fixation returns an identical capture. There is nothing to acquire.
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=\textwidth]{spherical.pdf}
+  \caption{Spherical stereo geometry. \emph{Left}: with the baseline along
+  $+x$ the two epipoles sit at $\pm x$, so every epipolar great circle passes
+  through them and the family of such circles is exactly the meridians about the
+  baseline --- which is why rows of the equirectangular sensor are epipolar and
+  the matcher's horizontal shift is a shift in colatitude $\theta$.
+  \emph{Right}: the sine rule $r_L = b\,\sin\theta_R/\sin d$ on the triangle
+  (left centre, right centre, point) makes the angular disparity depend on
+  $\theta$, the angle from the baseline, in a way the pinhole relation $f b / z$
+  has no analogue for. \emph{Derived}, closed-form, from the geometry documented
+  at \texttt{src/bio3dvision/sampling.py:242--264}, whose stated consequence ---
+  at 3\,m the disparity is 5.8\texttimes{} larger at $\theta = 90^\circ$ than at
+  $10^\circ$, here 5.76\texttimes{} --- this figure asserts before drawing. The
+  relation was checked against a render to $10^{-14}$ relative
+  (\texttt{bio-077}).}
+  \label{fig:spherical}
+\end{figure}
+
+That is not a limitation of the implementation. It is the geometry, and it sets
+up the question \S3 takes as its subject.

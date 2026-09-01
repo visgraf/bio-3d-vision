@@ -1,4 +1,179 @@
+% Set from report/draft.md, part 1. The prose is the maintainer's; this file is
+% its transit into LaTeX and nothing in it was rewritten.
 \section{Introduction}
 
-\emph{Placeholder. Section content is drafted on the Chat surface and lands in
-the next iteration.}
+\subsection{Motivation: active vision as sampling under a budget}
+
+Open a camera's shutter and every pixel arrives at the same resolution. Open an
+eye and it does not. The human fovea subtends one to two degrees of high acuity;
+beyond it resolution falls off sharply, and three or four times a second a
+saccade repositions that window somewhere new. The retina is not a uniform
+sensor that attention is later applied to. It is a variable-resolution sensor,
+and foveation is a bandwidth decision before it is an attention mechanism.
+
+That distinction is easy to state and, as this report will show, easy to lose in
+implementation. It is the hinge on which most of what follows turns.
+
+Binocular vision adds a second sense in which biological vision is \emph{active}.
+The eyes are not two cameras with fixed extrinsics. They rotate about centres
+fixed in the head; vergence sets the distance at which the two lines of sight
+intersect; and the torsion of each eye is not free but determined by gaze
+through Listing's law --- the eye's orientation lies in a plane that tilts with
+vergence. Stereo geometry in a biological system is therefore \emph{oculomotor}:
+it follows from where the system is looking, and it changes every time it looks
+somewhere else.
+
+This report describes a project that took that framing literally. The claim
+under test is the one the active-perception tradition has advanced since the
+1980s --- Bajcsy's \emph{Active Perception}~\cite{bajcsy1988active}, Aloimonos,
+Weiss and Bandyopadhyay's \emph{Active Vision}~\cite{aloimonos1988active},
+Ballard's \emph{Animate Vision}~\cite{ballard1991animate} --- that perception is
+better posed as a controlled sampling problem than as a reconstruction problem.
+Applied to stereo depth, the specific question becomes: does choosing where to
+look improve depth estimation, relative to not choosing?
+
+The stimulus deserves its own mention. Julesz's random-dot
+stereograms~\cite{julesz1960binocular} isolate stereopsis by removing every
+monocular depth cue --- depth exists only in disparity, so a system that appears
+to recover it cannot be exploiting shading or texture gradient. That property
+made them the natural synthetic fixture here. It also made a defect in that
+fixture unusually damaging, in a way \S2 takes up.
+
+\subsection{Background: stereo depth as inference}
+
+Stereo matching admits a Bayesian reading. For each pixel, comparing a patch
+against candidate positions in the other image produces a cost curve over
+disparity --- a likelihood. A prior over depth or a smoothness assumption
+supplies the rest, and the quantity of interest is the posterior: an estimate
+with an uncertainty attached, not a point estimate.
+
+Uncertainty is usually read from the cost curve. Curvature at the minimum gives
+a local precision; the ratio between the best and second-best minima measures
+ambiguity; agreement between left-to-right and right-to-left matching flags
+pixels with no consistent correspondent. Estimates from multiple views are then
+combined by precision weighting --- each measurement contributes in proportion
+to its confidence.
+
+Depth is not disparity. Recovering metric depth requires knowing the geometry,
+and for a converged binocular system it requires knowing the fixation distance.
+This is where the oculomotor framing enters the estimator rather than just the
+camera model, and it is the origin of one of the report's more portable
+findings.
+
+One property of this pipeline must be stated, because it motivated the work and
+because the record complicates it. A half-occluded pixel --- visible to one eye,
+hidden from the other --- has no true correspondent. The matcher does not report
+this; it finds the best available wrong match, and a sharp cost minimum at a
+wrong disparity is genuinely sharp. The result is a confident, incorrect
+estimate at exactly the geometry an active system might hope to resolve by
+looking elsewhere.
+
+The predecessor repositories measured this on photographs, across three
+uncertainty readouts, and found variance in half-occluded regions \emph{lower}
+than in matched ones --- confidence inverted where it matters most. On
+random-dot stereograms the same matcher and the same statistic give the
+opposite: variance roughly twice as high in half-occlusions, which is the safe
+direction.
+
+So the failure is not a stimulus-independent property of stereo confidence. It
+appears on real imagery and not on synthetic dots, and whether that difference
+is about realism or about contrast is unresolved --- a random-dot field is
+contrast-uniform by construction and cannot separate them. That open question is
+the sharper motivation: confidence fails where the scene is real, and the
+synthetic fixture this project used sits on the safe side of the reversal.
+
+\subsection{Concepts}
+
+Four distinctions do most of the analytical work, and none was fully in place
+when the project began.
+
+\textbf{Allocation versus acquisition.} \emph{Where to spend limited processing
+on data already sampled}, against \emph{where to point the sensor to obtain data
+not yet sampled}. Most treatments of active vision conflate them. Separating
+them is what makes the results here interpretable, and the separation has a
+clean geometric form: a rotation about a fixed optical centre changes allocation
+and cannot change acquisition.
+
+\textbf{Unknowable is not uncertain.} A pixel with no valid correspondent is not
+a pixel we are unsure about; it is one we cannot measure. The difference between
+a binary \emph{can this be measured} and a continuous \emph{how well} turned out
+to dominate.
+
+\textbf{Foveal weighting versus foveal sampling.} Weighting says the fovea
+contributes more to the posterior. Sampling says the periphery was never
+resolved in the first place. On a uniformly sampled sensor the first can only
+discard information already paid for. Only the second is what a retina does.
+
+\textbf{Linearising about the fixation is a confidence mechanism.} Expanding the
+depth relation about the fixated disparity is exact at the fovea and degrades
+with the square of the offset. That degradation term does more than bound
+approximation error: it inflates the variance of any estimate far from the
+fixated depth, and thereby refuses precisely the confident-and-wrong matches
+described above.
+
+A fifth concept was not brought to the project but forced on it, and \S2 begins
+there: a stimulus is an instrument, and must be characterised before it is used
+to measure.
+
+\subsection{Architecture}
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=\textwidth]{architecture.pdf}
+  \caption{The six-layer framework, with the three components that sit outside
+  it and the three that are named but not built. \emph{Measured} means the
+  ledger contains a measurement of the layer's behaviour, and every such box
+  names the foreclosure or measurement entry it rests on; \emph{built} means
+  implemented and tested with no measurement bearing on the question the layer
+  exists to answer; \emph{hypothetical} means recorded as an open decision and
+  not built. Drawn from the structure of \texttt{docs/state.yaml} and
+  \texttt{docs/inherited-measurements.yaml}, and the script asserts that every
+  cited id exists in one of them before it draws. The layer numbering
+  \texttt{L1}--\texttt{L6} is Chat-surface vocabulary and is not defined in the
+  repository (\texttt{fc-011}).}
+  \label{fig:architecture}
+\end{figure}
+
+The framework is six layers, and a pass through the loop is the clearest way to
+describe them.
+
+A fixation is a gaze direction and a vergence. \textbf{L1} turns it into two eye
+rotations under Listing's law, which places the cameras. \textbf{L2} encodes the
+resulting pair; \textbf{L3} matches, producing disparity with a variance and a
+validity mask. \textbf{L4} scales disparity to metric depth by expanding about
+the fixated disparity --- first-order-exact at the fovea, degrading as the
+square of the offset. \textbf{L5} decides where attention is allocated;
+\textbf{L6} picks the next fixation from the belief's uncertainty. The belief
+updates, and the loop repeats.
+
+The layers are not equally weighted in practice. L1 is substantial and was
+expensive to get right; L2 and L3 are deliberately minimal; L4 carries more than
+its size suggests, through the Jacobian that converts disparity variance into
+depth variance; L5 was decided as attentional allocation with the mechanical
+branch left untested; L6 is a two-line argmax that, as \S2.2 reports, turned out
+not to matter.
+
+Three components sit outside the six-layer stack, and each exists because the
+stack alone was insufficient.
+
+\textbf{The sampling model} maps a sample index to a unit ray. It is what makes
+the projection swappable: a spherical sensor satisfied the same interface as a
+pinhole one without a signature change, because the frame is identical and only
+the index-to-direction map differs --- which is the whole of what a projection
+is.
+
+\textbf{The belief} is head-anchored and stores directions rather than pixels,
+so it survives a change of projection untouched. Its failure mode was
+instructive: tied initially to the rectifying rotation, which ignores azimuth by
+construction, it silently fused measurements of different world directions into
+the same cell, and no test caught it because every control varied elevation.
+
+\textbf{The rig/sensor split.} The original rig type carried baseline and focal
+length together, which coupled two thirds of the geometry tests to an intrinsic
+they did not need. Separating stereo geometry from the sensor is what made the
+rotational content portable.
+
+Listing's tilt is a parameter, not a constant: the default is 0.25 per radian of
+vergence, while 0.5 is the value at which vertical disparity in the plane of
+regard vanishes exactly. The two are distinct and the distinction is pinned by
+test.

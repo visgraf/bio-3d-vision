@@ -26,8 +26,8 @@
 % the toolchain question is cheaper to settle than to migrate: biber 2.21 is
 % present locally and ships with the TeX Live installation CI uses, and biblatex
 % is what carries the per-entry provenance notes this report's appendix will
-% need. No entries yet, so \printbibliography is not called and biber does not
-% run; refs.bib is the empty file the first \cite will fill.
+% need. refs.bib now holds the four entries the verification pass established
+% and nothing else; \printbibliography is called at the end of the document.
 \usepackage[backend=biber,style=numeric,sorting=none]{biblatex}
 \addbibresource{refs.bib}
 
@@ -46,5 +46,7 @@
 
 \appendix
 \input{sections/appendix}
+
+\printbibliography
 
 \end{document}
