@@ -22,8 +22,11 @@ finding about `src/`, not about the experiment. `matching.cost_volume` builds it
 shifted right image as
 
 ```python
-if d > 0: rs[:, :d] = right[:, :1]; rs[:, d:] = right[:, : W - d]
-else:     rs[:] = right
+if d > 0:
+    rs[:, :d] = right[:, :1]
+    rs[:, d:] = right[:, : W - d]
+else:
+    rs[:] = right
 ```
 
 For every `d <= 0` it copies the right image **unshifted**. A rectified pair may
