@@ -28,14 +28,20 @@ jobs:
       # hyperref, lmodern, biblatex. NOTHING here needs texlive-latex-extra,
       # which is the large one, and nothing needs texlive-full.
       #
-      # HOW LONG THIS TAKES IS ASSUMED, NOT MEASURED. It could not be measured
-      # locally: there is no container runtime on the development machine, so
-      # the first real number comes from Actions. This is the same shape as the
-      # OpenEXR manylinux question, which also only resolved when CI ran. If it
-      # proves slow, the lever is a path filter on `report/**` so the install is
-      # paid only when the document changes -- deliberately not applied up
-      # front, because a document that silently stops building is worse than a
-      # slow job.
+      # MEASURED, on the first run of this workflow: 43.7 s, 142 MB, 119
+      # packages. It was ASSUMED before that and could not be measured locally
+      # -- no container runtime on the development machine -- in the same shape
+      # as the OpenEXR manylinux question, which also only resolved when CI ran.
+      # It is not slow, so the path filter on `report/**` that was held in
+      # reserve is not needed and is not applied.
+      #
+      # `lmodern` is listed explicitly and is NOT redundant with
+      # texlive-fonts-recommended: that package ships the Latin Modern font
+      # files, but lmodern.sty lives in Debian's `lmodern` package, and
+      # --no-install-recommends stops it arriving as a recommend. The first run
+      # of this workflow failed on exactly that -- `! LaTeX Error: File
+      # 'lmodern.sty' not found` -- which MacTeX-full could not have caught,
+      # because it has everything.
       - name: Install TeX
         run: |
           sudo apt-get update
@@ -43,6 +49,7 @@ jobs:
             texlive-latex-recommended \
             texlive-fonts-recommended \
             texlive-bibtex-extra \
+            lmodern \
             biber \
             latexmk
 
