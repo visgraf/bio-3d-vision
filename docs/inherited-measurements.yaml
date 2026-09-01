@@ -4804,6 +4804,128 @@ measurements:
       WHAT IT DOES NOT SHOW: that a foveated capture would behave this way. It
       would not, and fc-013's qualifier and od-004 say so.
 
+  - id: bio-083
+    statement: >-
+      The spherical depth Jacobian is theta-dependent. var_r goes as 1/sin^2(theta),
+      so the least certain directions on the sphere are the EPIPOLES.
+    value:
+      closed_form: "dr/dd = -b * sin(theta_L) / sin^2(d)"
+      max_rel_err_vs_central_difference: 1.29e-08
+      points_checked: 50000
+      large_r_form: "|dr/dd| ~ r^2 / (b sin(theta))"
+      pinhole_form_angular_units: "|dZ/deta| = Z^2 / b, no theta at all"
+      var_r_ratio_vs_equator: {60: 1.33, 45: 2.00, 30: 4.00, 20: 8.55, 10: 33.16, 5: 131.65, 2: 821.04, 1: 3283.14}
+      jacobian_m_per_rad_at_3m: {90: 138.53, 45: 201.91, 20: 421.51, 10: 831.77, 5: 1657.99, 2: 4141.12}
+    units: mixed
+    n: {points: 50000}
+    stimulus_family: analytic_fixture
+    matcher: none
+    configuration: >-
+      Derived by hand from r(d) = b sin(theta_L + d)/sin(d) — the numerator of the
+      derivative collapses to -sin(theta_L) — and checked against a central
+      difference at h = 1e-7 over 50000 random (theta_L, d) pairs. No CAS; sympy is
+      not a dependency here and none was added.
+    provenance:
+      cited_as: visgraf/bio-3d-vision
+      source: step 18b Part C
+      experiment: null
+      run_id: null
+      measured_at_sha: f2fc52c
+      environment: {python: 3.13.15, numpy: 2.5.2, scipy: 1.18.1, matplotlib: 3.11.1}
+    status: measured
+    notes: >-
+      THE PINHOLE JACOBIAN IS CONSTANT PER FIXATION AND THIS ONE IS NOT. var_Z is
+      what every allocation policy reads, so a pinhole Jacobian applied to
+      spherical data would misweight the whole field systematically with theta.
+      THE PREDICTION IT GENERATES POINTS THE OPPOSITE WAY TO THE SPECIFICATION.
+      The specification expected a variance-driven policy to "prefer the equator".
+      That holds for a policy seeking GOOD measurements; argmax-variance seeks
+      UNCERTAIN ones, and uncertainty is worst exactly where measurement is worst —
+      at theta -> 0 and pi, which are the EPIPOLES, the directions in which stereo
+      carries no depth information at all. So the derivation predicts the policy is
+      DRAWN toward the poles and wastes budget there.
+      MEASURED IN exp013 AND NOT CONFIRMED AS A POLICY PREFERENCE (bio-085): the
+      gaze median is 62.8 degrees and only 10.3% of fixations land within 30
+      degrees of an epipole. The mechanism is real and is PRE-EMPTED — the matcher
+      cannot resolve sub-column disparities near the epipoles, so those cells fail
+      validity and are excluded from selection before the policy can prefer them.
+      Two independent effects pointing the same way, one of them arriving first.
+
+  - id: bio-084
+    statement: >-
+      On a complete uniform capture, UNIFORM weighting beats gaze-directed foveal
+      weighting decisively: 8 of 8 seeds, every band, both metrics.
+    value:
+      arms: [U, F]
+      median_abs_err_m:
+        EQUATOR: [0.0690, 0.7756]
+        MID: [0.0552, 0.7753]
+        POLE: [0.1326, 1.0304]
+        ALL: [0.0745, 0.8727]
+      p90_m:
+        EQUATOR: [0.2968, 3.4556]
+        MID: [0.2411, 2.6420]
+        POLE: [0.6085, 2.7323]
+        ALL: [0.3558, 2.8821]
+      mean_diff_ALL: {median: 0.7983, p90: 2.5263}
+      sd_ALL: {median: 0.1971, p90: 0.4642}
+      materiality_floor_ALL: {median: 0.0015, p90: 0.0071}
+      binds: sd_in_every_cell
+      sign_test: {seeds_favouring_F: 0, of: 8, p: 0.0078}
+      weighted_solid_angle_fraction: {U: 1.0000, F: 0.2149}
+      gaze_theta_median_deg: 62.8
+      gaze_within_30deg_of_epipole: 0.103
+      front_end_median_abs_err_m: 0.0668
+      front_end_scored_fraction: 0.694
+      solid_angle_with_geometry: 0.7295
+    units: m
+    n: {seeds: 8, budget: 40, belief_cells: 131072, lattice: [2048, 1024]}
+    stimulus_family: rendered_chart
+    matcher: block
+    configuration: >-
+      ONE equirect capture per seed, shared by both arms, which fc-013 licenses.
+      2048x1024 raster, transposed and row-reversed onto EquirectSampling((2048,
+      1024)); the pole is posed on the baseline so rows are epipolar. Disparity is
+      matched with the ported block matcher on column-reversed images — theta_R >
+      theta_L makes d negative in this lattice and cost_volume cannot search
+      negative (bio-057), and reversing is an index permutation. Range comes from
+      the sine rule and variance from bio-083's Jacobian. Ground truth is the depth
+      pass. Belief on EquirectSampling((512, 256)). Seeds vary the plane distances,
+      not only the texture.
+    provenance:
+      cited_as: visgraf/bio-3d-vision
+      source: exp013, falsifier (c)
+      experiment: exp013_spherical_allocation
+      run_id: null
+      measured_at_sha: f2fc52c
+      environment: {python: 3.13.15, numpy: 2.5.2, scipy: 1.18.1, matplotlib: 3.11.1}
+    status: measured
+    notes: >-
+      OUTCOME (c), AND THE MECHANISM IS MEASURED RATHER THAN ASSERTED: F puts more
+      than 1% of its peak weight on 21.5% of the sphere's solid angle and U on
+      100%. F leaves four fifths of the sphere at the prior.
+      THE READING IS NOT "ALLOCATION IS WORTHLESS". A foveal weight models an
+      ACUITY GRADIENT. A uniform capture has none, so weighting by gaze discards
+      information that is already in hand and buys nothing back. That is fc-013's
+      argument arriving in an experiment, and od-004's case stated from the other
+      side: the weight is justified by a SENSOR PROPERTY, and this sensor does not
+      have it.
+      THE COMPARISON CANNOT SHOW (a), AND SAYING SO IS PART OF THE RESULT. In the
+      pinhole loop, foveal advantage has two sources: the acuity weight, and
+      scale_to_depth's LINEARISATION REMAINDER, which loop.py's own comment says
+      "confines each fixation's confident estimate to its foveal neighbourhood".
+      The sine rule is exact, so the second source has no spherical analogue and F
+      has upside only if down-weighting helps, which it cannot. exp011's accuracy
+      term may therefore be a property of the SCALING LAYER rather than of
+      allocation — a claim this experiment raises and does not settle.
+      U IS NOT exp011's OPEN. OPEN also used a foveal weight; U uses none, so U is
+      a STRONGER arm than either exp011 arm. A faithful transposition of exp011's
+      pair is impossible here because CLOSED-vs-OPEN is degenerate (fc-013), and
+      this is the nearest well-posed question, not the same one.
+      FOUR APPARATUS FAULTS PRECEDED THIS NUMBER and are recorded in the runner
+      commit. One of them had a WRONG FIRST EXPLANATION written down before the
+      real cause was found.
+
   - id: gap-009
     statement: Nothing inside Blender is covered by any test, so rendered stimuli are the least-verified inputs in the record.
     value: null
