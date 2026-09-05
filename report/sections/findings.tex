@@ -1,14 +1,12 @@
-% Set from report/draft.md, part 2. The prose is the maintainer's; this file is
+% Set from report/draft.md section 4. The prose is the maintainer's; this file is
 % its transit into LaTeX and nothing in it was rewritten.
-%
-% Every caption states what was measured, on what, and cites the ledger entries
-% the numbers come from — the discipline the scaffold's Figure 1 caption set.
 \section{Findings}
 
-Thirteen experiments, each pre-registered with a stated falsifier, produced a
-set of results that read at first as unrelated: some about the synthetic
-stimulus, some about the gaze policy, one about closing the loop. They are
-better understood as one claim measured at three levels.
+\subsection{Summary}
+
+Thirteen experiments produced a set of results that read at first as unrelated:
+some about the synthetic stimulus, some about the gaze policy, one about closing
+the loop. They are better understood as one claim measured at three levels.
 
 \begin{quote}
 \textbf{Availability dominates selection.} What can be measured determines the
@@ -17,61 +15,14 @@ refinement. This holds whether the thing limiting availability is the stimulus,
 the sensor's field, or the geometry of occlusion.
 \end{quote}
 
-\S2.1 asks what limits availability, \S2.2 what selection buys, \S2.3 what
-changes availability.
+The experiments were run in that order without knowing it. Each was designed to
+answer the question in front of it --- does the objective matter, does variance
+help, does verging acquire anything --- and the pattern became visible only once
+the instrument was characterised well enough that the answers could be trusted.
+\S4.2 asks what selection buys; \S4.3 asks what changes availability.
 
-\subsection{The instrument}
-
-Random-dot stereograms are the right synthetic fixture for this work, for the
-reason Julesz introduced them~\cite{julesz1960binocular}: depth exists only in
-disparity, so nothing can be recovered by exploiting shading or texture
-gradient. The fixture used here follows the standard construction --- generate a
-texture, then warp it by the ground-truth disparity field to produce the second
-view.
-
-That construction has a defect, and it is not the obvious one.
-
-At a depth discontinuity the disparity field jumps, so adjacent output pixels
-draw from widely separated input columns. The second image acquires a stretched
-or duplicated patch of real texture with no consistent disparity. The matcher
-finds it. The result is a confident, incorrect depth estimate --- and it
-survives the front end's validity test, of which left--right consistency is one
-of two conditions: 78.5\% of discontinuity pixels are marked valid, and 21.7\%
-of those are wrong by more than two pixels.
-
-The obvious criticism of a warped stereogram is that it lacks true
-half-occlusions. The measured problem is worse and has the opposite sign: the
-fixture substitutes an artefact that is harder than real occlusion and invisible
-to the detector meant to catch it. Rendering the same geometry in a
-physically-based renderer, where occluded pixels genuinely have no correspondent
-and fail consistency, the fixture is 23\texttimes{} worse in the tail at depth
-discontinuities and 1.6\texttimes{} worse in the median. The damage is
-concentrated in a small number of badly wrong estimates rather than spread
-across the field --- which is what an artefact that passes validity looks like.
-
-The pixels within ten of a depth discontinuity are 38\% of the valid measured
-pixels and carry 82\% of the total squared error.
-
-\begin{figure}[htbp]
-  \centering
-  \includegraphics[width=\textwidth]{diagnostic.pdf}
-  \caption{The same geometry from two sources, at seed 0, under the ported loop
-  with policy \texttt{A'} for 18 fixations: the analytic fixture (F), whose
-  right image is resampled from its left, and a Blender render (R), where
-  occluded pixels genuinely have no correspondent. The fixture's error
-  concentrates in bands at the depth discontinuities that the render's does not
-  have, and its RMSE settles at 0.475\,m against the render's 0.225\,m.
-  \emph{Measured}: exp004, whose recorded band figures are
-  \texttt{AT} p90 1.4982\,m for F against 0.0734\,m for R
-  (\texttt{experiments/exp004\_scene\_model\_check/results.json}). The panels
-  are regenerated from committed code at the pinned seed because exp004 stored
-  no arrays; both regenerated scanpaths are asserted against the two the
-  experiment recorded before the figure is drawn, and the two loops agree on
-  1 of 18 fixations.}
-  \label{fig:diagnostic}
-\end{figure}
-
-Two consequences followed, and both were reversals.
+Two consequences of \S3.3 have to be carried forward, because both were
+reversals.
 
 Conclusions already drawn had to be re-read, because results measured on the
 fixture were pooled over a pixel population dominated by the artefact.
@@ -192,7 +143,7 @@ already deleted. At one measured fixation the target sat at nineteen pixels of
 disparity while the estimator's window reported eight, and the controller verged
 away from it, from ten pixels to six over three fixations. Across the run it
 partially recovers, and it is better described as badly steered than as stuck.
-\S3 returns to this as the finding with the widest reach beyond stereo.
+\S5 returns to this as the finding with the widest reach beyond stereo.
 
 \textbf{Closing the perception-action loop does help.} Re-rendering at each new
 fixation, re-matching, and accumulating into a head-centred belief beats holding
@@ -253,6 +204,29 @@ new fixation returns an identical capture. There is nothing to acquire.
 
 \begin{figure}[htbp]
   \centering
+  \includegraphics[width=\textwidth]{rig.pdf}
+  \caption{Why a saccade acquires nothing on a complete spherical sensor.
+  \emph{Top}: two eye centres fixed in the head at $\pm b/2$, each carrying a
+  sensor that has already sampled every direction; the gaze rotates and the
+  capture is unchanged, because the rotation moves the \emph{frame} and not the
+  \emph{data}. \emph{Bottom}, for contrast: on a pinhole sensor the field of
+  view rotates with the gaze, and the crescent it uncovers is what acquisition
+  means. A conceptual diagram --- it draws a geometric argument, so every
+  factual mark traces to a ledger entry, and the script asserts those entries
+  exist before drawing. \texttt{fc-013}: the centres are fixed and
+  \texttt{eye\_rotations} returns rotations, not translations, so ``a complete
+  capture has no hemisphere to hide''. \texttt{bio-081}: a sphere loses no grid
+  at any saccade amplitude. \texttt{bio-082}: two orientations, identity and
+  yawed $37^\circ$/pitched $19^\circ$, reproduce the same analytic function of
+  direction to 80\,\textmu m, measured against a real Blender. \textbf{The
+  qualifier is load-bearing}: this holds for a sensor sampled \emph{uniformly}.
+  Under variable resolution the fovea resolves what the periphery only sampled
+  coarsely, and refixation buys something again (\texttt{od-004}).}
+  \label{fig:rig}
+\end{figure}
+
+\begin{figure}[htbp]
+  \centering
   \includegraphics[width=\textwidth]{spherical.pdf}
   \caption{Spherical stereo geometry. \emph{Left}: with the baseline along
   $+x$ the two epipoles sit at $\pm x$, so every epipolar great circle passes
@@ -272,4 +246,4 @@ new fixation returns an identical capture. There is nothing to acquire.
 \end{figure}
 
 That is not a limitation of the implementation. It is the geometry, and it sets
-up the question \S3 takes as its subject.
+up the question \S5 takes as its subject.

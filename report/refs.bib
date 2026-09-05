@@ -1,7 +1,7 @@
-% Bibliography. Every entry here was verified in report/claims-verified.md
-% (sections 19-22) and NOTHING has been added beyond what that pass established.
-% Fields were not re-searched while typesetting: the verification pass is the
-% source of truth for this file exactly as it is for every number in the prose.
+% Bibliography. The four published works come from report/claims-verified.md
+% sections 19-22 and NOTHING was added beyond what that pass established; fields
+% were not re-searched while typesetting. The three software entries come from
+% claim 58 of the second pass.
 
 % VERIFIED EXCEPT ITS PAGE RANGE, AND THE PAGES ARE DELIBERATELY ABSENT.
 % claims-verified.md section 19 records three variants across otherwise reliable
@@ -56,4 +56,35 @@
   pages   = {1125--1162},
   year    = {1960},
   doi     = {10.1002/j.1538-7305.1960.tb03954.x},
+}
+
+% THE THREE REPOSITORIES, EACH PINNED TO A COMMIT AND NOT TO `main`.
+% A citation to a moving branch drifts away from the text that cites it: the
+% line counts in 1.1, the 432-line file, the seven experiments and every
+% inherited measurement are properties of THESE commits and of no later ones.
+% The two predecessor SHAs are the ones this repository pinned its inherited
+% measurements to (docs/migration-inventory.md:12-13), so a reader following the
+% citation lands on the code the measurements were taken from.
+@software{bioeye,
+  author  = {Velho, Luiz},
+  title   = {bioeye: a vertical slice through an active stereo framework},
+  url     = {https://github.com/visgraf/bioeye},
+  version = {e90817018e629ce1cd23af0c9e8bc4a6aa15daff},
+  note    = {Cited at commit \texttt{e908170}, the commit this work ported from},
+}
+
+@software{activestereo,
+  author  = {Velho, Luiz},
+  title   = {active-stereo: a full implementation of the active stereo framework},
+  url     = {https://github.com/visgraf/active-stereo},
+  version = {3f7a263011d9c5c53a4733957ac34cd28c2e85ba},
+  note    = {Cited at commit \texttt{3f7a263}, the commit the migration inventory measured},
+}
+
+@software{bio3dvision,
+  author  = {Velho, Luiz},
+  title   = {bio-3d-vision: experiments on active 3D vision},
+  url     = {https://github.com/visgraf/bio-3d-vision},
+  note    = {The complete record: pre-registrations, runners, raw results,
+             the measurement ledger and the decision ledger},
 }

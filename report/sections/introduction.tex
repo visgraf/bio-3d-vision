@@ -1,6 +1,44 @@
-% Set from report/draft.md, part 1. The prose is the maintainer's; this file is
+% Set from report/draft.md section 1. The prose is the maintainer's; this file is
 % its transit into LaTeX and nothing in it was rewritten.
 \section{Introduction}
+
+\subsection{Scope: an historical perspective}
+
+This report discusses experiments on active 3D vision. The work so far has run
+through three repositories implementing a common computational framework ---
+\texttt{bioeye}~\cite{bioeye}, \texttt{active-stereo}~\cite{activestereo} and
+\texttt{bio-3d-vision}~\cite{bio3dvision} --- and the results reported here come
+from the third. The differences between them are the reason it exists.
+
+The first, \texttt{bioeye}, was a thin vertical slice through the framework: a
+few hundred lines in a single file, written in under a week, running end to end
+from a synthetic scene to a four-panel figure in one command. It closed the
+\emph{accumulation} loop --- a per-pixel Gaussian posterior fused across
+fixations under a gaze policy --- and it worked. It did not close the
+\emph{perception--action} loop: the disparity field was computed once and
+re-weighted at each fixation, so the action changed where evidence was applied
+but never what evidence existed.
+
+The second, \texttt{active-stereo}, was a full implementation of the same
+framework, with verified oculomotor geometry, a blocking type gate, a decision
+record and a physically-based rendering path. It produced seven experiments and
+a great deal of correct machinery. The loop never ran. Layer by layer, the
+components that make the framework \emph{active} --- scaling, control, gaze
+policy --- received a fraction of the code the input side did, and no experiment
+exercised them.
+
+This repository was built to have both: the running loop from the first, the
+rigour from the second, and an explicit rule that a working measurement comes
+before infrastructure. The oculomotor geometry and the accumulated experimental
+record were carried across and marked as inherited --- priors awaiting re-test,
+not established facts. Everything else was rebuilt against what the loop could
+actually exercise.
+
+The scope is deliberately narrow. One matcher, one analytic stimulus, one
+rendered stimulus, no real imagery. Depth is estimated from a binocular pair and
+nothing else: no monocular cues, no temporal integration beyond the belief, no
+learning. The question is whether \emph{sampling policy} changes what a stereo
+estimator recovers, and everything not needed to ask that was left out.
 
 \subsection{Motivation: active vision as sampling under a budget}
 
@@ -37,143 +75,28 @@ stereograms~\cite{julesz1960binocular} isolate stereopsis by removing every
 monocular depth cue --- depth exists only in disparity, so a system that appears
 to recover it cannot be exploiting shading or texture gradient. That property
 made them the natural synthetic fixture here. It also made a defect in that
-fixture unusually damaging, in a way \S2 takes up.
+fixture unusually damaging, in a way \S3.3 takes up.
 
-\subsection{Background: stereo depth as inference}
+\subsection{Goals}
 
-Stereo matching admits a Bayesian reading. For each pixel, comparing a patch
-against candidate positions in the other image produces a cost curve over
-disparity --- a likelihood. A prior over depth or a smoothness assumption
-supplies the rest, and the quantity of interest is the posterior: an estimate
-with an uncertainty attached, not a point estimate.
+The project asks four questions, in increasing order of what they cost to
+answer.
 
-Uncertainty is usually read from the cost curve. Curvature at the minimum gives
-a local precision; the ratio between the best and second-best minima measures
-ambiguity; agreement between left-to-right and right-to-left matching flags
-pixels with no consistent correspondent. Estimates from multiple views are then
-combined by precision weighting --- each measurement contributes in proportion
-to its confidence.
+\textbf{Does the gaze objective matter?} Given that a fixation must be chosen,
+does the criterion for choosing it change the result --- and if so, which
+criterion?
 
-Depth is not disparity. Recovering metric depth requires knowing the geometry,
-and for a converged binocular system it requires knowing the fixation distance.
-This is where the oculomotor framing enters the estimator rather than just the
-camera model, and it is the origin of one of the report's more portable
-findings.
+\textbf{Does allocation matter at all?} Setting the objective aside: does
+directing finite processing toward some parts of the image, rather than treating
+all parts alike, improve the estimate?
 
-One property of this pipeline must be stated, because it motivated the work and
-because the record complicates it. A half-occluded pixel --- visible to one eye,
-hidden from the other --- has no true correspondent. The matcher does not report
-this; it finds the best available wrong match, and a sharp cost minimum at a
-wrong disparity is genuinely sharp. The result is a confident, incorrect
-estimate at exactly the geometry an active system might hope to resolve by
-looking elsewhere.
+\textbf{Does acquisition matter?} Does an action that changes what data exists
+--- a new viewpoint, a new vergence --- buy something that reallocating fixed
+data cannot?
 
-The predecessor repositories measured this on photographs, across three
-uncertainty readouts, and found variance in half-occluded regions \emph{lower}
-than in matched ones --- confidence inverted where it matters most. On
-random-dot stereograms the same matcher and the same statistic give the
-opposite: variance roughly twice as high in half-occlusions, which is the safe
-direction.
+\textbf{And what would have to be true for any of it to matter?} If the answers
+are negative, are they negative about active vision, or about the way this
+framework posed it?
 
-So the failure is not a stimulus-independent property of stereo confidence. It
-appears on real imagery and not on synthetic dots, and whether that difference
-is about realism or about contrast is unresolved --- a random-dot field is
-contrast-uniform by construction and cannot separate them. That open question is
-the sharper motivation: confidence fails where the scene is real, and the
-synthetic fixture this project used sits on the safe side of the reversal.
-
-\subsection{Concepts}
-
-Four distinctions do most of the analytical work, and none was fully in place
-when the project began.
-
-\textbf{Allocation versus acquisition.} \emph{Where to spend limited processing
-on data already sampled}, against \emph{where to point the sensor to obtain data
-not yet sampled}. Most treatments of active vision conflate them. Separating
-them is what makes the results here interpretable, and the separation has a
-clean geometric form: a rotation about a fixed optical centre changes allocation
-and cannot change acquisition.
-
-\textbf{Unknowable is not uncertain.} A pixel with no valid correspondent is not
-a pixel we are unsure about; it is one we cannot measure. The difference between
-a binary \emph{can this be measured} and a continuous \emph{how well} turned out
-to dominate.
-
-\textbf{Foveal weighting versus foveal sampling.} Weighting says the fovea
-contributes more to the posterior. Sampling says the periphery was never
-resolved in the first place. On a uniformly sampled sensor the first can only
-discard information already paid for. Only the second is what a retina does.
-
-\textbf{Linearising about the fixation is a confidence mechanism.} Expanding the
-depth relation about the fixated disparity is exact at the fovea and degrades
-with the square of the offset. That degradation term does more than bound
-approximation error: it inflates the variance of any estimate far from the
-fixated depth, and thereby refuses precisely the confident-and-wrong matches
-described above.
-
-A fifth concept was not brought to the project but forced on it, and \S2 begins
-there: a stimulus is an instrument, and must be characterised before it is used
-to measure.
-
-\subsection{Architecture}
-
-\begin{figure}[htbp]
-  \centering
-  \includegraphics[width=\textwidth]{architecture.pdf}
-  \caption{The six-layer framework, with the three components that sit outside
-  it and the three that are named but not built. \emph{Measured} means the
-  ledger contains a measurement of the layer's behaviour, and every such box
-  names the foreclosure or measurement entry it rests on; \emph{built} means
-  implemented and tested with no measurement bearing on the question the layer
-  exists to answer; \emph{hypothetical} means recorded as an open decision and
-  not built. Drawn from the structure of \texttt{docs/state.yaml} and
-  \texttt{docs/inherited-measurements.yaml}, and the script asserts that every
-  cited id exists in one of them before it draws. The layer numbering
-  \texttt{L1}--\texttt{L6} is Chat-surface vocabulary and is not defined in the
-  repository (\texttt{fc-011}).}
-  \label{fig:architecture}
-\end{figure}
-
-The framework is six layers, and a pass through the loop is the clearest way to
-describe them.
-
-A fixation is a gaze direction and a vergence. \textbf{L1} turns it into two eye
-rotations under Listing's law, which places the cameras. \textbf{L2} encodes the
-resulting pair; \textbf{L3} matches, producing disparity with a variance and a
-validity mask. \textbf{L4} scales disparity to metric depth by expanding about
-the fixated disparity --- first-order-exact at the fovea, degrading as the
-square of the offset. \textbf{L5} decides where attention is allocated;
-\textbf{L6} picks the next fixation from the belief's uncertainty. The belief
-updates, and the loop repeats.
-
-The layers are not equally weighted in practice. L1 is substantial and was
-expensive to get right; L2 and L3 are deliberately minimal; L4 carries more than
-its size suggests, through the Jacobian that converts disparity variance into
-depth variance; L5 was decided as attentional allocation with the mechanical
-branch left untested; L6 is a two-line argmax that, as \S2.2 reports, turned out
-not to matter.
-
-Three components sit outside the six-layer stack, and each exists because the
-stack alone was insufficient.
-
-\textbf{The sampling model} maps a sample index to a unit ray. It is what makes
-the projection swappable: a spherical sensor satisfied the same interface as a
-pinhole one without a signature change, because the frame is identical and only
-the index-to-direction map differs --- which is the whole of what a projection
-is.
-
-\textbf{The belief} is head-anchored and stores directions rather than pixels,
-so it survives a change of projection untouched. Its failure mode was
-instructive: tied initially to the rectifying rotation, which ignores azimuth by
-construction, it silently fused measurements of different world directions into
-the same cell, and no test caught it because every control varied elevation.
-
-\textbf{The rig/sensor split.} The original rig type carried baseline and focal
-length together, which coupled two thirds of the geometry tests to an intrinsic
-they did not need. Separating stereo geometry from the sensor is what made the
-rotational content portable.
-
-Listing's tilt is a parameter, not a constant: the default is 0.25 per radian of
-vergence, while 0.5 is the value at which vertical disparity in the plane of
-regard vanishes exactly. The two are distinct and the distinction is pinned by
-test.
+A fifth question was not planned and became unavoidable: \textbf{what is the
+stimulus doing to the answers?}

@@ -100,7 +100,7 @@ def main() -> None:
 
     with plt.rc_context(rcparams()):
         fig, ax = plt.subplots(figsize=(FIGURE_WIDTH_IN, 6.0))
-        ax.set_xlim(0, 100)
+        ax.set_xlim(-9, 100)  # room for the loop arrow; it was cropped at 0
         ax.set_ylim(0, 95)
         ax.axis("off")
 
@@ -126,10 +126,10 @@ def main() -> None:
 
         # The loop, drawn clear of the boxes on the left rather than across them.
         top = 3.5 + 5 * (h + gap) + h
-        ax.annotate("", xy=(x0 - 2.2, 4.6), xytext=(x0 - 2.2, top - 1.0),
+        ax.annotate("", xy=(x0 - 2.4, 4.6), xytext=(x0 - 2.4, top - 1.0),
                     arrowprops={"arrowstyle": "-|>", "color": "#666666", "lw": 1.0,
-                                "connectionstyle": "arc3,rad=0.30"})
-        ax.text(1.1, (top + 3.5) / 2, "the loop", fontsize=7.4, color="#666666",
+                                "connectionstyle": "arc3,rad=0.26"})
+        ax.text(-7.4, (top + 3.5) / 2, "the loop", fontsize=7.4, color="#666666",
                 rotation=90, ha="center", va="center")
 
         # The three components that sit outside the stack.
@@ -145,7 +145,7 @@ def main() -> None:
         for i, (name, sub, status) in enumerate(OUTSIDE):
             box(x1, y_h + i * 9.6, w1, 8.6, name, "", status, [sub], dashed=True)
 
-        ax.text(0, 94.0, "L1\u2013L6 is Chat-surface vocabulary and is not defined in this "
+        ax.text(-9, 94.0, "L1\u2013L6 is Chat-surface vocabulary and is not defined in this "
                 "repository (fc-011).\nEvery MEASURED box names the ledger entry that "
                 "measured it.", fontsize=7.0, color="#666666", va="top")
 
