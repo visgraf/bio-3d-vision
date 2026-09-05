@@ -1,10 +1,5 @@
-% Technical report — scaffold.
-%
-% NO PROSE YET, DELIBERATELY. This iteration establishes that the document
-% builds, that its one figure is generated from the record, and that CI fails on
-% a broken source. Section content follows in the next iteration, after its
-% factual claims have been verified against docs/state.yaml and
-% docs/inherited-measurements.yaml.
+% Technical report. Set from report/draft.md, which is committed beside this file
+% so the input and the output move together and the translation is diffable.
 %
 % Build:  make -C report        (or: latexmk -pdf main.tex, from this directory)
 
@@ -22,27 +17,70 @@
 \usepackage{booktabs}
 \usepackage[hidelinks]{hyperref}
 
-% biblatex + biber, not bibtex. Chosen now, before a bibliography exists, because
-% the toolchain question is cheaper to settle than to migrate: biber 2.21 is
-% present locally and ships with the TeX Live installation CI uses, and biblatex
-% is what carries the per-entry provenance notes this report's appendix will
-% need. No entries yet, so \printbibliography is not called and biber does not
-% run; refs.bib is the empty file the first \cite will fill.
+% biblatex + biber, not bibtex. biber was present when the choice was made and
+% ships with the TeX Live installation CI uses, and biblatex is what carries the
+% per-entry provenance notes this report's bibliography needs -- including a
+% software entry pinned to a commit rather than to a branch.
 \usepackage[backend=biber,style=numeric,sorting=none]{biblatex}
 \addbibresource{refs.bib}
 
 \graphicspath{{figures/}}
 
-\title{Active 3D Vision: A Technical Report}
-\author{Luiz Velho}
+\title{Experiments on Active 3D Vision}
+
+% Two authors. The collaborator footnote is draft.md's own, set here rather than
+% in the body: it is a statement about authorship and belongs on the byline.
+\author{
+  Luiz Velho\\
+  \normalsize IMPA
+  \and
+  Claude\thanks{This technical report was produced in collaboration with Claude
+  --- model Opus, high reasoning effort. See Appendix~A for what each surface did
+  and why authorship is attributed as it is.}\\
+  \normalsize Anthropic (collaborator)
+}
+
 \date{\today}
 
 \begin{document}
 \maketitle
 
+\begin{abstract}
+Active vision holds that perception is better posed as a controlled sampling
+problem than as a reconstruction problem: that choosing where to look improves
+what is perceived. This report tests that claim for binocular depth estimation,
+in a framework built on oculomotor geometry --- eyes rotating about fixed
+centres, vergence setting the horopter, torsion determined by gaze --- and a
+Bayesian belief accumulated across fixations.
+
+Thirteen pre-registered experiments give a consistent negative answer to the
+question as posed. The gaze objective did not matter; two objectives that never
+once selected the same pixel produced indistinguishable results. On a stimulus
+with effectively no occlusion, knowing \emph{where} measurement is possible
+outweighed knowing \emph{how uncertain} it is by 65:1 on median error. Foveal
+weighting on a uniformly sampled sensor was strictly lossy. Verging to acquire made estimation worse, through a mechanism
+that generalises beyond stereo: a controller driven by a statistic over
+\emph{valid} measurements is blind to the error that would correct it. Closing
+the perception--action loop did help, at 41\texttimes{} the cost --- but the
+benefit was coverage over accuracy by at least 33\texttimes{}. The system's
+advantage was that it saw the scene, not that it estimated better.
+
+Four of the thirteen experiments were about the instrument or the criterion
+rather than about the framework, and were the precondition for reading the
+rest. We conclude that the
+framework may have posed a budget problem as an estimation problem: foveation in
+a retina means \emph{not paying} for the periphery, and implemented as weighting
+it can only discard information already bought. The complete record is public.
+\end{abstract}
+
 \input{sections/introduction}
+\input{sections/background}
+\input{sections/overview}
 \input{sections/findings}
 \input{sections/conclusion}
+
+\section{References}
+\printbibliography[heading=none]
 
 \appendix
 \input{sections/appendix}

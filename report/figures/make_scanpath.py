@@ -46,6 +46,26 @@ search, and 9 pt against the document's 11 pt body reads as a caption-weight
 label. Output is vector PDF. The next five figures should use FIGURE_WIDTH_IN and
 _rcparams() rather than restating any of this.
 
+BYTE-COMPARISON DOES NOT SURVIVE A CHANGE OF MACHINE, AND THIS APPLIES TO EVERY
+FIGURE IN THIS DIRECTORY
+------------------------------------------------------------------------------
+Running this twice on ONE machine gives byte-identical PDFs, and that is the
+determinism check worth running. It does NOT extend across machines. Measured:
+Chat regenerated ``scanpath.pdf`` on Linux and got 103146 bytes against the
+committed 110709 -- same trajectory, same matplotlib producer string, a font
+embedding difference. Neither file is wrong.
+
+So a committed PDF is not a checksum. **The check that travels is regenerating
+and comparing the DRAWN QUANTITIES**, which is why this script and every other
+``make_*.py`` here asserts its numbers against the ledger and prints them: the
+scanpath, the distinct count and the lockup pixel are the same on both machines,
+and the bytes are not. Do not add a CI gate that diffs a committed figure's
+bytes -- it would fail on the runner for a reason that has nothing to do with
+the figure.
+
+Shared style lives in ``figstyle.py``; the constants below predate it and are
+kept so this script's output does not move.
+
 Run:  python report/figures/make_scanpath.py
 """
 

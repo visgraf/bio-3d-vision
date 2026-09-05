@@ -1,0 +1,193 @@
+% Set from report/draft.md section 3. The prose is the maintainer's; this file is
+% its transit into LaTeX and nothing in it was rewritten.
+%
+% Every caption states what was measured, on what, and cites the ledger entries
+% the numbers come from.
+\section{Overview}
+
+\subsection{Architecture}
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=\textwidth]{architecture.pdf}
+  \caption{The six-layer framework, with the three components that sit outside
+  it and the three that are named but not built. \emph{Measured} means the
+  ledger contains a measurement of the layer's behaviour, and every such box
+  names the foreclosure or measurement entry it rests on; \emph{built} means
+  implemented and tested with no measurement bearing on the question the layer
+  exists to answer; \emph{hypothetical} means recorded as an open decision and
+  not built. A conceptual diagram: it is drawn from the structure of
+  \texttt{docs/state.yaml} and \texttt{docs/inherited-measurements.yaml} rather
+  than from a numeric result, and the script asserts that all seventeen cited
+  ids exist in one of them before it draws. The layer numbering
+  \texttt{L1}--\texttt{L6} is Chat-surface vocabulary and is not defined in the
+  repository (\texttt{fc-011}).}
+  \label{fig:architecture}
+\end{figure}
+
+The framework is six layers, and a pass through the loop is the clearest way to
+describe them.
+
+A fixation is a gaze direction and a vergence. \textbf{L1} turns it into two eye
+rotations under Listing's law, which places the cameras. \textbf{L2} encodes the
+resulting pair; \textbf{L3} matches, producing disparity with a variance and a
+validity mask. \textbf{L4} scales disparity to metric depth by expanding about
+the fixated disparity --- first-order-exact at the fovea, degrading as the
+square of the offset. \textbf{L5} decides where attention is allocated;
+\textbf{L6} picks the next fixation from the belief's uncertainty. The belief
+updates, and the loop repeats.
+
+The layers are not equally weighted in practice. L1 is substantial and was
+expensive to get right; L2 and L3 are deliberately minimal; L4 carries more than
+its size suggests, through the Jacobian that converts disparity variance into
+depth variance; L5 was decided as attentional allocation with the mechanical
+branch left untested; L6 is a two-line argmax that, as \S4.2 reports, turned out
+not to matter.
+
+Three components sit outside the six-layer stack, and each exists because the
+stack alone was insufficient.
+
+\textbf{The sampling model} maps a sample index to a unit ray. It is what makes
+the projection swappable: a spherical sensor satisfied the same interface as a
+pinhole one without a signature change, because the frame is identical and only
+the index-to-direction map differs --- which is the whole of what a projection
+is.
+
+\textbf{The belief} is head-anchored and stores directions rather than pixels,
+so it survives a change of projection untouched. Its failure mode was
+instructive: tied initially to the rectifying rotation, which ignores azimuth by
+construction, it silently fused measurements of different world directions into
+the same cell, and no test caught it because every control varied elevation.
+
+\textbf{The rig/sensor split.} The original rig type carried baseline and focal
+length together, which coupled two thirds of the geometry tests to an intrinsic
+they did not need. Separating stereo geometry from the sensor is what made the
+rotational content portable.
+
+Listing's tilt is a parameter, not a constant: the default is 0.25 per radian of
+vergence, while 0.5 is the value at which vertical disparity in the plane of
+regard vanishes exactly. The two are distinct and the distinction is pinned by
+test.
+
+\subsection{The experiments}
+
+Thirteen experiments, each pre-registered with a stated falsifier before it was
+run. Each declared not only what result would falsify its hypothesis, but what
+result would mean the experiment had asked the wrong question --- and that
+second clause fired more than once.
+
+\begin{table}[htbp]
+  \centering
+  \small
+  \begin{tabular}{@{}llp{0.50\textwidth}@{}}
+    \toprule
+    & question & outcome \\
+    \midrule
+    \textbf{exp001} & Does the gaze objective matter?
+      & No --- two objectives, zero agreement, indistinguishable results \\
+    \textbf{exp002} & Does variance beat the validity mask?
+      & Only marginally; the mask carries the effect \\
+    \textbf{exp003} & Does verging to acquire help?
+      & No --- worse, with a diagnosed mechanism \\
+    \textbf{exp004} & Does the rendered scene match the fixture?
+      & Away from discontinuities marginally --- a knife edge that changes sign
+        under a scanpath control; at them no, and the fixture is the worse of
+        the two \\
+    \textbf{exp005} & Were the earlier results artefacts of the fixture?
+      & The artefact carried the effects rather than masking them \\
+    \textbf{exp007} & Do the policy results hold on rendered data?
+      & Yes, and variance recovers more strongly than on the fixture \\
+    \textbf{exp008} & How much occlusion makes the question visible?
+      & Sharpest near a tenth; indiscriminate above a sixth \\
+    \textbf{exp009} & What does the epipolar violation cost?
+      & More than rectifying does, at 9.5\texttimes{} the matcher time ---
+        which still leaves the loop render-bound \\
+    \textbf{exp010} & Does closing the loop help?
+      & Yes, at 41\texttimes{} the cost \\
+    \textbf{exp011} & Does it hold at more seeds and more levels?
+      & Direction yes, margin no; coverage is the result \\
+    \textbf{exp012} & What did the inherited statistical bar test?
+      & Not what it was read as testing \\
+    \textbf{exp013} & Does foveal weighting help on a complete sphere?
+      & No --- strictly lossy, on every seed \\
+    \textbf{exp014} & Is the gain allocation or scaling?
+      & Re-acquisition, away from discontinuities \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+Four of the thirteen --- exp004, exp005, exp008 and exp012 --- are about the
+instrument or the criterion rather than about the framework. They are not a
+detour. Each changed how the experiments around it had to be read, and two of
+them reversed conclusions that had already been drawn.
+
+\subsection{The instrument}
+
+\textbf{This section reports a result, not background.} The most surprising
+finding in the project concerns the stimulus rather than the framework, and
+every result after it had to be re-read in its light.
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=\textwidth]{fixture.pdf}
+  \caption{The analytic fixture at seed 0: the stereo pair and the ground-truth
+  depth field behind it, at the parameters every analytic-fixture result in this
+  report was measured at --- $240\times320$, $f = 700$\,px, baseline 65\,mm.
+  Depth is present only in disparity; neither monocular image contains it, which
+  is the property Julesz's construction was designed
+  for~\cite{julesz1960binocular}. \emph{Regenerated} from
+  \texttt{make\_synthetic\_scene(seed=0)}, ported unchanged from
+  \texttt{visgraf/bioeye@e908170}~\cite{bioeye}. The figure asserts
+  \texttt{gap-010}'s first mechanism before drawing: zero right-image values
+  fall outside the left image's range, because the right image is resampled from
+  the left rather than rendered.}
+  \label{fig:fixture}
+\end{figure}
+
+Random-dot stereograms are the right synthetic fixture for this work, for the
+reason Julesz introduced them: depth exists only in disparity, so nothing can be
+recovered by exploiting shading or texture gradient. The fixture used here
+follows the standard construction --- generate a texture, then warp it by the
+ground-truth disparity field to produce the second view.
+
+That construction has a defect, and it is not the obvious one.
+
+At a depth discontinuity the disparity field jumps, so adjacent output pixels
+draw from widely separated input columns. The second image acquires a stretched
+or duplicated patch of real texture with no consistent disparity. The matcher
+finds it. The result is a confident, incorrect depth estimate --- and it
+survives the front end's validity test, of which left--right consistency is one
+of two conditions: 78.5\% of discontinuity pixels are marked valid, and 21.7\%
+of those are wrong by more than two pixels.
+
+The obvious criticism of a warped stereogram is that it lacks true
+half-occlusions. The measured problem is worse and has the opposite sign: the
+fixture substitutes an artefact that is harder than real occlusion and invisible
+to the detector meant to catch it. Rendering the same geometry in a
+physically-based renderer, where occluded pixels genuinely have no correspondent
+and fail consistency, the fixture is 23\texttimes{} worse in the tail at depth
+discontinuities and 1.6\texttimes{} worse in the median. The damage is
+concentrated in a small number of badly wrong estimates rather than spread
+across the field --- which is what an artefact that passes validity looks like.
+
+The pixels within ten of a depth discontinuity are 38\% of the valid measured
+pixels and carry 82\% of the total squared error.
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=\textwidth]{diagnostic.pdf}
+  \caption{The same geometry from two sources, at seed 0, under the ported loop
+  with policy \texttt{A'} for 18 fixations: the analytic fixture (F), whose
+  right image is resampled from its left, and a Blender render (R), where
+  occluded pixels genuinely have no correspondent. The fixture's error
+  concentrates in bands at the depth discontinuities that the render's does not
+  have, and its RMSE settles at 0.475\,m against the render's 0.225\,m.
+  \emph{Measured}: exp004, whose recorded band figures are \texttt{AT} p90
+  1.4982\,m for F against 0.0734\,m for R
+  (\texttt{experiments/exp004\_scene\_model\_check/results.json}). The panels are
+  regenerated from committed code at the pinned seed because exp004 stored no
+  arrays; both regenerated scanpaths are asserted against the two the experiment
+  recorded before the figure is drawn, and the two loops agree on 1 of 18
+  fixations.}
+  \label{fig:diagnostic}
+\end{figure}

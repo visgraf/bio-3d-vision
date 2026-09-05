@@ -500,3 +500,325 @@ this pass did not verify.
 - **No prose, and no `.tex` file was touched.** No figure was added; `refs.bib` was not populated.
 - **Nothing was re-run.** Every number above is read from a committed artifact, except claim 4's scanpath, re-derived from `run_baseline(steps=18, seed=0)`.
 - **No claim was checked against a stimulus the record does not contain.** gap-010 binds on claims 1, 2, 3, 4, 13 and 14 — all analytic-fixture results, with no true half-occlusions.
+
+---
+
+# Second pass — the restructured draft
+
+**Verified at `36e914d`**, against the same sources. The draft was restructured
+into six numbered sections plus an appendix, and seven passages were written
+fresh for it. Those passages had had no verification; this section is their pass,
+appended here rather than started as a second document so there is one
+verification record.
+
+Carried passages were re-checked against the first pass above.
+
+## The count, second pass
+
+| verdict | n | claims |
+|---|---|---|
+| **CONFIRMED** | **28** | 23, 24, 26, 27, 30, 31, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 46, 47, 48, 50, 51, 52, 53, 54, 58, 59 |
+| **CORRECTED** | **3** | 28, 29, 49 |
+| **UNDER-QUALIFIED** | **2** | 25, 45 |
+| **UNSUPPORTED** | **2** | 32, 57 |
+| total | 35 | |
+
+**Two claims are unsupported, and both are about history rather than
+measurement** — how long the first repository took to write, and what the
+experimenters knew when they ran things in the order they did. Neither is in the
+record because neither is the kind of thing this record holds. They are the first
+unsupported claims in either pass.
+
+**Carried passages: one disagreement, the same one as before** (claim 28). It
+survived the restructure and is now in the Abstract as well as §4.3.
+
+---
+
+## The Abstract
+
+### 23. "Thirteen pre-registered experiments"
+**CONFIRMED.** Thirteen experiment directories, exp001--exp005 and
+exp007--exp014, each with a `preregistration.md`. There is no exp006 (am-004).
+
+### 24. "Two objectives that never once selected the same pixel produced indistinguishable results"
+**CONFIRMED.** Both halves: 0 of 144 argmax agreements twice (bio-011, bio-012),
+and A′-vs-C indistinguishable on both pre-registered primaries (bio-010). See
+claims 2 and 3 above for the full scope.
+
+### 25. "Knowing *where* measurement is possible outweighed knowing *how uncertain* it is by 65:1 on median error"
+**UNDER-QUALIFIED.** The figure is right (bio-017, 65.3 on median). The metric is
+named; the stimulus is not. §4.2 carries *on a stimulus with effectively no
+occlusion* and the Abstract drops it, and bio-017's own note says the ratio
+"could move a long way" on a stimulus with real half-occlusions and must not be
+cited as a general property. exp008 then measured it falling with occlusion,
+41.96× to 1.79×. An abstract is the most-quoted paragraph in a report.
+
+### 26. "Foveal weighting on a uniformly sampled sensor was strictly lossy"
+**CONFIRMED.** exp013: F worse than U in all eight band × metric cells, 0/8 seeds,
+p = 7.8e−3, ALL median at 4× the bar.
+
+### 27. "Verging to acquire made estimation worse, through a mechanism that generalises… a controller driven by a statistic over *valid* measurements is blind to the error that would correct it"
+**CONFIRMED.** exp003, and the mechanism is the experiment's own diagnosis:
+`vergence` takes the median of `d_sub` over valid pixels in a foveal window, and
+at window [8,12] with the near card at 18.96 px only 41.8% of those pixels
+survive as valid. fc-010's `mechanism` field records the same thing.
+
+### 28. "The benefit was coverage over accuracy by at least 34×"
+**CORRECTED. The exact minimum is 33.5×, at k4.**
+
+Rebuilt from exp011's 192 per-seed rows: 35.2× / 225.4× / **33.5×** / 340.5×.
+exp011's table rounds k4 to 34×; exp011's own prose says "between 33× and 341×".
+The draft rounds a **lower bound upward**, which is the one direction a lower
+bound may not be rounded.
+
+*Source:* `experiments/exp011_consolidation/results.json`, recomputed by
+`report/figures/make_coverage.py`, which asserts the rebuild against exp011's
+published table. This is the same disagreement the first pass found in §4.3; it
+survived the restructure and now appears in the Abstract too.
+
+### 29. "Four of the thirteen experiments were about the stimulus rather than the framework"
+**CORRECTED.** The four named in §3.2 are exp004, exp005, exp008 and **exp012**,
+and exp012 is not about the stimulus: it is the re-analysis of met-001, the
+inherited statistical bar. §3.2's own sentence gets this right — "about the
+instrument or the criterion" — and the Abstract's compression to "the stimulus"
+loses the second half. Three about the stimulus, one about the criterion.
+
+*Source:* `experiments/exp012_bar_reanalysis/findings.md`; met-001 in
+`docs/inherited-measurements.yaml`.
+
+---
+
+## §1.1 Scope
+
+### 30. Three repositories: `bioeye`, `active-stereo`, `bio-3d-vision`
+**CONFIRMED.** `docs/migration-inventory.md:12-13` pins the first two at
+`3f7a263011d9c5c53a4733957ac34cd28c2e85ba` and
+`e90817018e629ce1cd23af0c9e8bc4a6aa15daff`.
+
+### 31. `bioeye` was "a few hundred lines in a single file"
+**CONFIRMED, and it is 432.** "that one 432-line file holds all six layers"
+(`docs/migration-inventory.md:218`, `active_stereo_demo.py`). bioeye is 4 Python
+files and 20 tracked files in total, with **no tests** — "not a `tests/`
+directory, not a test file, not an assertion outside `argparse`"
+(`docs/migration-inventory.md:210-211`).
+
+### 32. `bioeye` was "written in under a week"
+**UNSUPPORTED.** Nothing in this repository records how long either predecessor
+took to write. The migration inventory measures files, lines and tests, not
+elapsed time, and no commit history for `bioeye` is carried here — only the
+pinned SHA. The claim may well be true; it is not established by anything the
+record contains, and it is the only claim in §1.1 that is not.
+
+### 33. "running end to end from a synthetic scene to a four-panel figure in one command"
+**CONFIRMED.** `make_synthetic_scene` (L47--77), `ActiveStereo` (L225--313),
+`save_result_fig` (L370--395) — "the four-panel figure, measured as
+`plt.subplots(2, 2)`" — and `main`, "the argparse entry point"
+(`docs/migration-inventory.md:223-231`).
+
+### 34. It closed the accumulation loop but not the perception--action loop; "the disparity field was computed once and re-weighted at each fixation"
+**CONFIRMED, twice over.** The migration inventory describes `ActiveStereo.step`
+as "argmax-variance fixation → vergence → foveated metric measurement →
+precision-weighted fusion". exp003's findings state the other half directly:
+"`front_end_block` ran once in `ActiveStereo.__init__` and never again", and
+name arm V as "the first arm in either repository in which an action changes what
+data exists".
+
+### 35. `active-stereo` "produced seven experiments"
+**CONFIRMED.** "`experiments/` (7 experiments × `run.py`/`config.yaml`/
+`findings.md`)" (`docs/migration-inventory.md:199`).
+
+### 36. "verified oculomotor geometry, a blocking type gate, a decision record and a physically-based rendering path"
+**CONFIRMED**, each separately. Geometry: `geometry/{horopter,oculomotor,
+projection}.py` and `tests/unit/test_oculomotor.py` read in full
+(`docs/migration-inventory.md:32-33`). Type gate: "a blocking mypy gate. A gate
+that fails is a pin" (`:150`). Decision record: "all 18 ADR titles and status
+lines" (`:35`). Rendering: `scenes/blender.py`, "pinned by a 585-line test"
+(`:231`).
+
+### 37. "The loop never ran"
+**CONFIRMED.** CLAUDE.md states it as the failure this repository exists not to
+repeat: "The predecessors built good components. Neither ever ran the loop those
+components were for."
+
+### 38. "scaling, control, gaze policy — received a fraction of the code the input side did"
+**CONFIRMED, and quantified.** fc-002's rationale, measured at `3f7a263`:
+geometry 830, encoding 374, inference 456, **scaling 95, control 151, policy
+200**, scenes 2069, library total 4913. The three active layers are **446/4913 =
+9.1%**; stimulus infrastructure alone is 42.1%.
+
+### 39. "One matcher, one analytic stimulus, one rendered stimulus, no real imagery"
+**CONFIRMED.** fc-003 forecloses a second renderer; fc-004 forecloses growing the
+analytic fixture into a corpus; every measurement in the ledger carries
+`matcher: block` or `none`, and `stimulus_family` is `analytic_fixture` or
+`rendered_chart` throughout. The only `middlebury2014` entries are `inherited`
+from the predecessors.
+
+---
+
+## §1.3 Goals
+
+### 40. The four questions
+**CONFIRMED** as a description of what was asked. Each maps to experiments that
+exist: the objective (exp001), allocation (exp002, exp005, exp007, exp013),
+acquisition (exp003, exp010, exp011, exp014), and what would have to be true
+(§5.2, od-004).
+
+### 41. "A fifth question was not planned and became unavoidable: what is the stimulus doing to the answers?"
+**CONFIRMED.** exp004 was a consistency check that returned a result, and its
+findings say the divergence ran "in the opposite direction from the one the
+specification predicted". exp005 and exp008 follow from it.
+
+---
+
+## §3.2 The experiments — the thirteen-row table
+
+Each row checked against that experiment's `findings.md`.
+
+| | row | verdict |
+|---|---|---|
+| 42 | exp001 — "No — two objectives, zero agreement, indistinguishable results" | CONFIRMED |
+| 43 | exp002 — "Only marginally; the mask carries the effect" | CONFIRMED |
+| 44 | exp003 — "No — worse, with a diagnosed mechanism" | CONFIRMED |
+| 45 | exp004 — "Away from discontinuities yes; at them no…" | UNDER-QUALIFIED |
+| 46 | exp005 — "The artefact carried the effects rather than masking them" | CONFIRMED |
+| 47 | exp007 — "Yes, and variance recovers more strongly than on the fixture" | CONFIRMED |
+| 48 | exp008 — "Sharpest near a tenth; indiscriminate above a sixth" | CONFIRMED |
+| 49 | exp009 — "…at 9.4× the matcher time" | **CORRECTED → 9.5×** |
+| 50 | exp010 — "Yes, at 41× the cost" | CONFIRMED |
+| 51 | exp011 — "Direction yes, margin no; coverage is the result" | CONFIRMED |
+| 52 | exp012 — "Not what it was read as testing" | CONFIRMED |
+| 53 | exp013 — "No — strictly lossy, on every seed" | CONFIRMED |
+| 54 | exp014 — "Re-acquisition, away from discontinuities" | CONFIRMED |
+
+**43 (exp002)** — "only marginally" is the right size: E recovers 97.3% of A′'s
+median-error benefit, so variance adds 2.7% (bio-016). Note the sign, which the
+row does not state: variance is **distinguishably** better, on both primaries.
+exp002's falsifier did not fire.
+
+**45 (exp004)** — **the row reads cleaner than the result.** exp004's headline
+does say "Away from depth discontinuities the two sources behave the same", but
+its **falsifier 1 fired**: AWAY p90 is distinguishable at **1.06× the bar**, R
+better, reported as a knife-edge rather than rounded. The common-scanpath control
+then put the same comparison at **0.92×**, on the other side. So "away yes" is
+the headline's reading, and the verdict underneath it is a knife-edge that
+changes sign when the policy is held fixed. "At them no, and the fixture is the
+worse of the two" is exactly right (claim 12).
+
+**47 (exp007)** — "more strongly" is measured: on p90 the rendered E-vs-A′ effect
+is **five times the fixture's pooled figure** (median 1.18×, p90 9.04×), which is
+what fc-008's `rendered_recheck_exp007` records.
+
+**49 (exp009)** — **CORRECTED. The ratio is 9.5×, not 9.4×**: RECT matcher
+0.020 s against TOED 0.188 s (`experiments/exp009_epipolar_cost/findings.md:219`,
+which also states 9.5× in the table's own ratio row).
+
+*And the row omits what exp009 concluded from that number.* The matcher is
+0.188 s against a **0.57 s render — 33% of it** — and exp009's section is titled
+"Chat's prediction is falsified": the loop stays **render-bound**, and the
+prediction that a ±2 band would make it matcher-bound "does not" hold. A row
+quoting 9.5× without that reads as a larger cost than the experiment found.
+
+---
+
+## §4.1 Summary, first three paragraphs
+
+### 55. "Thirteen experiments produced a set of results that read at first as unrelated"
+**CONFIRMED** as a description of the record; the three levels named
+(stimulus, policy, closing the loop) are exp004/005/008, exp001/002/013, and
+exp010/011.
+
+### 56. "Availability dominates selection" as the unifying claim
+**CONFIRMED** as a reading the measurements support: 65:1 on median error
+(bio-017), coverage over accuracy by 33.5--341× (exp011), and two objectives at
+zero agreement producing indistinguishable results (bio-010, bio-011).
+
+### 57. "The experiments were run in that order without knowing it"
+**UNSUPPORTED.** This is a claim about what the experimenters knew at the time,
+and the record holds pre-registrations, falsifiers and outcomes but not states of
+knowledge. The pre-registrations show what each experiment expected — several
+were wrong, and exp007 records four wrong predictions of eight — but none of that
+establishes that the ordering was unwitting. Not contradicted either; simply not
+the kind of thing this record can settle.
+
+---
+
+## §6 References — the repository SHAs
+
+### 58. "Cite each at the commit the report describes, not at `main`"
+**CONFIRMED, and the SHAs are supplied from the record rather than from `main`:**
+
+| repository | commit | source |
+|---|---|---|
+| `visgraf/bioeye` | `e90817018e629ce1cd23af0c9e8bc4a6aa15daff` | `docs/migration-inventory.md:13`; the SHA every `bio-` port entry cites |
+| `visgraf/active-stereo` | `3f7a263011d9c5c53a4733957ac34cd28c2e85ba` | `docs/migration-inventory.md:12`; the SHA every `as-` entry cites |
+| `visgraf/bio-3d-vision` | the commit carrying this report | this branch |
+
+Both predecessor SHAs are the ones this repository pinned its inherited
+measurements to, so a reader following the citation lands on the code the
+measurements were taken from.
+
+---
+
+## Figure 6's brief
+
+### 59. "A rotation about a fixed optical centre does not change what a complete sphere sees"
+**CONFIRMED**, and it is a foreclosure rather than an inference. fc-013: the eye
+centres are fixed at ±b/2 and `eye_rotations` returns rotations, not
+translations, so "a complete capture has no hemisphere to hide". bio-081: a
+sphere loses no grid at any saccade amplitude. bio-082: two orientations —
+identity, and yawed 37°/pitched 19° — reproduce the same analytic function of
+direction to **80 µm**, measured against a real Blender.
+
+**The qualifier is load-bearing** and fc-013 states it: this holds for a sensor
+sampled **uniformly**. Under variable resolution the fovea resolves what the
+periphery only sampled coarsely, and refixation buys something again — od-004.
+The figure's caption carries it.
+
+The *placement* of the figure is a layout proposal, not a factual claim, and is
+not verified here.
+
+---
+
+# Resolutions — the maintainer's corrections to the draft
+
+The maintainer replaced `draft.md` with a version applying the second pass. Ten
+edits, in eight hunks, all in passages already typeset. **Every edit found in the
+diff was on the list supplied with it; nothing else changed.** The typeset
+sources were updated to match, and nothing else was touched.
+
+## What resolved
+
+| claim | was | resolution |
+|---|---|---|
+| **25** | UNDER-QUALIFIED — Abstract's 65:1 dropped the stimulus scope | **RESOLVED.** Now reads "On a stimulus with effectively no occlusion, knowing *where*…" |
+| **28** | CORRECTED — "at least 34×" against an exact 33.5× | **RESOLVED.** "at least 33×", in all three places it appears (Abstract, §4.3, §5.1) |
+| **29** | CORRECTED — "four … about the stimulus" counted exp012 | **RESOLVED.** "about the instrument or the criterion rather than about the framework", matching §3.2's body text |
+| **32** | UNSUPPORTED — `bioeye` "written in under a week" | **RESOLVED by deletion.** The clause is gone |
+| **45** | UNDER-QUALIFIED — exp004's row read cleaner than the result | **RESOLVED.** "Away from discontinuities marginally — a knife edge that changes sign under a scanpath control" |
+| **49** | CORRECTED — exp009 "9.4×", and the conclusion drawn from it omitted | **RESOLVED, both halves.** "9.5× the matcher time — which still leaves the loop render-bound" |
+| **57** | UNSUPPORTED — "run in that order without knowing it" | **RESOLVED by deletion**, with the following sentence reworded so the paragraph still reads |
+
+**Seven of the second pass's nine non-confirmed claims are now closed.** The two
+that remain were CONFIRMED-with-scope rather than defects, and needed no edit.
+
+**On 33× rather than 33.5×.** The exact minimum is 33.5× at k4, so "at least 33×"
+is a true lower bound where "at least 34×" was not, and it matches exp011's own
+prose. A lower bound rounded *down* is the direction that stays true.
+
+## What is still flagged and was not part of this correction
+
+These were raised under falsifier 5 as sentences stating a number without its
+scope. They are not errors and were not on the maintainer's list; they remain the
+maintainer's call and are recorded here so the flag does not go quiet.
+
+- **§4.1, "the stimulus stops discriminating between policies altogether."**
+  Established for the *allocation* question (exp008). exp011's acquisition
+  comparison still discriminated at 17.16%, pooled `x̄` 1.24.
+- **§4.2, "a median 115 pixels apart, more than three fovea widths."** The
+  115.2 px figure is the **B-vs-C** pairing (bio-012); bio-011, the pair the
+  sentence introduces first, records no median distance. "Fovea widths" renames
+  what the ledger calls fovea *sigma* (34.0 px).
+- **§4.1, "Four of thirteen experiments went to establishing that"** — that a
+  stimulus is an instrument. The Abstract's parallel sentence was corrected to
+  "the instrument or the criterion"; this one still reads as four about the
+  stimulus, and exp012 is about the bar.

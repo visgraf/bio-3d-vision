@@ -1,4 +1,102 @@
+% Set from report/draft.md section 1. The prose is the maintainer's; this file is
+% its transit into LaTeX and nothing in it was rewritten.
 \section{Introduction}
 
-\emph{Placeholder. Section content is drafted on the Chat surface and lands in
-the next iteration.}
+\subsection{Scope: an historical perspective}
+
+This report discusses experiments on active 3D vision. The work so far has run
+through three repositories implementing a common computational framework ---
+\texttt{bioeye}~\cite{bioeye}, \texttt{active-stereo}~\cite{activestereo} and
+\texttt{bio-3d-vision}~\cite{bio3dvision} --- and the results reported here come
+from the third. The differences between them are the reason it exists.
+
+The first, \texttt{bioeye}, was a thin vertical slice through the framework: a
+few hundred lines in a single file, running end to end from a synthetic scene to
+a four-panel figure in one command. It closed the
+\emph{accumulation} loop --- a per-pixel Gaussian posterior fused across
+fixations under a gaze policy --- and it worked. It did not close the
+\emph{perception--action} loop: the disparity field was computed once and
+re-weighted at each fixation, so the action changed where evidence was applied
+but never what evidence existed.
+
+The second, \texttt{active-stereo}, was a full implementation of the same
+framework, with verified oculomotor geometry, a blocking type gate, a decision
+record and a physically-based rendering path. It produced seven experiments and
+a great deal of correct machinery. The loop never ran. Layer by layer, the
+components that make the framework \emph{active} --- scaling, control, gaze
+policy --- received a fraction of the code the input side did, and no experiment
+exercised them.
+
+This repository was built to have both: the running loop from the first, the
+rigour from the second, and an explicit rule that a working measurement comes
+before infrastructure. The oculomotor geometry and the accumulated experimental
+record were carried across and marked as inherited --- priors awaiting re-test,
+not established facts. Everything else was rebuilt against what the loop could
+actually exercise.
+
+The scope is deliberately narrow. One matcher, one analytic stimulus, one
+rendered stimulus, no real imagery. Depth is estimated from a binocular pair and
+nothing else: no monocular cues, no temporal integration beyond the belief, no
+learning. The question is whether \emph{sampling policy} changes what a stereo
+estimator recovers, and everything not needed to ask that was left out.
+
+\subsection{Motivation: active vision as sampling under a budget}
+
+Open a camera's shutter and every pixel arrives at the same resolution. Open an
+eye and it does not. The human fovea subtends one to two degrees of high acuity;
+beyond it resolution falls off sharply, and three or four times a second a
+saccade repositions that window somewhere new. The retina is not a uniform
+sensor that attention is later applied to. It is a variable-resolution sensor,
+and foveation is a bandwidth decision before it is an attention mechanism.
+
+That distinction is easy to state and, as this report will show, easy to lose in
+implementation. It is the hinge on which most of what follows turns.
+
+Binocular vision adds a second sense in which biological vision is \emph{active}.
+The eyes are not two cameras with fixed extrinsics. They rotate about centres
+fixed in the head; vergence sets the distance at which the two lines of sight
+intersect; and the torsion of each eye is not free but determined by gaze
+through Listing's law --- the eye's orientation lies in a plane that tilts with
+vergence. Stereo geometry in a biological system is therefore \emph{oculomotor}:
+it follows from where the system is looking, and it changes every time it looks
+somewhere else.
+
+This report describes a project that took that framing literally. The claim
+under test is the one the active-perception tradition has advanced since the
+1980s --- Bajcsy's \emph{Active Perception}~\cite{bajcsy1988active}, Aloimonos,
+Weiss and Bandyopadhyay's \emph{Active Vision}~\cite{aloimonos1988active},
+Ballard's \emph{Animate Vision}~\cite{ballard1991animate} --- that perception is
+better posed as a controlled sampling problem than as a reconstruction problem.
+Applied to stereo depth, the specific question becomes: does choosing where to
+look improve depth estimation, relative to not choosing?
+
+The stimulus deserves its own mention. Julesz's random-dot
+stereograms~\cite{julesz1960binocular} isolate stereopsis by removing every
+monocular depth cue --- depth exists only in disparity, so a system that appears
+to recover it cannot be exploiting shading or texture gradient. That property
+made them the natural synthetic fixture here. It also made a defect in that
+fixture unusually damaging, in a way \S3.3 takes up.
+
+\subsection{Goals}
+
+The project asks four questions, in increasing order of what they cost to
+answer.
+
+\textbf{Does the gaze objective matter?} Given that a fixation must be chosen,
+does the criterion for choosing it change the result --- and if so, which
+criterion?
+
+\textbf{Does allocation matter at all?} Setting the objective aside: does
+directing finite processing toward some parts of the image, rather than treating
+all parts alike, improve the estimate?
+
+\textbf{Does acquisition matter?} Does an action that changes what data exists
+--- a new viewpoint, a new vergence --- buy something that reallocating fixed
+data cannot?
+
+\textbf{And what would have to be true for any of it to matter?} If the answers
+are negative, are they negative about active vision, or about the way this
+framework posed it?
+
+A fifth question was not planned and became unavoidable: \textbf{what is the
+stimulus doing to the answers?}

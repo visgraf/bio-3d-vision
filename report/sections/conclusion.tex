@@ -1,4 +1,145 @@
+% Set from report/draft.md section 5. The prose is the maintainer's; this file is
+% its transit into LaTeX and nothing in it was rewritten.
 \section{Conclusion}
 
-\emph{Placeholder. Section content is drafted on the Chat surface and lands in
-the next iteration.}
+\subsection{Contributions}
+
+\textbf{A structural blindness in control layers driven by masked measurements.}
+A controller whose error signal is computed as a statistic over \emph{valid}
+measurements cannot see the error that would correct it, because the
+measurements carrying that error are the ones validity has already discarded. In
+the case measured here, a vergence controller took a robust statistic over valid
+disparities in a foveal window; a target outside the search range either failed
+the validity test or clamped to the window edge, so the controller had no way to
+report \emph{too near} or \emph{too far}. It verged away from its target while
+every measurement it could see said it was doing fine.
+
+Nothing about this is specific to vergence, or to stereo. It arises wherever a
+validity mask sits upstream of a control loop, which is a common arrangement.
+The correction is not a better statistic but a channel that can report \emph{out
+of range} --- something the discarded measurements are the only evidence for.
+
+\textbf{Availability dominates selection.} Across the policy experiments, the
+binary question \emph{can this be measured at all} outweighed the continuous
+question \emph{how well} by 65:1 on median error, on a stimulus with effectively
+no occlusion --- a ratio that narrows on the tail and falls as occlusion rises.
+Closing the loop helped, and its benefit was coverage over accuracy by at least
+33\texttimes{} at every occlusion level. Two objectives that never once agreed on a pixel produced
+indistinguishable results. The consistent finding is that what limits an active
+vision system is what it can see, not how cleverly it chooses among what it can
+see.
+
+\textbf{Geometric confinement as a confidence mechanism.} Expanding the depth
+relation about the fixated disparity is exact at the fovea and degrades as the
+square of the offset. That degradation term inflates the variance of any
+estimate far from the fixated depth --- which is to say, precisely the
+confidently-wrong matches that anti-calibrated stereo confidence produces. A
+term introduced to bound approximation error turns out to function as a filter
+against exactly the failure mode the confidence channel cannot report. It is a
+property of the estimator, not of the sensor, and it transfers to passive stereo
+unchanged.
+
+\textbf{A synthetic stimulus is an instrument and must be characterised before
+it is used to measure.} The random-dot fixture used here substituted, at every
+depth discontinuity, an artefact both harder than real occlusion and able to
+pass the validity test meant to catch it. Four of thirteen experiments went to
+establishing this, and every result before them had to be re-read afterwards.
+
+\subsection{What we may have measured}
+
+The negative results are consistent and, taken at face value, they say that
+uncertainty-driven active vision does not improve stereo depth estimation. We
+are not confident that is the right reading, and the reason is worth stating
+precisely.
+
+\textbf{The biological inspiration transferred at the wrong level of
+abstraction.} In a retina, foveation means \emph{not paying} for the periphery
+--- the samples are never taken. Here it was implemented as \emph{paying, then
+discounting}: every pixel matched at full resolution, then weighted down by
+distance from gaze. Under that translation a foveal weight can only remove
+information already bought, and the measurements show it removing. The mechanism
+was not wrong. The level was.
+
+That generalises. If sampling is free, looking is pointless. A complete
+spherical capture already contains every direction; rotating the eyes about
+their fixed centres returns an identical image, and there is literally nothing
+to acquire. Looking matters exactly when sampling is scarce. Every experiment
+reported here gave the system unlimited uniform sampling and then asked whether
+choosing where to attend helped --- and under that setup the answer nearly has
+to be no.
+
+So the honest summary may not be \emph{active vision does not work}. It may be
+\textbf{we posed a budget problem as an estimation problem.} The framework's
+remaining untested form --- a sensor whose periphery is genuinely sampled more
+coarsely than its fovea --- is not one more experiment in the series. It is the
+first one that asks the question in the terms the biology poses it.
+
+\subsection{On simulation as an instrument}
+
+A second thread runs through this work and deserves stating on its own.
+
+In simulation-based science the instrument is authored by the same hand as the
+hypothesis. The fixture's artefact was not merely a limitation; it was
+adversarial to its own detector --- self-consistent enough to pass the validity
+test, wrong enough to poison the estimate, and concentrated in exactly the
+region where the scientific question lived. Real data can be difficult, biased,
+or insufficient. It is not written by someone who wants a particular answer.
+
+We do not think this argues against synthetic stimuli, which offer dense ground
+truth no capture provides. It argues that a synthetic stimulus deserves the same
+scrutiny as an unfamiliar sensor: characterise its failure modes before trusting
+a measurement made through it, and expect its worst behaviour to coincide with
+the regime you care about, because that is usually the regime that is hardest to
+synthesise.
+
+\subsection{Directions}
+
+\textbf{Variable-resolution sampling} is the priority, for the reason \S5.2
+gives --- it is the only formulation in which the question is well posed. It
+requires a matcher that operates on a non-uniform lattice, which is a research
+problem rather than an engineering one and should be scoped as such. It also
+changes the metric: the claim becomes \emph{the same posterior for less
+computation}, which needs a declared computational budget that this project
+never had to define.
+
+\textbf{A controlled contrast axis at occlusion boundaries} would connect these
+results to the confidence failure that motivated them, and settle whether that
+failure is a property of real imagery or of high contrast --- which the two
+stimulus families measured so far cannot separate.
+
+\textbf{A moving head.} Rotations about fixed centres cannot change what a
+complete sensor sees; translations can. Acquisition on an omnidirectional rig
+requires the rig to move, which reintroduces a mechanical plant this project set
+aside as untested rather than refuted.
+
+\subsection{A note on what remains}
+
+The most reusable output of this work is probably not the code, and not the
+single positive result. It is a ledger of foreclosed possibilities, each with
+the evidence that closed it and the cost of reopening it: the gaze objective
+does not matter, verging to acquire harms and why, foveal weighting on a uniform
+sensor is lossy, this stimulus cannot support occlusion claims and here is what
+it substitutes instead.
+
+Research whose deliverable is a well-ordered set of eliminated options is
+awkward to write up and, we suspect, more reusable than most positive claims.
+Someone building an active stereo system now knows several things not to try,
+and the reasons --- which is a different and more durable kind of result than a
+benchmark number.
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=\textwidth]{ledger.pdf}
+  \caption{The thirteen foreclosures, and what later work did to each. A
+  foreclosure that acquires a qualification acquires it as a new field on its
+  own entry rather than as an edit to the original, so the fields are the
+  timeline and this figure is built from them rather than from a hand-written
+  table. Five of the thirteen were annotated later; eight have not been
+  revisited. \texttt{fc-008} is the one that was \emph{qualified} --- by exp005,
+  and the qualification did not survive exp007 --- and \texttt{fc-009} is the
+  one whose verdict moved twice: written \textsc{additive}, corrected in place
+  to \textsc{deferred} because the original overstated what had been measured,
+  then answered \textsc{additive} at step 15 once a ray actually crossed the
+  boundary. \emph{Derived} from the structure of \texttt{docs/state.yaml}.}
+  \label{fig:ledger}
+\end{figure}

@@ -1,4 +1,61 @@
+% Set from report/draft.md appendix A. The prose is the maintainer's; this file is
+% its transit into LaTeX and nothing in it was rewritten.
 \section{Provenance}
 
-\emph{Placeholder. Section content is drafted on the Chat surface and lands in
-the next iteration.}
+\subsection{How this work was produced}
+
+This project was carried out as a collaboration between one researcher and two
+AI surfaces working in different roles. A conversational surface handled
+derivation, experiment design, adversarial review, and the specification of each
+iteration's work. An agentic coding surface implemented, ran, and verified
+against the actual files. The researcher directed the work, took every decision
+recorded as a foreclosure, and merged every change.
+
+The division was not decorative. The two surfaces checked each other in both
+directions, and both directions produced corrections that reached the record.
+
+Specifications were rejected when their stated assumptions about the repository
+turned out to be false --- including one that would have made the sensor unable
+to follow gaze in two of its three degrees of freedom, and one whose central
+premise about which arms re-estimate vergence was simply wrong. Conversely,
+verification against a fresh clone caught claims that had been recorded with
+more confidence than their evidence supported.
+
+Every experiment declared, before it was run, what result would falsify the
+hypothesis and what result would mean the experiment had asked the wrong
+question. Several times the second clause fired. On more than one occasion the
+outcome fell outside every direction the falsifier had enumerated, and that
+omission is recorded alongside the result.
+
+The corrections are in the record, not smoothed out of it. Where a conclusion
+was drawn and later qualified, both the conclusion and the qualification appear,
+with the evidence that moved between them. Where a statistical criterion was
+inherited from earlier work and used for ten experiments before anyone examined
+what it tested, that is recorded too, along with a re-analysis of every affected
+verdict.
+
+This report's own prose was verified the same way. Of eighteen substantive
+factual claims in the draft, seven stood as written; three were wrong on the
+number, and eight were true in the band, arm or metric they came from and
+misleading without it. None was unsupported. The verification pass is committed
+alongside the report.
+
+We describe the methodology here only as provenance. A separate report treats it
+as a subject.
+
+\subsection{Availability}
+
+The repository is public and contains the complete record: every experiment's
+pre-registration, runner, raw results, and analysis; the measurement ledger with
+each figure's provenance, the commit that produced it, and the environment it
+was measured in; the decision ledger with each foreclosure, its evidence, its
+stated limits, and the cost of reopening it; and the full commit history, which
+was kept forward-only, so corrections appear as amendments rather than as edits.
+
+Figures in this report are generated from that record rather than reproduced
+from it.
+
+Measurements carried in from the two predecessor repositories are marked as
+inherited --- priors awaiting re-test, not established facts --- and are
+distinguished throughout from measurements this project made. Methods carried in
+the same way are marked likewise, including the ones never examined.

@@ -1,0 +1,79 @@
+% Set from report/draft.md section 2. The prose is the maintainer's; this file is
+% its transit into LaTeX and nothing in it was rewritten.
+\section{Background}
+
+\subsection{Stereo depth as inference}
+
+Stereo matching admits a Bayesian reading. For each pixel, comparing a patch
+against candidate positions in the other image produces a cost curve over
+disparity --- a likelihood. A prior over depth or a smoothness assumption
+supplies the rest, and the quantity of interest is the posterior: an estimate
+with an uncertainty attached, not a point estimate.
+
+Uncertainty is usually read from the cost curve. Curvature at the minimum gives
+a local precision; the ratio between the best and second-best minima measures
+ambiguity; agreement between left-to-right and right-to-left matching flags
+pixels with no consistent correspondent. Estimates from multiple views are then
+combined by precision weighting --- each measurement contributes in proportion
+to its confidence.
+
+Depth is not disparity. Recovering metric depth requires knowing the geometry,
+and for a converged binocular system it requires knowing the fixation distance.
+This is where the oculomotor framing enters the estimator rather than just the
+camera model, and it is the origin of one of the report's more portable
+findings.
+
+One property of this pipeline must be stated, because it motivated the work and
+because the record complicates it. A half-occluded pixel --- visible to one eye,
+hidden from the other --- has no true correspondent. The matcher does not report
+this; it finds the best available wrong match, and a sharp cost minimum at a
+wrong disparity is genuinely sharp. The result is a confident, incorrect
+estimate at exactly the geometry an active system might hope to resolve by
+looking elsewhere.
+
+The predecessor repositories measured this on photographs, across three
+uncertainty readouts, and found variance in half-occluded regions \emph{lower}
+than in matched ones --- confidence inverted where it matters most. On
+random-dot stereograms the same matcher and the same statistic give the
+opposite: variance roughly twice as high in half-occlusions, which is the safe
+direction.
+
+So the failure is not a stimulus-independent property of stereo confidence. It
+appears on real imagery and not on synthetic dots, and whether that difference
+is about realism or about contrast is unresolved --- a random-dot field is
+contrast-uniform by construction and cannot separate them. That open question is
+the sharper motivation: confidence fails where the scene is real, and the
+synthetic fixture this project used sits on the safe side of the reversal.
+
+\subsection{Concepts}
+
+Four distinctions do most of the analytical work, and none was fully in place
+when the project began.
+
+\textbf{Allocation versus acquisition.} \emph{Where to spend limited processing
+on data already sampled}, against \emph{where to point the sensor to obtain data
+not yet sampled}. Most treatments of active vision conflate them. Separating
+them is what makes the results here interpretable, and the separation has a
+clean geometric form: a rotation about a fixed optical centre changes allocation
+and cannot change acquisition.
+
+\textbf{Unknowable is not uncertain.} A pixel with no valid correspondent is not
+a pixel we are unsure about; it is one we cannot measure. The difference between
+a binary \emph{can this be measured} and a continuous \emph{how well} turned out
+to dominate.
+
+\textbf{Foveal weighting versus foveal sampling.} Weighting says the fovea
+contributes more to the posterior. Sampling says the periphery was never
+resolved in the first place. On a uniformly sampled sensor the first can only
+discard information already paid for. Only the second is what a retina does.
+
+\textbf{Linearising about the fixation is a confidence mechanism.} Expanding the
+depth relation about the fixated disparity is exact at the fovea and degrades
+with the square of the offset. That degradation term does more than bound
+approximation error: it inflates the variance of any estimate far from the
+fixated depth, and thereby refuses precisely the confident-and-wrong matches
+described above.
+
+A fifth concept was not brought to the project but forced on it, and \S3.3 takes
+it up: a stimulus is an instrument, and must be characterised before it is used
+to measure.
