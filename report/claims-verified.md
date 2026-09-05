@@ -776,3 +776,49 @@ The figure's caption carries it.
 
 The *placement* of the figure is a layout proposal, not a factual claim, and is
 not verified here.
+
+---
+
+# Resolutions — the maintainer's corrections to the draft
+
+The maintainer replaced `draft.md` with a version applying the second pass. Ten
+edits, in eight hunks, all in passages already typeset. **Every edit found in the
+diff was on the list supplied with it; nothing else changed.** The typeset
+sources were updated to match, and nothing else was touched.
+
+## What resolved
+
+| claim | was | resolution |
+|---|---|---|
+| **25** | UNDER-QUALIFIED — Abstract's 65:1 dropped the stimulus scope | **RESOLVED.** Now reads "On a stimulus with effectively no occlusion, knowing *where*…" |
+| **28** | CORRECTED — "at least 34×" against an exact 33.5× | **RESOLVED.** "at least 33×", in all three places it appears (Abstract, §4.3, §5.1) |
+| **29** | CORRECTED — "four … about the stimulus" counted exp012 | **RESOLVED.** "about the instrument or the criterion rather than about the framework", matching §3.2's body text |
+| **32** | UNSUPPORTED — `bioeye` "written in under a week" | **RESOLVED by deletion.** The clause is gone |
+| **45** | UNDER-QUALIFIED — exp004's row read cleaner than the result | **RESOLVED.** "Away from discontinuities marginally — a knife edge that changes sign under a scanpath control" |
+| **49** | CORRECTED — exp009 "9.4×", and the conclusion drawn from it omitted | **RESOLVED, both halves.** "9.5× the matcher time — which still leaves the loop render-bound" |
+| **57** | UNSUPPORTED — "run in that order without knowing it" | **RESOLVED by deletion**, with the following sentence reworded so the paragraph still reads |
+
+**Seven of the second pass's nine non-confirmed claims are now closed.** The two
+that remain were CONFIRMED-with-scope rather than defects, and needed no edit.
+
+**On 33× rather than 33.5×.** The exact minimum is 33.5× at k4, so "at least 33×"
+is a true lower bound where "at least 34×" was not, and it matches exp011's own
+prose. A lower bound rounded *down* is the direction that stays true.
+
+## What is still flagged and was not part of this correction
+
+These were raised under falsifier 5 as sentences stating a number without its
+scope. They are not errors and were not on the maintainer's list; they remain the
+maintainer's call and are recorded here so the flag does not go quiet.
+
+- **§4.1, "the stimulus stops discriminating between policies altogether."**
+  Established for the *allocation* question (exp008). exp011's acquisition
+  comparison still discriminated at 17.16%, pooled `x̄` 1.24.
+- **§4.2, "a median 115 pixels apart, more than three fovea widths."** The
+  115.2 px figure is the **B-vs-C** pairing (bio-012); bio-011, the pair the
+  sentence introduces first, records no median distance. "Fovea widths" renames
+  what the ledger calls fovea *sigma* (34.0 px).
+- **§4.1, "Four of thirteen experiments went to establishing that"** — that a
+  stimulus is an instrument. The Abstract's parallel sentence was corrected to
+  "the instrument or the criterion"; this one still reads as four about the
+  stimulus, and exp012 is about the bar.

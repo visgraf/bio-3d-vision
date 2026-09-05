@@ -38,18 +38,19 @@ belief accumulated across fixations.
 
 Thirteen pre-registered experiments give a consistent negative answer to the
 question as posed. The gaze objective did not matter; two objectives that never
-once selected the same pixel produced indistinguishable results. Knowing *where*
-measurement is possible outweighed knowing *how uncertain* it is by 65:1 on
-median error. Foveal weighting on a uniformly sampled sensor was strictly lossy.
+once selected the same pixel produced indistinguishable results. On a stimulus with effectively no
+occlusion, knowing *where* measurement is possible outweighed knowing *how
+uncertain* it is by 65:1 on median error. Foveal weighting on a uniformly sampled sensor was strictly lossy.
 Verging to acquire made estimation worse, through a mechanism that generalises
 beyond stereo: a controller driven by a statistic over *valid* measurements is
 blind to the error that would correct it. Closing the perception–action loop did
 help, at 41× the cost — but the benefit was coverage over accuracy by at least
-34×. The system's advantage was that it saw the scene, not that it estimated
+33×. The system's advantage was that it saw the scene, not that it estimated
 better.
 
-Four of the thirteen experiments were about the stimulus rather than the
-framework, and were the precondition for reading the rest. We conclude that the
+Four of the thirteen experiments were about the instrument or the criterion
+rather than about the framework, and were the precondition for reading the
+rest. We conclude that the
 framework may have posed a budget problem as an estimation problem: foveation in
 a retina means *not paying* for the periphery, and implemented as weighting it
 can only discard information already bought. The complete record is public.
@@ -68,8 +69,8 @@ through three repositories implementing a common computational framework —
 come from the third. The differences between them are the reason it exists.
 
 The first, `bioeye`, was a thin vertical slice through the framework: a few
-hundred lines in a single file, written in under a week, running end to end from
-a synthetic scene to a four-panel figure in one command. It closed the
+hundred lines in a single file, running end to end from a synthetic scene to a
+four-panel figure in one command. It closed the
 *accumulation* loop — a per-pixel Gaussian posterior fused across fixations
 under a gaze policy — and it worked. It did not close the *perception–action*
 loop: the disparity field was computed once and re-weighted at each fixation, so
@@ -300,11 +301,11 @@ clause fired more than once.
 | **exp001** | Does the gaze objective matter? | No — two objectives, zero agreement, indistinguishable results |
 | **exp002** | Does variance beat the validity mask? | Only marginally; the mask carries the effect |
 | **exp003** | Does verging to acquire help? | No — worse, with a diagnosed mechanism |
-| **exp004** | Does the rendered scene match the fixture? | Away from discontinuities yes; at them no, and the fixture is the worse of the two |
+| **exp004** | Does the rendered scene match the fixture? | Away from discontinuities marginally — a knife edge that changes sign under a scanpath control; at them no, and the fixture is the worse of the two |
 | **exp005** | Were the earlier results artefacts of the fixture? | The artefact carried the effects rather than masking them |
 | **exp007** | Do the policy results hold on rendered data? | Yes, and variance recovers more strongly than on the fixture |
 | **exp008** | How much occlusion makes the question visible? | Sharpest near a tenth; indiscriminate above a sixth |
-| **exp009** | What does the epipolar violation cost? | More than rectifying does, at 9.4× the matcher time |
+| **exp009** | What does the epipolar violation cost? | More than rectifying does, at 9.5× the matcher time — which still leaves the loop render-bound |
 | **exp010** | Does closing the loop help? | Yes, at 41× the cost |
 | **exp011** | Does it hold at more seeds and more levels? | Direction yes, margin no; coverage is the result |
 | **exp012** | What did the inherited statistical bar test? | Not what it was read as testing |
@@ -377,11 +378,11 @@ the loop. They are better understood as one claim measured at three levels.
 > refinement. This holds whether the thing limiting availability is the
 > stimulus, the sensor's field, or the geometry of occlusion.
 
-The experiments were run in that order without knowing it. Each was designed to
-answer the question in front of it — does the objective matter, does variance
-help, does verging acquire anything — and the pattern became visible only once
-the instrument was characterised well enough that the answers could be trusted.
-§4.2 asks what selection buys; §4.3 asks what changes availability.
+Each experiment was designed to answer the question in front of it — does the
+objective matter, does variance help, does verging acquire anything — and the
+pattern across them became legible only once the instrument was characterised
+well enough that the answers could be trusted. §4.2 asks what selection buys;
+§4.3 asks what changes availability.
 
 Two consequences of §3.3 have to be carried forward, because both were
 reversals.
@@ -507,7 +508,7 @@ had underestimated the spread. The conclusion survived; its margin did not.
 Decomposing the gain is where the result becomes specific. It splits into an
 *accuracy* term, on the cells both arms measured, and a *coverage* term, on the
 cells only the moving sensor ever reached. Coverage exceeded accuracy by at
-least 34× at every level and by 341× at the highest, in a decomposition that is
+least 33× at every level and by 341× at the highest, in a decomposition that is
 exact — the two terms sum to the total at every level. The closed loop's value
 is not that it estimates better; it is that it sees the scene, and the fixed
 sensor does not.
@@ -573,8 +574,9 @@ range* — something the discarded measurements are the only evidence for.
 
 **Availability dominates selection.** Across the policy experiments, the binary
 question *can this be measured at all* outweighed the continuous question *how
-well* by 65:1 on median error. Closing the loop helped, and its benefit was
-coverage over accuracy by at least 34× at every occlusion level. Two objectives
+well* by 65:1 on median error, on a stimulus with effectively no occlusion — a
+ratio that narrows on the tail and falls as occlusion rises. Closing the loop helped, and its benefit was
+coverage over accuracy by at least 33× at every occlusion level. Two objectives
 that never once agreed on a pixel produced indistinguishable results. The
 consistent finding is that what limits an active vision system is what it can
 see, not how cleverly it chooses among what it can see.
